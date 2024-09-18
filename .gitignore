@@ -3,6 +3,7 @@ node_modules/
 npm-debug.log
 yarn-error.log
 .env
+.env.production
 
 # Logs
 logs
@@ -14,8 +15,6 @@ yarn-error.log*
 # Dependency directories
 node_modules/
 client/node_modules/
-# client/.env
-jspm_packages/
 
 # Optional npm cache directory
 .npm
@@ -32,8 +31,11 @@ jspm_packages/
 # Yarn Integrity file
 .yarn-integrity
 
-# dotenv environment variables file
+# dotenv environment variables file (backend and frontend)
 .env
+.env.production
+client/.env
+client/.env.production
 
 # Mac system files
 .DS_Store

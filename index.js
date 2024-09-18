@@ -43,7 +43,7 @@ app.use(express.json());
 app.use(bodyParser.json());
 
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3000'
+  origin: process.env.CORS_ORIGIN,
 }));
 
 connectDB();
@@ -313,9 +313,11 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// server.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}`);
+// });
+
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 // ------------------------------  video call end ------------------------------
 
@@ -1997,29 +1999,17 @@ app.post('/run-code', async (req, res) => {
   }
 });
 
-if(process.env.NODE_ENV === 'production'){
-  app.use(express.static(path.join(__dirname, '/client/build')));
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client/build')));
+
   app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
+    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
   });
-}else{
+} else {
   app.get('/', (req, res) => {
-    res.send('<h1>API is running...</h1>');
+    res.send('API is running...');
   });
 }
-
-// if (process.env.NODE_ENV === 'production') {
-//   app.use(express.static(path.join(__dirname, '../client/build')));
-
-//   app.get('*', (req, res) => {
-//     res.sendFile(path.join(__dirname, '../client/build', 'index.html'));
-//   });
-// } else {
-//   app.get('/', (req, res) => {
-//     res.send('<h1>API is running...</h1>');
-//   });
-// }
-
 
 // async function clearAssessments() {
 //   try {
