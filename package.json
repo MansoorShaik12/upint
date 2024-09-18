@@ -1,5 +1,5 @@
 {
-  "name": "my-fullstack-app",
+  "name": "upinterview",
   "version": "1.0.0",
   "private": true,
   "engines": {
@@ -7,8 +7,8 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "start:server": "node index.js",
+    "start": "nodemon index.js",
+    "start:server": "nodemon index.js",
     "server": "nodemon index.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\" ",
