@@ -35,11 +35,11 @@ const Schedulelater = ({ onClose, candidate1, interviewers }) => {
     useEffect(() => {
         const fetchCandidateData = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/candidate?createdBy=${userId}`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate?createdBy=${userId}`);
                 if (Array.isArray(response.data)) {
                     const candidatesWithImages = response.data.map((candidate) => {
                         if (candidate.ImageData && candidate.ImageData.filename) {
-                            const imageUrl = `http://localhost:5000/${candidate.ImageData.path.replace(/\\/g, '/')}`;
+                            const imageUrl = `${process.env.REACT_APP_API_URL}/${candidate.ImageData.path.replace(/\\/g, '/')}`;
                             return { ...candidate, imageUrl };
                         }
                         return candidate;
@@ -169,7 +169,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers }) => {
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/users/${sub}`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/${sub}`);
                 if (response.data) {
                     setUserLastName(response.data.Name);
                 }
@@ -186,7 +186,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers }) => {
             const fetchPositionData = async () => {
                 try {
                     const response = await axios.get(
-                        `http://localhost:5000/position/${selectedPositionId}`
+                        `${process.env.REACT_APP_API_URL}/position/${selectedPositionId}`
                     );
                     // setPositionData(response.data);
                     setRounds(response.data.rounds);
@@ -254,10 +254,10 @@ const Schedulelater = ({ onClose, candidate1, interviewers }) => {
                 CreatedBy: userId
             };
             console.log(interviewData);
-            await axios.put('http://localhost:5000/updateinterview', interviewData);
+            await axios.put(`${process.env.REACT_APP_API_URL}/updateinterview`, interviewData);
             
             // Broadcast the updated interview data
-            const ws = new WebSocket("ws://localhost:8080");
+            const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
             ws.onopen = () => {
                 ws.send(JSON.stringify({ type: 'updateInterview', data: interviewData }));
                 ws.close();
@@ -390,11 +390,11 @@ const Schedulelater = ({ onClose, candidate1, interviewers }) => {
     useEffect(() => {
         const fetchTeamsData = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/team?CreatedBy=${userId}`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/team?CreatedBy=${userId}`);
                 if (Array.isArray(response.data)) {
                     const teamsWithImages = response.data.map((team) => {
                         if (team.ImageData && team.ImageData.filename) {
-                            const imageUrl = `http://localhost:5000/${team.ImageData.path.replace(/\\/g, '/')}`;
+                            const imageUrl = `${process.env.REACT_APP_API_URL}/${team.ImageData.path.replace(/\\/g, '/')}`;
                             return { ...team, imageUrl };
                         }
                         return team;
@@ -436,7 +436,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers }) => {
     useEffect(() => {
         const fetchInterviewData = async () => {
             try {
-                const response = await axios.get(`http://localhost:5000/interview/${candidate1._id}`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/interview/${candidate1._id}`);
                 setInterviewData(response.data);
                 setRounds(response.data.rounds); // Set rounds from fetched data
             } catch (error) {

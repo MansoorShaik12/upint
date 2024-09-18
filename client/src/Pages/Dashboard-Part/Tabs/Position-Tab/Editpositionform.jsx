@@ -97,7 +97,7 @@ const Position_Form = ({ onClose, candidate1, rounds, isOpen, onOutsideClick }) 
     };
 
     try {
-      const response = await axios.put(`http://localhost:5000/position/${_id}`, data);
+      const response = await axios.put(`${process.env.REACT_APP_API_URL}/position/${_id}`, data);
       setFormData({
         title: "",
         companyname: "",
@@ -248,7 +248,7 @@ const Position_Form = ({ onClose, candidate1, rounds, isOpen, onOutsideClick }) 
   useEffect(() => {
     const fetchCompaniesData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/company');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/company`);
         setCompanies(response.data);
       } catch (error) {
         console.error('Error fetching Companies data:', error);
@@ -366,7 +366,7 @@ const Position_Form = ({ onClose, candidate1, rounds, isOpen, onOutsideClick }) 
   useEffect(() => {
     const fetchSkillsData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/skills");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
         setSkills(response.data);
       } catch (error) {
         console.error("Error fetching SkillsData:", error);

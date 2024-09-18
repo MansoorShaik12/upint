@@ -394,7 +394,7 @@ const Internal = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:5000/interview?CreatedBy=${userId}&Interviewstype=/internalinterview`
+        `${process.env.REACT_APP_API_URL}/interview?CreatedBy=${userId}&Interviewstype=/internalinterview`
       );
       console.log("interview data:", response.data);
       setCandidateData(response.data);
@@ -441,7 +441,7 @@ const Internal = () => {
   const [notification, setNotification] = useState("");
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080");
+    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
 
     ws.onopen = () => {
       console.log("WebSocket connection opened");
@@ -463,12 +463,24 @@ const Internal = () => {
       console.log("WebSocket connection closed");
     };
 
+    const fetchInterviewData = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/interview`);
+        setCandidateData(response.data);
+      } catch (error) {
+        console.error("Error fetching interview data:", error);
+      }
+    };
+
     fetchInterviewData();
 
     return () => {
       ws.close();
     };
   }, []);
+
+  console.log('REACT_APP_API_URL 1:', process.env.REACT_APP_API_URL);
+  console.log('REACT_APP_WS_URL 1:', process.env.REACT_APP_WS_URL);
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -600,7 +612,7 @@ const Internal = () => {
   const handleClick = async () => {
     try {
       const response = await axios.put(
-        "http://localhost:5000/interview/reschedule",
+        `${process.env.REACT_APP_API_URL}/interview/reschedule`,
         {
           id: showEditLater._id,
         }
@@ -631,7 +643,7 @@ const Internal = () => {
     e.preventDefault();
     try {
       const response = await axios.put(
-        `http://localhost:5000/interview/${currentInterviewId}`,
+        `${process.env.REACT_APP_API_URL}/interview/${currentInterviewId}`,
         {
           _id: currentInterviewId,
           Status: "ScheduleCancel",
@@ -639,7 +651,7 @@ const Internal = () => {
       );
 
       const notificationResponse = await axios.post(
-        "http://localhost:5000/notification",
+        `${process.env.REACT_APP_API_URL}/notification`,
         {
           Body: "Interview Cancelled successfully",
           Status: "ScheduleCancel",
@@ -699,7 +711,7 @@ const Internal = () => {
 
   const handleInterviewClick = async (interviewId) => {
     try {
-      const response = await axios.get(`http://localhost:5000/interview/${interviewId}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/interview/${interviewId}`);
       setSelectedCandidate(response.data);
       setActionViewMore(false)
       setTriggerCancel(false);
@@ -731,7 +743,7 @@ const Internal = () => {
   };
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080");
+    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
 
     ws.onopen = () => {
       console.log("WebSocket connection opened");

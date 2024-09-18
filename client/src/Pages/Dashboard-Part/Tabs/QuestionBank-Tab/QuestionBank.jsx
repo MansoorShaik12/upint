@@ -49,7 +49,7 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     useEffect(() => {
         const fetchSkillsData = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/skills');
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
                 setTechOptions(response.data);
                 console.log(response.data);
             } catch (error) {
@@ -150,7 +150,7 @@ const QuestionBank = () => {
     const [notification, setNotification] = useState("");
 
     useEffect(() => {
-        const ws = new WebSocket('ws://localhost:8080');
+        const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
 
         ws.onopen = () => {
             console.log('WebSocket connection opened');
@@ -175,7 +175,7 @@ const QuestionBank = () => {
 
         const fetchSuggestedQuestionsCount = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/suggestedquestions-count');
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/suggestedquestions-count`);
                 setSuggestedQuestionsCount(response.data);
             } catch (error) {
                 console.error('Error fetching suggested questions count:', error);
@@ -185,7 +185,7 @@ const QuestionBank = () => {
         const fetchFavoriteQuestionsCount = async () => {
             try {
                 const userId = localStorage.getItem("userId");
-                const response = await axios.get(`http://localhost:5000/favoritequestions-count/${userId}`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/favoritequestions-count/${userId}`);
                 setFavoriteQuestionsCount(response.data);
             } catch (error) {
                 console.error('Error fetching favorite questions count:', error);
@@ -204,7 +204,7 @@ const QuestionBank = () => {
         const fetchSkillsData = async () => {
             setLoading(true);
             try {
-                const response = await axios.get('http://localhost:5000/skills');
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
                 setCurrentRows(response.data);
             } catch (error) {
                 console.error('Error fetching SkillsData:', error);

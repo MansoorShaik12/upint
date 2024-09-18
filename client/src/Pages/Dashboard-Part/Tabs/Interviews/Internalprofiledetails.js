@@ -29,7 +29,7 @@ const Internalprofiledetails = ({ candidate, onCloseprofile, triggerCancel, view
     }, [triggerCancel]);
 
     useEffect(() => {
-        const ws = new WebSocket("ws://localhost:8080");
+        const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
 
         ws.onopen = () => {
             console.log("WebSocket connection opened");
@@ -91,7 +91,7 @@ const Internalprofiledetails = ({ candidate, onCloseprofile, triggerCancel, view
             });
 
             const updatedCandidateData = { ...updatedCandidate, rounds: updatedRounds };
-            await axios.put(`http://localhost:5000/updateinterview/${currentInterviewId}`, updatedCandidateData);
+            await axios.put(`${process.env.REACT_APP_API_URL}/updateinterview/${currentInterviewId}`, updatedCandidateData);
             setShowPopup(false);
             setCurrentRoundIndex(null);
         } catch (error) {

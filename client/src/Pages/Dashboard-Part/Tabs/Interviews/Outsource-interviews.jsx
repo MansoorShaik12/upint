@@ -161,7 +161,7 @@ const Outsource = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:5000/interview?CreatedBy=${userId}&Interviewstype=/outsourceinterview`
+        `${process.env.REACT_APP_API_URL}/interview?CreatedBy=${userId}&Interviewstype=/outsourceinterview`
       );
       console.log("interview data:", response.data);
       setCandidateData(response.data);
@@ -205,7 +205,7 @@ const Outsource = () => {
   const [notification, setNotification] = useState("");
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080");
+    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
 
     ws.onopen = () => {
       console.log("WebSocket connection opened");
@@ -364,7 +364,7 @@ const Outsource = () => {
   const handleClick = async () => {
     try {
       const response = await axios.put(
-        "http://localhost:5000/interview/reschedule",
+        `${process.env.REACT_APP_API_URL}/interview/reschedule`,
         {
           id: selectedInterview._id,
         }
@@ -392,7 +392,7 @@ const Outsource = () => {
     e.preventDefault();
     try {
       const response = await axios.put(
-        `http://localhost:5000/interview/${currentInterviewId}`,
+        `${process.env.REACT_APP_API_URL}/interview/${currentInterviewId}`,
         {
           _id: currentInterviewId,
           Status: "ScheduleCancel",
@@ -400,7 +400,7 @@ const Outsource = () => {
       );
 
       const notificationResponse = await axios.post(
-        "http://localhost:5000/notification",
+        `${process.env.REACT_APP_API_URL}/notification`,
         {
           Body: "Interview Cancelled successfully",
           Status: "ScheduleCancel",
@@ -509,7 +509,7 @@ const Outsource = () => {
   };
 
   useEffect(() => {
-    const ws = new WebSocket("ws://localhost:8080");
+    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
 
     ws.onopen = () => {
       console.log("WebSocket connection opened");

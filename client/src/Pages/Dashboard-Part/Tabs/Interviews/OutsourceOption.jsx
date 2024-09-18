@@ -25,7 +25,7 @@ const PaginationComponent = ({ onClose }) => {
   useEffect(() => {
     const fetchContacts = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/contacts');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/contacts`);
         const freelancers = response.data.filter(contact => contact.isFreelancer === 'yes');
         setCardData(freelancers);
         setFilteredData(freelancers);

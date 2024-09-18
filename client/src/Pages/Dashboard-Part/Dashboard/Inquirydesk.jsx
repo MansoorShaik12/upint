@@ -326,7 +326,7 @@ const Inquirydesk = () => {
 
   useEffect(() => {
 
-    const ws = new WebSocket('ws://localhost:8080');
+    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
 
     ws.onopen = () => {
       console.log('WebSocket connection opened');

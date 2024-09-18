@@ -279,13 +279,13 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
 
     try {
       const teamResponse = await axios.put(
-        `http://localhost:5000/team/${teamData._id}`,
+        `${process.env.REACT_APP_API_URL}/team/${teamData._id}`,
         teamData
       );
       console.log("Team created:", teamResponse.data);
 
       const availabilityResponse = await axios.put(
-        "http://localhost:5000/teamavailability",
+        `${process.env.REACT_APP_API_URL}/teamavailability`,
         availabilityData
       );
       console.log("Availability created:", availabilityResponse.data);
@@ -298,7 +298,7 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
         imageData.append("id", teamResponse.data._id);
 
         try {
-          await axios.post("http://localhost:5000/upload", imageData, {
+          await axios.post(`${process.env.REACT_APP_API_URL}/upload`, imageData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -311,7 +311,7 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
         // If no image is uploaded and no preview is available, remove the image from the backend
         try {
           await axios.delete(
-            `http://localhost:5000/team/${teamResponse.data._id}/image`
+            `${process.env.REACT_APP_API_URL}/team/${teamResponse.data._id}/image`
           );
         } catch (error) {
           console.error("Error deleting image:", error);
@@ -381,7 +381,7 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
   useEffect(() => {
     const fetchLocationsData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/locations");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/locations`);
         setLocations(response.data);
       } catch (error) {
         console.error("Error fetching locations data:", error);
@@ -487,7 +487,7 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
   useEffect(() => {
     const fetchCompaniesData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/company");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/company`);
         setCompanies(response.data);
       } catch (error) {
         console.error("Error fetching Companies data:", error);
@@ -506,7 +506,7 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
   useEffect(() => {
     const fetchtechnologyData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/technology");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/technology`);
         setTechnology(response.data);
       } catch (error) {
         console.error("Error fetching technology data:", error);
@@ -530,7 +530,7 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
   useEffect(() => {
     const fetchSkillsData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/skills");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
         setSkills(response.data);
       } catch (error) {
         console.error("Error fetching SkillsData:", error);
@@ -752,7 +752,7 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
   useEffect(() => {
     const fetchSkillsData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/skills");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
         setSkills(response.data);
       } catch (error) {
         console.error("Error fetching SkillsData:", error);

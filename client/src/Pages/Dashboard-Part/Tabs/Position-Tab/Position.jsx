@@ -331,7 +331,7 @@ const Position = () => {
     const userId = localStorage.getItem("userId");
     useEffect(() => {
 
-        const ws = new WebSocket('ws://localhost:8080');
+        const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
 
         ws.onopen = () => {
             console.log('WebSocket connection opened');
@@ -357,7 +357,7 @@ const Position = () => {
         const fetchSkillsData = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`http://localhost:5000/position?CreatedBy=${userId}`);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/position?CreatedBy=${userId}`);
                 console.log('Position data:', response.data);
                 setSkillsData(response.data);
             } catch (error) {

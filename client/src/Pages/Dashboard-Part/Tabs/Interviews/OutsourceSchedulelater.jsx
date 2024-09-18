@@ -26,11 +26,11 @@ const Schedulelater = ({ onClose }) => {
   useEffect(() => {
     const fetchCandidateData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/candidate');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate`);
         if (Array.isArray(response.data)) {
           const candidatesWithImages = response.data.map((candidate) => {
             if (candidate.ImageData && candidate.ImageData.filename) {
-              const imageUrl = `http://localhost:5000/${candidate.ImageData.path.replace(/\\/g, '/')}`;
+              const imageUrl = `${process.env.REACT_APP_API_URL}/${candidate.ImageData.path.replace(/\\/g, '/')}`;
               return { ...candidate, imageUrl };
             }
             return candidate;
@@ -59,7 +59,7 @@ const Schedulelater = ({ onClose }) => {
       const fetchPositionData = async () => {
         try {
           const response = await axios.get(
-            `http://localhost:5000/position/${selectedPositionId}`
+            `${process.env.REACT_APP_API_URL}/position/${selectedPositionId}`
           );
           setPositionData(response.data);
           setRounds(response.data.rounds);
@@ -93,7 +93,7 @@ const Schedulelater = ({ onClose }) => {
         }))
       };
       console.log(interviewData);
-      await axios.post('http://localhost:5000/interview', interviewData);
+      await axios.post(`${process.env.REACT_APP_API_URL}/interview`, interviewData);
       onClose();
     } catch (error) {
       console.error('Error saving interview data:', error);
@@ -117,11 +117,11 @@ const Schedulelater = ({ onClose }) => {
     const fetchTeamsData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("http://localhost:5000/team");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/team`);
         if (Array.isArray(response.data)) {
           const teamsWithImages = response.data.map((team) => {
             if (team.ImageData && team.ImageData.filename) {
-              const imageUrl = `http://localhost:5000/${team.ImageData.path.replace(/\\/g, '/')}`;
+              const imageUrl = `${process.env.REACT_APP_API_URL}/${team.ImageData.path.replace(/\\/g, '/')}`;
               return { ...team, imageUrl };
             }
             return team;

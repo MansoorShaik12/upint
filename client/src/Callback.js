@@ -11,7 +11,7 @@ const Callback = () => {
 
   const checkUserExistence = async (userSub) => {
     try {
-      const response = await axios.get(`http://localhost:5000/users/${userSub}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/${userSub}`);
       return response.status === 200 && response.data;
     } catch (error) {
       console.error('Error checking user existence:', error);

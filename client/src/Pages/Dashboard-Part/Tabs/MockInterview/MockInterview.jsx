@@ -455,7 +455,7 @@ const MockInterview = () => {
 
   useEffect(() => {
 
-    const ws = new WebSocket('ws://localhost:8080');
+    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
 
     ws.onopen = () => {
       console.log('WebSocket connection opened');
@@ -480,7 +480,7 @@ const MockInterview = () => {
     const fetchmockinterviewData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get("http://localhost:5000/mockinterview");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/mockinterview`);
         setmockinterviewData(response.data);
       } catch (error) {
         console.error("Error fetching mockinterview data:", error);
@@ -585,12 +585,12 @@ const MockInterview = () => {
   const handlePopupConfirm = async (e, _id) => {
     e.preventDefault();
     try {
-      const response = await axios.put(`http://localhost:5000/mockinterview/${currentInterviewId}`, {
+      const response = await axios.put(`${process.env.REACT_APP_API_URL}/mockinterview/${currentInterviewId}`, {
         _id: currentInterviewId,
         Status: "ScheduleCancel",
       });
 
-      const notificationResponse = await axios.post('http://localhost:5000/notification', {
+      const notificationResponse = await axios.post(`${process.env.REACT_APP_API_URL}/notification`, {
         Body: 'Interview Cancelled successfully',
         Status: "ScheduleCancel",
       });
@@ -627,7 +627,7 @@ const MockInterview = () => {
 
   const handleClick = async () => {
     try {
-      const response = await axios.put('http://localhost:5000/interview/reschedule', {
+      const response = await axios.put(`${process.env.REACT_APP_API_URL}/interview/reschedule`, {
         id: selectedcandidate._id,
       });
       console.log('Updated interview:', response.data);
