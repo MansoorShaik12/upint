@@ -12,12 +12,11 @@ import { IoMdSearch } from "react-icons/io";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
 import "./Navbar-Sidebar.scss";
 
 const Navbar = () => {
-  const userId = localStorage.getItem('userId');
 
+  const userId = localStorage.getItem('userId');
   const [assessmentDropdown, setAssessmentDropdown] = useState(false);
   const [moreDropdown, setMoreDropdown] = useState(false);
   const [profileDropdown, setProfileDropdown] = useState(false);
@@ -33,7 +32,6 @@ const Navbar = () => {
   const [isLegalDropdownOpen, setIsLegalDropdownOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
 
-
   const assessmentRef = useRef(null);
   const moreRef = useRef(null);
   const profileRef = useRef(null);
@@ -41,6 +39,7 @@ const Navbar = () => {
   const notificationRef = useRef(null);
   const interviewRef = useRef(null);
   const navigate = useNavigate();
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -83,9 +82,9 @@ const Navbar = () => {
   useEffect(() => {
     const fetchProfileImage = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/contacts'); // Fetch all contacts
+        const response = await axios.get('http://localhost:5000/contacts');
         if (Array.isArray(response.data) && response.data.length > 0) {
-          const contact = response.data[0]; // Assuming you want the first contact's image
+          const contact = response.data[0];
           if (contact.ImageData && contact.ImageData.filename) {
             const imageUrl = `http://localhost:5000/${contact.ImageData.path.replace(/\\/g, '/')}`;
             setProfileImage(imageUrl);
@@ -98,6 +97,7 @@ const Navbar = () => {
 
     fetchProfileImage();
   }, []);
+
   const handleCancel = () => {
     setnotificationDropdown(false);
   };
@@ -126,11 +126,6 @@ const Navbar = () => {
     setIsLegalDropdownOpen(!isLegalDropdownOpen);
   };
 
-
-  // const [profileImage, setProfileImage] = useState(null);
-  // const [profileDropdown, setProfileDropdown] = useState(false);
-  // const profileRef = useRef(null);
-
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
@@ -146,7 +141,8 @@ const Navbar = () => {
     };
 
     fetchProfileData();
-  }, []);
+  }, [userId]);
+
   const notifications = () => {
     navigate("/notifications");
     setnotificationDropdown(false);
@@ -195,7 +191,7 @@ const Navbar = () => {
                       <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" onClick={() => { setAssessmentDropdown(false); }} activeclassname="bg-gray-200 text-gray-800" to="/assessment" >
                         Assessments
                       </NavLink>
-                      <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/interview-question" onClick={() => { setAssessmentDropdown(false); }} >
+                      <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/question-bank" onClick={() => { setAssessmentDropdown(false); }} >
                         Question Bank
                       </NavLink>
                       <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/assessmenttest" onClick={() => { setAssessmentDropdown(false); }} >
@@ -219,7 +215,7 @@ const Navbar = () => {
                   <div className="absolute p-2 z-10 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                     <div className="space-y-1">
                       <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/candidate" onClick={() => { setMoreDropdown(false); }} >
-                        Candidate
+                        Candidates
                       </NavLink>
                       <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/position" onClick={() => { setMoreDropdown(false); }} >
                         Positions

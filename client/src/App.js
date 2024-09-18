@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoute.jsx';
 import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 import Home from './Pages/Dashboard-Part/Dashboard/Home.jsx'
@@ -10,7 +9,7 @@ import Analytics from "./Pages/Dashboard-Part/Tabs/Analytics-Tab/Analytics.jsx";
 import Candidate from "./Pages/Dashboard-Part/Tabs/Candidate-Tab/Candidate.jsx";
 import Position from "./Pages/Dashboard-Part/Tabs/Position-Tab/Position.jsx"
 import Billing from "./Pages/Dashboard-Part/Tabs/Billing-Tab/Billing.jsx";
-import InterviewQA from './Pages/Dashboard-Part/Tabs/QuestionBank-Tab/QuestionBank.jsx';
+import QuestionBank from './Pages/Dashboard-Part/Tabs/QuestionBank-Tab/QuestionBank.jsx';
 import Settingssidebar from './Pages/Dashboard-Part/Tabs/Settings-Tab/Settings.jsx';
 import NewAssessment from './Pages/Dashboard-Part/Tabs/Assessment-Tab/NewAssessment.jsx';
 import Interviewcq from './Pages/Dashboard-Part/Tabs/QuestionBank-Tab/QuestionBank-Form.jsx';
@@ -36,7 +35,7 @@ import CandidateProfileDetails from './Pages/Dashboard-Part/Tabs/Candidate-Tab/C
 import Schedulenow from './Pages/Dashboard-Part/Tabs/Interviews/Schedulenow.jsx'
 import TeamProfileDetails from './Pages/Dashboard-Part/Tabs/Team-Tab/TeamProfileDetails.js'
 import InterviewProfileDetails from './Pages/Dashboard-Part/Tabs/QuestionBank-Tab/QuestionBankProfileDetails.jsx'
-import AssessmentPopUp from './Pages/Dashboard-Part/Tabs/Assessment-Tab/Assessmentprofiledetails.jsx';
+import AssessmentProfileDetails from './Pages/Dashboard-Part/Tabs/Assessment-Tab/Assessmentprofiledetails.jsx';
 import OutsourceOption from './Pages/Dashboard-Part/Tabs/Interviews/OutsourceOption.jsx'
 import EditCandidate from './Pages/Dashboard-Part/Tabs/Candidate-Tab/EditCandidate.jsx';
 import EditAssessment from './Pages/Dashboard-Part/Tabs/Assessment-Tab/EditAssessment.jsx';
@@ -68,16 +67,13 @@ import Inquirydesk from './Pages/Dashboard-Part/Dashboard/Inquirydesk.jsx';
 import Admin from './Pages/Login-Part/Admin.jsx';
 import NoFreelancer from './Pages/Login-Part/NoFreelancer.jsx';
 import Callback from './Callback.js';
-import JitsiMeeting  from './jitsimeetingstart.jsx';
+import JitsiMeeting from './jitsimeetingstart.jsx';
 
 const App = () => {
   const location = useLocation();
-  const shouldRenderNavbar = !['/', '/profile1', '/profile2', '/profile3', '/profile4', '/assessmenttest', '/assessmenttext', '/assessmentsubmit', '/candidatevc' ,'/admin', '/nofreelance','/callback','/jitsimeetingstart'].includes(location.pathname);
+  const shouldRenderNavbar = !['/', '/profile1', '/profile2', '/profile3', '/profile4', '/assessmenttest', '/assessmenttext', '/assessmentsubmit', '/candidatevc', '/admin', '/nofreelance', '/callback', '/jitsimeetingstart'].includes(location.pathname);
   const pathsWithSidebar = ['/profile', '/availability', '/billing_details', '/invoice'];
   const isNavbarHidden = !shouldRenderNavbar;
-  const [userRole, setUserRole] = useState(null);
-  const { user, isAuthenticated, isLoading } = useAuth0();
-  const navigate = useNavigate();
 
   // useEffect(() => {
   //   const checkUserExistence = async () => {
@@ -143,40 +139,47 @@ const App = () => {
           <Route path="/AppViewMore" element={<AppViewMore />} />
           <Route path="/notifications" element={<Notifications />} />
           <Route path="/home" element={<Home />} />
+          {/* candidate */}
           <Route path="/candidate" element={<Candidate />} />
+          <Route path="/create-new-candidate" element={<CreateCandidate />} />
+          <Route path="/candidate-profile-details" element={<CandidateProfileDetails />} />
+          <Route path="/edit-candidate" element={<EditCandidate />} />
+          {/* position */}
           <Route path="/position" element={<Position />} />
+          <Route path="/position-profile-details" element={<PositionProfileDetails />} />
+          <Route path="/edit-position" element={<Editpositionform />} />
+          {/* teams */}
+          <Route path="/team" element={<Team />} />
+          <Route path="/create-new-team" element={<CreateTeams />} />
+          <Route path="/team-profile-details" element={<TeamProfileDetails />} />
+          <Route path="/edit-team" element={<EditTeam />} />
+          {/* assessment */}
           <Route path="/assessment" element={<Assessment />} />
+          <Route path="/create-new-assessment" element={<NewAssessment />} />
+          <Route path="/assessment-profile-details" element={<AssessmentProfileDetails />} />
+          <Route path="/edit-assessment" element={<EditAssessment />} />
+          {/* Question Bank */}
+          <Route path="/edit-question" element={<EditQuestion />} />
+          {/* Assessment Test */}
+          <Route path="/assessmenttest" element={<AssessmentTest />} />
+          <Route path="/assessmenttext" element={<AssessmentText />} />
+          <Route path="/assessmentsubmit" element={<AssessmentSubmit />} />
+
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/billing" element={<Billing />} />
-          <Route path="/interview-question" element={<InterviewQA />} />
-          <Route path="/newassessment" element={<NewAssessment />} />
+          <Route path="/question-bank" element={<QuestionBank />} />  
           <Route path="/interviewcq" element={<Interviewcq />} />
-          <Route path="/createCandidate" element={<CreateCandidate />} />
-          <Route path="/team" element={<Team />} />
-          <Route path="/createTeams" element={<CreateTeams />} />
           <Route path="/outsourceoption" element={<OutsourceOption />} />
-          <Route path="/candidate-profiledetails" element={<CandidateProfileDetails />} />
-          <Route path="/position-profiledetails" element={<PositionProfileDetails />} />
-          <Route path="/team-profiledetails" element={<TeamProfileDetails />} />
           <Route path="/interview-profiledetails" element={<InterviewProfileDetails />} />
-          <Route path="/assessmentpopup" element={<AssessmentPopUp />} />
           <Route path="/schedulenow" element={<Schedulenow />} />
           <Route path="/newinterviewviewpage" element={<NewInterviewViewPage />} />
           <Route path="/newinterviewrequest" element={<NewInterviewRequest />} />
           <Route path="/internalprofiledetails" element={<Internalprofiledetails />} />
           <Route path="/internalinterview" element={<Internalinterview />} />
           <Route path="/outsourceinterview" element={<Outsourceinterview />} />
-          <Route path="/editcandidate" element={<EditCandidate />} />
-          <Route path="/editassessment" element={<EditAssessment />} />
-          <Route path="/editteam" element={<EditTeam />} />
-          <Route path="/editquestion" element={<EditQuestion />} />
-          <Route path="/editpositionform" element={<Editpositionform />} />
           <Route path="/editinternallater" element={<Editinternallater />} />
           <Route path="/mock-profiledetails" element={<MockProfileDetails />} />
           <Route path="/mockinterview" element={<MockInterview />} />
-          <Route path="/assessmenttest" element={<AssessmentTest />} />
-          <Route path="/assessmenttext" element={<AssessmentText />} />
-          <Route path="/assessmentsubmit" element={<AssessmentSubmit />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/availability" element={<Availability />} />
           <Route path="/billing_details" element={<Billingdetails />} />
@@ -190,10 +193,10 @@ const App = () => {
 
           <Route path="/contact" element={<Contact />} />
           <Route path="/userprofiledetails" element={<UserProfileDetails />} />
-         <Route path="/contactprofiledetails" element={<ContactProfileDetails/>}/>
-         <Route path="/inquirydesk" element={<Inquirydesk />} />
-         <Route path="/Admin" element={<Admin />} />
-         <Route path="/jitsimeetingstart" element={<JitsiMeeting roomName={roomName} displayName={displayName} />} />
+          <Route path="/contactprofiledetails" element={<ContactProfileDetails />} />
+          <Route path="/inquirydesk" element={<Inquirydesk />} />
+          <Route path="/Admin" element={<Admin />} />
+          <Route path="/jitsimeetingstart" element={<JitsiMeeting roomName={roomName} displayName={displayName} />} />
         </Routes>
       </div>
     </React.Fragment>

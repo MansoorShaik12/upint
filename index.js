@@ -3983,7 +3983,6 @@ app.put('/suggestedquestions/:id/favorite', async (req, res) => {
 app.post('/run-code', async (req, res) => {
   const { code, language, testCases } = req.body;
 
-  // This is a simplified example. You need to handle different languages and their respective compilers/interpreters.
   const runCode = (code, input) => {
     return new Promise((resolve, reject) => {
       exec(`echo "${input}" | ${language} -c "${code}"`, (error, stdout, stderr) => {
