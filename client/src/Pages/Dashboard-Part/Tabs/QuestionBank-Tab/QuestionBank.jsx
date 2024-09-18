@@ -58,6 +58,7 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
         };
         fetchSkillsData();
     }, []);
+    
 
     useEffect(() => {
         onFilterChange({

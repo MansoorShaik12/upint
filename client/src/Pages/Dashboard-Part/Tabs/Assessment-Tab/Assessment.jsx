@@ -342,7 +342,7 @@ const Assessment = () => {
 
   const handleShareClick = async (assessment) => {
     try {
-      const response = await axios.post("http://localhost:5000/shareassessment", {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/shareassessment`, {
         assessmentId: assessment._id,
         email: recipientEmail,
         programmingDetails: assessment.ProgrammingDetails
@@ -385,7 +385,7 @@ const Assessment = () => {
     const fetchAssessmentData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:5000/assessment?createdBy=${userId}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/assessment?createdBy=${userId}`);
         setAssessmentData(response.data);
       } catch (error) {
         console.error("Error fetching Assessment data:", error);

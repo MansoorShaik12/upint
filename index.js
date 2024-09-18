@@ -2061,10 +2061,10 @@ const cors = require('cors');
 const app = express();
 app.use(express.json());
 app.use(bodyParser.json());
-app.use(cors());
-// app.use(cors({
-//   origin: 'http://localhost:3002'
-// }));
+// app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:3002'
+}));
 connectDB();
 const WebSocket = require('ws');
 const wss = new WebSocket.Server({ port: 8080 });

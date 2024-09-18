@@ -49,7 +49,7 @@ const CreateCandidate = ({ onClose }) => {
     };
 
     try {
-      const response = await axios.post("http://localhost:5000/candidate", data);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/candidate`, data);
       console.log(response);
       setFormData({
         FirstName: "",
@@ -103,7 +103,7 @@ const CreateCandidate = ({ onClose }) => {
   useEffect(() => {
     const fetchskillsData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/skills");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
         setSkills(response.data);
       } catch (error) {
         console.error("Error fetching SkillsData:", error);
@@ -195,7 +195,7 @@ const CreateCandidate = ({ onClose }) => {
   useEffect(() => {
     const fetchQualificationData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/qualification");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/qualification`);
         setQualification(response.data);
       } catch (error) {
         console.error("Error fetching Qualification data:", error);
@@ -210,7 +210,7 @@ const CreateCandidate = ({ onClose }) => {
     const fetchCollegeData = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:5000/universitycollege"
+          `${process.env.REACT_APP_API_URL}/universitycollege`
         );
         setCollege(response.data);
       } catch (error) {
@@ -223,7 +223,7 @@ const CreateCandidate = ({ onClose }) => {
   useEffect(() => {
     const fetchskillsData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/skills");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
         setSkills(response.data);
       } catch (error) {
         console.error("Error fetching SkillsData:", error);

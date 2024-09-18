@@ -82,11 +82,11 @@ const Navbar = () => {
   useEffect(() => {
     const fetchProfileImage = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/contacts');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/contacts`);
         if (Array.isArray(response.data) && response.data.length > 0) {
           const contact = response.data[0];
           if (contact.ImageData && contact.ImageData.filename) {
-            const imageUrl = `http://localhost:5000/${contact.ImageData.path.replace(/\\/g, '/')}`;
+            const imageUrl = `${process.env.REACT_APP_API_URL}/${contact.ImageData.path.replace(/\\/g, '/')}`;
             setProfileImage(imageUrl);
           }
         }
@@ -129,7 +129,7 @@ const Navbar = () => {
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/contacts/${userId}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/contacts/${userId}`);
         const data = response.data;
 
         if (data.ImageData && data.ImageData.path) {

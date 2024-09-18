@@ -18,7 +18,7 @@ const AssessmentTest = () => {
       const assessmentId = params.get('assessmentId');
       if (assessmentId) {
         try {
-          const response = await axios.get(`http://localhost:5000/assessment-details/${assessmentId}`);
+          const response = await axios.get(`${process.env.REACT_APP_API_URL}/assessment-details/${assessmentId}`);
           setAssessment(response.data);
         } catch (error) {
           console.error("Error fetching assessment:", error);

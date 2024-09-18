@@ -113,7 +113,7 @@ const AssessmentProfileDetails = ({ assessment, onCloseprofile }) => {
     const fetchCandidatesData = async () => {
       try {
         const candidatePromises = assessment.CandidateIds.map(candidateId =>
-          axios.get(`http://localhost:5000/candidate/${candidateId}`)
+          axios.get(`${process.env.REACT_APP_API_URL}/candidate/${candidateId}`)
         );
         const candidatesResponses = await Promise.all(candidatePromises);
         const candidates = candidatesResponses.map(response => response.data);

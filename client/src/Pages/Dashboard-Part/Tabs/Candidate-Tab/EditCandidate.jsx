@@ -225,7 +225,7 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
     console.log("Data to be sent:", data);
 
     try {
-      const response = await axios.put(`http://localhost:5000/candidate/${_id}`, data);
+      const response = await axios.put(`${process.env.REACT_APP_API_URL}/candidate/${_id}`, data);
       const candidateId = response.data._id;
 
       if (file) {
@@ -235,7 +235,7 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
         imageData.append("id", candidateId);
 
         try {
-          await axios.post("http://localhost:5000/upload", imageData, {
+          await axios.post(`${process.env.REACT_APP_API_URL}/upload`, imageData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
@@ -247,7 +247,7 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
       } else if (!isImageUploaded && !filePreview) {
         // If no image is uploaded and no preview is available, remove the image from the backend
         try {
-          await axios.delete(`http://localhost:5000/candidate/${candidateId}/image`);
+          await axios.delete(`${process.env.REACT_APP_API_URL}/candidate/${candidateId}/image`);
         } catch (error) {
           console.error("Error deleting image:", error);
           return;
@@ -312,7 +312,7 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
   useEffect(() => {
     const fetchSkillsData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/skills');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
         setSkills(response.data);
         setFilteredSkills(response.data);
       } catch (error) {
@@ -394,7 +394,7 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
   useEffect(() => {
     const fetchQualificationData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/qualification');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/qualification`);
         setQualification(response.data);
       } catch (error) {
         console.error('Error fetching Qualification data:', error);
@@ -408,7 +408,7 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
   useEffect(() => {
     const fetchCollegeData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/universitycollege');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/universitycollege`);
         setCollege(response.data);
       } catch (error) {
         console.error('Error fetching CollegeData:', error);
@@ -534,7 +534,7 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
   useEffect(() => {
     const fetchSkillsData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/skills");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
         setSkills(response.data);
       } catch (error) {
         console.error("Error fetching SkillsData:", error);
@@ -647,7 +647,7 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
   useEffect(() => {
     const fetchSkillsData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/position");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/position`);
         console.log("Position data:", response.data);
         setSkillsData(response.data);
       } catch (error) {

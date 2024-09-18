@@ -22,7 +22,6 @@ import { CgInfo } from "react-icons/cg";
 
 const OffcanvasMenu = ({ isOpen }) => {
   const [isStatusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const [isTechDropdownOpen, setTechDropdownOpen] = useState(false);
   const [isExperienceDropdownOpen, setIsExperienceDropdownOpen] = useState(false);
   const [isStatusMainChecked, setStatusMainChecked] = useState(false);
   const [isTechMainChecked, setTechMainChecked] = useState(false);
@@ -345,7 +344,7 @@ const Inquirydesk = () => {
     const fetchCandidateData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:5000/candidate');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate`);
         if (Array.isArray(response.data)) {
           setCandidateData(response.data);
         } else {
@@ -372,7 +371,7 @@ const Inquirydesk = () => {
   useEffect(() => {
     const fetchCandidateData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/candidate");
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate`);
         if (Array.isArray(response.data)) {
           setCandidateData(response.data);
         } else {

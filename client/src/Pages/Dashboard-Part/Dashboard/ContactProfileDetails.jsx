@@ -1,7 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MdOutlineCancel } from "react-icons/md";
-import Contact from "./Contact";
 import TimezoneSelect from "react-timezone-select";
 import DatePicker from "react-datepicker";
 import { FaMinus, FaPlus } from "react-icons/fa";
@@ -14,7 +13,7 @@ const ContactProfileDetails = () => {
     document.title = "ContactProfileDetails";
   }, []);
   const navigate = useNavigate();
-  const contactData = location.state?.Contacts; // This should match the key used in navigate
+  const contactData = location.state?.Contacts;
   const [contact] = useState(contactData);
   console.log(contactData);
 

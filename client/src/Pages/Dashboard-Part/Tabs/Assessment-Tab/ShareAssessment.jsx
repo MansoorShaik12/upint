@@ -65,11 +65,11 @@ const ShareAssessment = ({
     const fetchCandidateData = async () => {
       try {
 
-        const response = await axios.get(`http://localhost:5000/candidate?createdBy=${userId}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate?createdBy=${userId}`);
         if (Array.isArray(response.data)) {
           const candidatesWithImages = response.data.map((candidate) => {
             if (candidate.ImageData && candidate.ImageData.filename) {
-              const imageUrl = `http://localhost:5000/${candidate.ImageData.path.replace(/\\/g, '/')}`;
+              const imageUrl = `${process.env.REACT_APP_API_URL}/${candidate.ImageData.path.replace(/\\/g, '/')}`;
               return { ...candidate, imageUrl };
             }
             return candidate;
@@ -174,7 +174,7 @@ const ShareAssessment = ({
 
 
   if (!isOpen) return null;
-  const shareLink = `http://localhost:5000/assessment/${assessmentId}/share`;
+  const shareLink = `${process.env.REACT_APP_API_URL}/assessment/${assessmentId}/share`;
 
 
   const handleShareClick = async () => {
@@ -189,12 +189,12 @@ const ShareAssessment = ({
         return candidate ? candidate._id : null;
       }).filter(id => id !== null);
 
-      await axios.post('http://localhost:5000/update-candidates', {
+      await axios.post(`${process.env.REACT_APP_API_URL}/update-candidates`, {
         candidateIds: selectedCandidateIds,
         assessmentId
       });
 
-      const response = await axios.post('http://localhost:5000/send-assessment-link', {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/send-assessment-link`, {
         candidateEmails: selectedCandidateIds.map(id => {
           const candidate = candidateData.find(c => c._id === id);
           return candidate ? candidate.Email : null;

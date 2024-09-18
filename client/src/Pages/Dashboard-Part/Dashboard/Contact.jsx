@@ -13,7 +13,7 @@ const Contact = () => {
   useEffect(() => {
     const fetchsetContactData = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/contacts');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/contacts`);
         setContactData(response.data);
       } catch (error) {
         console.error('Error fetching roles data:', error);
