@@ -4022,6 +4022,7 @@ if(process.env.NODE_ENV === 'production'){
     res.send('<h1>API is running...</h1>');
   });
 }
+
 // if (process.env.NODE_ENV === 'production') {
 //   app.use(express.static(path.join(__dirname, '../client/build')));
 
@@ -4033,7 +4034,6 @@ if(process.env.NODE_ENV === 'production'){
 //     res.send('<h1>API is running...</h1>');
 //   });
 // }
-
 
 
 // async function clearAssessments() {

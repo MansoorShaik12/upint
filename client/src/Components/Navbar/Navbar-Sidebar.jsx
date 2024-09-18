@@ -219,7 +219,7 @@ const Navbar = () => {
                   <div className="absolute p-2 z-10 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                     <div className="space-y-1">
                       <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/candidate" onClick={() => { setMoreDropdown(false); }} >
-                        Candidates
+                        Candidate
                       </NavLink>
                       <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/position" onClick={() => { setMoreDropdown(false); }} >
                         Positions
