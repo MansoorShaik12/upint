@@ -93,14 +93,13 @@ const Schedulelater = ({ onClose }) => {
     const sub = localStorage.getItem("sub");
     console.log(sub)
 
-    const [user, setUser] = useState(null);
-
     useEffect(() => {
         const fetchUserData = async () => {
             try {
-                const sub = localStorage.getItem('sub'); // Assuming sub is stored in localStorage after LinkedIn login
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/user-by-sub/${sub}`);
-                setUser(response.data);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/${sub}`);
+                if (response.data) {
+                    setUserLastName(response.data.Name); // Assuming response contains LastName
+                }
             } catch (error) {
                 console.error('Error fetching user data:', error);
             }

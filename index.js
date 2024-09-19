@@ -29,7 +29,6 @@ const LocationMaster = require('./models/LocationMaster.js');
 const path = require('path');
 const fs = require('fs');
 
-
 const jwt = require('jsonwebtoken');
 const { exec } = require('child_process');
 const cors = require('cors');
@@ -44,9 +43,7 @@ app.use(cors({
 
 connectDB();
 const WebSocket = require('ws');
-const WebSocketServer = WebSocket.Server;
-const WS_PORT = process.env.WS_PORT || 8081;
-const wss = new WebSocketServer({ port: WS_PORT });
+const wss = new WebSocket.Server({ port: process.env.WS_PORT || 8080 });
 
 console.log('CORS_ORIGIN:', process.env.CORS_ORIGIN);
 console.log('WS_PORT:', process.env.WS_PORT);
@@ -162,21 +159,6 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     broadcastImageData(body.type, body.id);
   } catch (error) {
     console.error('Error uploading image:', error);
-    res.status(500).send('Server error');
-  }
-});
-
-
-app.get('/user-by-sub/:sub', async (req, res) => {
-  try {
-    const { sub } = req.params;
-    const user = await Users.findOne({ sub });
-    if (!user) {
-      return res.status(404).send('User not found.');
-    }
-    res.json(user);
-  } catch (error) {
-    console.error('Error fetching user data:', error);
     res.status(500).send('Server error');
   }
 });

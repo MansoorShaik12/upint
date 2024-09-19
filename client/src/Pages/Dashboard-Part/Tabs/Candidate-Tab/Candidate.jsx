@@ -301,10 +301,6 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
 };
 
 const Candidate = () => {
-  const [user, setUser] = useState(null);
-  const [candidateData, setCandidateData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     document.title = "Candidate Tab";
   }, []);
@@ -347,22 +343,9 @@ const Candidate = () => {
     setSelectedCandidate(null);
   };
 
+  const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState("");
   const userId = localStorage.getItem("userId");
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const sub = localStorage.getItem('sub'); // Assuming sub is stored in localStorage after LinkedIn login
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/user-by-sub/${sub}`);
-        setUser(response.data);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-      }
-    };
-
-    fetchUserData();
-  }, []);
 
   useEffect(() => {
     const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
@@ -387,37 +370,37 @@ const Candidate = () => {
       console.log('WebSocket connection closed');
     };
 
-    if (user) {
-      const fetchCandidateData = async () => {
-        setLoading(true);
-        try {
-          const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate?createdBy=${user.userId}`);
-          if (Array.isArray(response.data)) {
-            const candidatesWithImages = response.data.map((candidate) => {
-              if (candidate.ImageData && candidate.ImageData.filename) {
-                const imageUrl = `${process.env.REACT_APP_API_URL}/${candidate.ImageData.path.replace(/\\/g, '/')}`;
-                return { ...candidate, imageUrl };
-              }
-              return candidate;
-            });
-            setCandidateData(candidatesWithImages);
-          } else {
-            console.error('Expected an array but got:', response.data);
-          }
-        } catch (error) {
-          console.error('Error fetching candidate data:', error);
-        } finally {
-          setLoading(false);
+    const fetchCandidateData = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate?createdBy=${userId}`);
+        if (Array.isArray(response.data)) {
+          const candidatesWithImages = response.data.map((candidate) => {
+            if (candidate.ImageData && candidate.ImageData.filename) {
+              const imageUrl = `${process.env.REACT_APP_API_URL}/${candidate.ImageData.path.replace(/\\/g, '/')}`;
+              return { ...candidate, imageUrl };
+            }
+            return candidate;
+          });
+          setCandidateData(candidatesWithImages);
+        } else {
+          console.error('Expected an array but got:', response.data);
         }
-      };
+      } catch (error) {
+        console.error('Error fetching candidate data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      fetchCandidateData();
-    }
+    fetchCandidateData();
+
     return () => {
       ws.close();
     };
-  }, [user]);
+  }, [userId]);
 
+  const [candidateData, setCandidateData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
 
