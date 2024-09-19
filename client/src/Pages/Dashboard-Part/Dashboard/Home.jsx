@@ -223,6 +223,7 @@ const Home3 = () => {
     },
   ];
   const userId = localStorage.getItem("userId");
+  console.log("userId fff",userId)
   const [loading, setLoading] = useState(true);
   const [candidateData, setCandidateData] = useState([]);
   const [teamsData, setTeamsData] = useState([]);
@@ -260,7 +261,7 @@ const Home3 = () => {
       }
     };
     fetchCandidateData();
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     const fetchSkillsData = async () => {
@@ -286,7 +287,7 @@ const Home3 = () => {
       }
     };
     fetchSkillsData();
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     const fetchTeamsData = async () => {

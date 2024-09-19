@@ -733,7 +733,8 @@ const MultiStepForm = () => {
             isFreelancer: 'yes',
             CreatedBy: 'Admin'
         };
-        console.log('Submitting form with userData:', userData); // Log the data being sent
+
+        console.log('Submitting form with userData:', userData);
 
         const contactData = {
             ...formData,
@@ -759,7 +760,7 @@ const MultiStepForm = () => {
                 ...slot,
                 day // Ensure the day field is included in each time slot
             }))
-        })).filter(dayData => dayData.timeSlots.length > 0); // Filter out days without time slots
+        })).filter(dayData => dayData.timeSlots.length > 0);
 
         console.log('Submitting form with availabilityData:', availabilityData);
 
@@ -772,6 +773,7 @@ const MultiStepForm = () => {
             console.log('Contact saved successfully:', contactResponse.data);
 
             const availabilityIds = [];
+
             for (const availability of availabilityData) {
                 availability.contact = contactResponse.data._id;
                 const availabilityResponse = await axios.post(`${process.env.REACT_APP_API_URL}/loginavailability`, availability);
@@ -784,7 +786,6 @@ const MultiStepForm = () => {
 
             localStorage.setItem('userId', userResponse.data._id);
             localStorage.setItem('sub', user.sub);
-
 
             if (file || user.picture) {
                 const imageData = new FormData();
@@ -838,13 +839,6 @@ const MultiStepForm = () => {
             }
         }
     };
-
-
-    // const handleTimezoneChange = (timezone) => {
-    //     setSelectedTimezone(timezone);
-    //     setFormData4({ ...formData4, TimeZone: timezone.value });
-    //     setTimeZoneError('');
-    // };
 
     //gender
     const [selectedGender, setSelectedGender] = useState('');

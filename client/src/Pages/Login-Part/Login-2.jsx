@@ -27,6 +27,10 @@ const Profile1 = () => {
   // linkedin auth0 start
   const { loginWithRedirect, logout, user, isAuthenticated, isLoading } = useAuth0();
 
+
+
+
+
   console.log('user details are :-', user);
   // linkedin auth0 end
 

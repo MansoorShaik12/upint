@@ -21,21 +21,21 @@ const Callback = () => {
 
   const handleRedirect = async () => {
     if (isAuthenticated && user && user.sub) {
-      
-
       const userExists = await checkUserExistence(user.sub);
 
       if (userExists) {
+        localStorage.setItem('userId', userExists._id); // Store user ID in local storage
         navigate('/home');
       } else {
-        navigate('/profile3');
+        navigate('/profile3'); // Redirect to Profile4 if user does not exist
       }
     } else {
-      
       navigate('/');
     }
     setIsCheckingUser(false);
   };
+
+  
 
   useEffect(() => {
     if (!isLoading && isCheckingUser) {
