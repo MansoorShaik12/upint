@@ -140,6 +140,7 @@ const Schedulelater = ({ onClose }) => {
     fetchCandidateData();
   }, []);
 
+
   const handleCandidateAdded = (newCandidate) => {
     setSelectedCandidate(newCandidate.LastName);
     setSelectedPosition(newCandidate.Position);

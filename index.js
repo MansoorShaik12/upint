@@ -1,4 +1,3 @@
-
 const express = require('express');
 const connectDB = require('./db.js');
 const Candidate = require('./models/candidate.js');
@@ -18,11 +17,7 @@ const Notifications = require('./models/notification.js');
 const { MockInterview, MockInterviewHistory } = require('./models/mockinterview.js');
 const TeamAvailability = require('./models/teamsavailability.js');
 const bodyParser = require('body-parser');
-// const LoginBasicDetails1 = require('./models/LoginBasicDetails1.js');
-// const LoginAdditionalDetails = require('./models/LoginAdditionalDetails.js');
-// const LoginBasicDetails2 = require('./models/LoginBasicDetails2.js');
 const LoginAvailability = require('./models/LoginAvailability.js');
-// const LinkedInDetails = require('./models/LinkedInDetails');
 const { Contacts, ContactHistory } = require('./models/Contacts.js')
 const { Users, UserHistory } = require("./models/Users.js")
 const nodemailer = require('nodemailer');
@@ -33,6 +28,7 @@ const RoleMaster = require('./models/RoleMaster.js');
 const LocationMaster = require('./models/LocationMaster.js');
 const path = require('path');
 const fs = require('fs');
+
 
 const jwt = require('jsonwebtoken');
 const { exec } = require('child_process');
@@ -48,7 +44,9 @@ app.use(cors({
 
 connectDB();
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: process.env.WS_PORT || 8080 });
+const WebSocketServer = WebSocket.Server;
+const WS_PORT = process.env.WS_PORT || 8081;
+const wss = new WebSocketServer({ port: WS_PORT });
 
 console.log('CORS_ORIGIN:', process.env.CORS_ORIGIN);
 console.log('WS_PORT:', process.env.WS_PORT);
@@ -164,6 +162,21 @@ app.post('/upload', upload.single('image'), async (req, res) => {
     broadcastImageData(body.type, body.id);
   } catch (error) {
     console.error('Error uploading image:', error);
+    res.status(500).send('Server error');
+  }
+});
+
+
+app.get('/user-by-sub/:sub', async (req, res) => {
+  try {
+    const { sub } = req.params;
+    const user = await Users.findOne({ sub });
+    if (!user) {
+      return res.status(404).send('User not found.');
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
     res.status(500).send('Server error');
   }
 });
