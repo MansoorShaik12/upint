@@ -39,6 +39,7 @@ app.use(bodyParser.json());
 
 app.use(cors({
   origin: process.env.CORS_ORIGIN,
+  credentials: true,
 }));
 
 connectDB();
@@ -1994,17 +1995,29 @@ app.post('/run-code', async (req, res) => {
   }
 });
 
+// if (process.env.NODE_ENV === 'production') {
+//   app.use(express.static(path.join(__dirname, 'client/build')));
+
+//   app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+//   });
+// } else {
+//   app.get('/', (req, res) => {
+//     res.send('API is running...');
+//   });
+// }
+
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, 'client/build')));
-
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+  app.get('/*', function(req, res) {
+    res.sendFile(path.join(__dirname, './client/build/index.html'));
   });
 } else {
   app.get('/', (req, res) => {
     res.send('API is running...');
   });
 }
+
 
 // async function clearAssessments() {
 //   try {
