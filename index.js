@@ -245,7 +245,7 @@ const http = require('http');
 const socketIo = require('socket.io');
 
 const server = http.createServer(app);
-const PORT = process.env.PORT || 5000;
+
 const io = require('socket.io')(3001, { cors: true });
 
 const rooms = {};
@@ -313,7 +313,7 @@ io.on('connection', (socket) => {
 //   console.log(`Server is running on port ${PORT}`);
 // });
 
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
 
 // ------------------------------  video call end ------------------------------
 
@@ -2019,6 +2019,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 
+
 // async function clearAssessments() {
 //   try {
 //     await Users.deleteMany({});
@@ -2028,3 +2029,7 @@ if (process.env.NODE_ENV === 'production') {
 //   }
 // }
 // clearAssessments();
+
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
