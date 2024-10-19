@@ -9,7 +9,6 @@ const AssessmentCandidateSchema = new mongoose.Schema({
     CreatedBy: String,
     ModifiedDate: Date,
     ModifiedBy: String,
-   
 });
 AssessmentCandidateSchema.pre('save', function(next) {
     if (this.isNew) {

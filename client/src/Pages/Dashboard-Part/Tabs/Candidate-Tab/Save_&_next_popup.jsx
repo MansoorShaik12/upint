@@ -10,6 +10,8 @@ const Popup = ({ onClosepopup , lastName}) => {
 
   const toggleSidebar = () => {
     setSidebarOpen(true);
+    
+
   };
   const closeSidebar = () => {
     setSidebarOpen(false);

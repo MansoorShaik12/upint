@@ -8,7 +8,7 @@ import { MdMoreHoriz } from "react-icons/md";
 import { MdOutlineImageNotSupported } from "react-icons/md";
 
 
-const AssessmentProfileDetails = ({ assessment, onCloseprofile }) => {
+const AssessmentPopup = ({ assessment, onCloseprofile }) => {
   const location = useLocation();
   useEffect(() => {
     document.title = "AssessmentProfileDetails";
@@ -519,4 +519,4 @@ const AssessmentProfileDetails = ({ assessment, onCloseprofile }) => {
   );
 };
 
-export default AssessmentProfileDetails;
+export default AssessmentPopup;

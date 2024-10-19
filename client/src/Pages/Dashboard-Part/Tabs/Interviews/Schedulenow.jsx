@@ -8,13 +8,19 @@ import { FaTimes } from "react-icons/fa";
 import AddCandidateForm from "../Candidate-Tab/CreateCandidate";
 import AddteamForm from "../Team-Tab/CreateTeams";
 import OutsourceOption from './OutsourceOption';
-const Schedulelater = ({ onClose }) => {
+import { fetchMultipleData } from "../../../../utils/dataUtils.js";
+
+import Cookies from 'js-cookie';
+
+const Schedulelater = ({ onClose, sharingPermissions }) => {
+    const userName = Cookies.get("userName");
     const navigate = useNavigate();
     const candidateRef = useRef(null);
     const [loading, setLoading] = useState(true);
     const [showDropdown, setShowDropdown] = useState(false);
     const [candidateData, setCandidateData] = useState([]);
     const [selectedCandidate, setSelectedCandidate] = useState('');
+    const [selectedCandidateId, setSelectedCandidateId] = useState('');
     const [selectedPosition, setSelectedPosition] = useState('');
     const [selectedPositionId, setSelectedPositionId] = useState('');
     const [errors, setErrors] = useState({});
@@ -40,32 +46,25 @@ const Schedulelater = ({ onClose }) => {
         const formattedHours = hours % 12 || 12;
         return `${day}-${month}-${year} ${formattedHours}:${minutes} ${ampm}`;
     }
-    const userId = localStorage.getItem("userId");
-    console.log(userId)
-
+    const userId = Cookies.get("userId");
     useEffect(() => {
-        const fetchCandidateData = async () => {
+        const fetchData = async () => {
+            setLoading(true);
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate?createdBy=${userId}`);
-                if (Array.isArray(response.data)) {
-                    const candidatesWithImages = response.data.map((candidate) => {
-                        if (candidate.ImageData && candidate.ImageData.filename) {
-                            const imageUrl = `${process.env.REACT_APP_API_URL}/${candidate.ImageData.path.replace(/\\/g, '/')}`;
-                            return { ...candidate, imageUrl };
-                        }
-                        return candidate;
-                    });
-                    setCandidateData(candidatesWithImages);
-                } else {
-                    console.error('Expected an array but got:', response.data);
-                }
+                const [filteredCandidates, filteredTeams] = await fetchMultipleData([
+                    { endpoint: 'candidate', sharingPermissions: sharingPermissions.candidate },
+                    { endpoint: 'team', sharingPermissions: sharingPermissions.team }
+                ]);
+                setCandidateData(filteredCandidates);
+                setTeamData(filteredTeams);
             } catch (error) {
-                console.error('Error fetching candidate data:', error);
+                console.error('Error fetching data:', error);
+            } finally {
+                setLoading(false);
             }
         };
-
-        fetchCandidateData();
-    }, []);
+        fetchData();
+    }, [sharingPermissions]);
 
     useEffect(() => {
         if (selectedPositionId) {
@@ -88,25 +87,6 @@ const Schedulelater = ({ onClose }) => {
             fetchPositionData();
         }
     }, [selectedPositionId]);
-
-    const [userLastName, setUserLastName] = useState(''); // State to store user's LastName
-    const sub = localStorage.getItem("sub");
-    console.log(sub)
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/${sub}`);
-                if (response.data) {
-                    setUserLastName(response.data.Name); // Assuming response contains LastName
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        };
-
-        fetchUserData();
-    }, []);
 
     const [roundsError, setRoundsError] = useState('');
 
@@ -134,6 +114,7 @@ const Schedulelater = ({ onClose }) => {
         try {
             const interviewData = {
                 Candidate: selectedCandidate,
+
                 Position: selectedPosition,
                 Status: "Scheduled",
                 ScheduleType: 'instantinterview',
@@ -150,6 +131,10 @@ const Schedulelater = ({ onClose }) => {
                 candidateImageUrl: selectedCandidateImage,
                 CreatedBy: userId
             };
+            const orgId = Cookies.get("organizationId");
+            if (orgId) {
+                interviewData.orgId = orgId;
+            }
             console.log(interviewData);
             await axios.post(`${process.env.REACT_APP_API_URL}/interview`, interviewData);
             onClose();
@@ -169,29 +154,6 @@ const Schedulelater = ({ onClose }) => {
     };
 
     const [teamData, setTeamData] = useState([]);
-    useEffect(() => {
-        const fetchTeamsData = async () => {
-            setLoading(true);
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/team?CreatedBy=${userId}`);
-                if (Array.isArray(response.data)) {
-                    const teamsWithImages = response.data.map((team) => {
-                        if (team.ImageData && team.ImageData.filename) {
-                            const imageUrl = `${process.env.REACT_APP_API_URL}/${team.ImageData.path.replace(/\\/g, '/')}`;
-                            return { ...team, imageUrl };
-                        }
-                        return team;
-                    });
-                    setTeamData(teamsWithImages);
-                } else {
-                    console.error('Expected an array but got:', response.data);
-                }
-            } catch (error) {
-                console.error("Error fetching team data:", error);
-            }
-        };
-        fetchTeamsData();
-    }, []);
 
     const newteammember = () => {
         setShowMainContent(false);
@@ -200,7 +162,7 @@ const Schedulelater = ({ onClose }) => {
 
     const handleClose = () => {
         if (unsavedChanges) {
-            setShowCloseConfirmation(true); // Show confirmation popup
+            setShowCloseConfirmation(true);
         } else {
             onClose();
         }
@@ -275,7 +237,7 @@ const Schedulelater = ({ onClose }) => {
 
         if (interview === "My Self") {
             if (!newRounds[roundIndex].interviewers.some((member) => member.id === userId)) {
-                newRounds[roundIndex].interviewers.push({ id: userId, name: userLastName });
+                newRounds[roundIndex].interviewers.push({ id: userId, name: userName });
             }
             setShowDropdowninterview(null);
             setIsTeamMemberSelected(false);
@@ -297,7 +259,7 @@ const Schedulelater = ({ onClose }) => {
 
         const isAnyRoundFilled = newRounds.some(isRoundFullyFilled);
         if (isAnyRoundFilled) {
-            setRoundsError(''); // Hide the error message
+            setRoundsError('');
         }
     };
 
@@ -496,7 +458,7 @@ const Schedulelater = ({ onClose }) => {
         };
     }, [showRoundDropdown]);
 
-    const [searchTerm, setSearchTerm] = useState(''); // Add this state
+    const [searchTerm, setSearchTerm] = useState('');
 
     const handleInputChange = (e) => {
         const value = e.target.value;
@@ -521,14 +483,28 @@ const Schedulelater = ({ onClose }) => {
 
     const handleCandidateSelect = (candidate) => {
         setSelectedCandidate(candidate.LastName);
+        setSelectedCandidateId(candidate._id);
         setSelectedPosition(candidate.Position);
         setSelectedCandidateImage(candidate.imageUrl);
         setSelectedPositionId(candidate.PositionId);
-        setSearchTerm(candidate.LastName); // Update searchTerm with selected candidate's name
-        setShowDropdown(false); // Close the dropdown
+        setSearchTerm(candidate.LastName);
+        setShowDropdown(false); 
         setErrors((prevErrors) => ({ ...prevErrors, Candidate: "" }));
-    };
+      };
     
+
+
+    const handleCandidateAdded = (newCandidate) => {
+        setSelectedCandidate(newCandidate.LastName);
+        setSelectedCandidateId(newCandidate._id);
+        console.log(selectedCandidateId);
+        setSelectedPosition(newCandidate.Position);
+        setSelectedCandidateImage(newCandidate.imageUrl);
+        setSelectedPositionId(newCandidate.PositionId);
+        setShowDropdown(false);
+        setErrors((prevErrors) => ({ ...prevErrors, Candidate: "" }));
+        setShowNewCandidateContent(false);
+    };
     return (
         <>
             {showMainContent ? (
@@ -593,7 +569,7 @@ const Schedulelater = ({ onClose }) => {
                                                             .slice(0, 4)
                                                             .map((candidate) => (
                                                                 <li
-                                                                    key={candidate.id}
+                                                                    key={candidate._id}
                                                                     className="bg-white border-b cursor-pointer p-2 hover:bg-gray-100"
                                                                     onClick={() => {
                                                                         handleCandidateSelect(candidate);
@@ -1029,10 +1005,11 @@ const Schedulelater = ({ onClose }) => {
                     >
                         <div className="fixed inset-y-0 right-0 z-50 w-1/2 bg-white shadow-lg transition-transform duration-5000 transform">
                             {showNewCandidateContent && (
-                                    <AddCandidateForm onClose={handleClose} />
+                                <AddCandidateForm onClose={handleClose}
+                                    onCandidateAdded={handleCandidateAdded} />
                             )}
                             {showNewteamContent && (
-                                    <AddteamForm onClose={handleClose} />
+                                <AddteamForm onClose={handleClose} />
                             )}
                         </div>
                     </div>

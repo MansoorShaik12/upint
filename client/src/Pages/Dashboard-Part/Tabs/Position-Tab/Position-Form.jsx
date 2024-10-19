@@ -6,6 +6,9 @@ import { FaTimes } from "react-icons/fa";
 import { IoIosAddCircle } from 'react-icons/io';
 import { MdArrowDropDown, MdOutlineCancel } from 'react-icons/md';
 import PopupComponent from "../Interviews/OutsourceOption";
+import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
+import { validateForm } from "../../../../utils/PositionValidation.js";
+import Cookies from 'js-cookie';
 
 const Position_Form = ({ onClose, onPositionAdded }) => {
   const [isRoundModalOpen, setIsRoundModalOpen] = useState(false);
@@ -68,44 +71,18 @@ const Position_Form = ({ onClose, onPositionAdded }) => {
   const handleCancelClose = () => {
     setShowConfirmationPopup(false);
   };
-  const userId = localStorage.getItem("userId");
+  // const userId = localStorage.getItem("userId");
+  const userId = Cookies.get("userId");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const requiredFields = {
-      title: "Title is required",
-      companyname: "Company Name is required",
-      jobdescription: "Job Description is required",
-      minexperience: "Min Experience is required",
-      maxexperience: "Max Experience is required",
-    };
-    let formIsValid = true;
-    const newErrors = { ...errors };
-  
-    Object.entries(requiredFields).forEach(([field, message]) => {
-      if (!formData[field]) {
-        newErrors[field] = message;
-        formIsValid = false;
-      }
-    });
-  
-    // Check if at least one skill is added
-    if (entries.length === 0) {
-      newErrors.skills = "At least one skill is required";
-      formIsValid = false;
-    }
-  
-    // Check if at least one round is added
-    if (roundEntries.length === 0) {
-      newErrors.rounds = "At least one round is required";
-      formIsValid = false;
-    }
+    const { formIsValid, newErrors } = validateForm(formData, entries, roundEntries);
   
     if (!formIsValid) {
       setErrors(newErrors);
       return;
     }
-  
+   
     const data = {
       ...formData,
       companyname: selectedCompany,
@@ -117,11 +94,16 @@ const Position_Form = ({ onClose, onPositionAdded }) => {
       minexperience: parseInt(selectedMinExperience),
       maxexperience: parseInt(selectedMaxExperience),
       rounds: roundEntries,
-      CreatedBy: userId,
+      CreatedById: userId,
+      LastModifiedById: userId,
+      OwnerId: userId,
     };
+    const orgId = Cookies.get("organizationId");
+    if (orgId) {
+      data.orgId = orgId;
+    }
   
     try {
-      // Check if a position with the same title, company, and experience range already exists
       const checkResponse = await axios.post(`${process.env.REACT_APP_API_URL}/position/check`, {
         title: formData.title,
         companyname: selectedCompany,
@@ -137,7 +119,6 @@ const Position_Form = ({ onClose, onPositionAdded }) => {
       // If no such position exists, proceed with creation
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/position`, data);
       const newPosition = response.data;
-      console.log("Position created:", response.data);
       onPositionAdded(newPosition);
     } catch (error) {
       console.error("Error creating position:", error);
@@ -163,16 +144,21 @@ const Position_Form = ({ onClose, onPositionAdded }) => {
   };
 
   const [skills, setSkills] = useState([]);
+
   useEffect(() => {
-    const fetchskillsData = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-        setSkills(response.data);
+        const skillsData = await fetchMasterData('skills');
+        setSkills(skillsData);
+
+        const companyData = await fetchMasterData('company');
+        setCompanies(companyData);
       } catch (error) {
-        console.error("Error fetching SkillsData:", error);
+        console.error('Error fetching master data:', error);
       }
     };
-    fetchskillsData();
+
+    fetchData();
   }, []);
 
   const [selectedMinExperience, setSelectedMinExperience] = useState("");
@@ -284,18 +270,7 @@ const Position_Form = ({ onClose, onPositionAdded }) => {
   };
 
   const [companies, setCompanies] = useState([]);
-  useEffect(() => {
-    const fetchCompaniesData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/company`);
-        setCompanies(response.data);
-      } catch (error) {
-        console.error("Error fetching Companies data:", error);
-      }
-    };
 
-    fetchCompaniesData();
-  }, []);
   const handleCompanySelect = (company) => {
     setSelectedCompany(company.CompanyName);
     setShowDropdownCompany(false);

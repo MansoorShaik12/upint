@@ -10,17 +10,14 @@ import Tooltip from '@mui/material/Tooltip';
 import PositionProfileDetails from './PositionProfileDetails';
 import { useNavigate } from 'react-router-dom';
 import { IoMdMore } from "react-icons/io";
-import axios from 'axios';
 import { MdMoreHoriz } from "react-icons/md";
 import { FaFilter } from "react-icons/fa";
 import Sidebar from '../Position-Tab/Position-Form.jsx'
-import Modal from 'react-modal';
-import CandidateModalContent from './PositionProfileDetails';
 import { MdKeyboardArrowUp } from "react-icons/md";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import Editposition from './Editpositionform.jsx'
 import { CgInfo } from "react-icons/cg";
-
+import { fetchFilterData, handleWebSocket } from '../../../../utils/dataUtils.js';
 
 
 const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
@@ -275,7 +272,9 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
 
 
 
-const Position = () => {
+const Position = ({ objectPermissions, sharingPermissions }) => {
+    console.log("objectPermissions", objectPermissions);
+    console.log("sharingPermissions", sharingPermissions);
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const sidebarRef = useRef(null);
 
@@ -315,51 +314,31 @@ const Position = () => {
     const [selectedPosition, setSelectedPosition] = useState(null);
 
     const handlePositionClick = (position) => {
-        setSelectedPosition(position);
+        if (objectPermissions.View) {
+            setSelectedPosition(position);
+        }
+        setActionViewMore(false);
     };
     const handleCloseProfile = () => {
         setSelectedPosition(null);
     };
-
-    // function handlePositionClick(position) {
-    //     navigate('/position-profiledetails', { state: { position, skills: position.Skill } });
-    // }
     const [skillsData, setSkillsData] = useState([]);
 
     const [loading, setLoading] = useState(true);
     const [notification, setNotification] = useState("");
-    const userId = localStorage.getItem("userId");
     useEffect(() => {
-
-        const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
-
-        ws.onopen = () => {
-            console.log('WebSocket connection opened');
-        };
-
-        ws.onmessage = (event) => {
-            const { type, data } = JSON.parse(event.data);
-            if (type === 'position') {
-                setSkillsData(data);
-                setNotification("A new position has been successfully created!");
-
-                setTimeout(() => {
-                    setNotification("");
-                }, 3000);
-            }
-        };
-
-        ws.onclose = () => {
-            console.log('WebSocket connection closed');
-        };
-
+        const ws = handleWebSocket(
+            `${process.env.REACT_APP_WS_URL}`,
+            'position',
+            setSkillsData,
+            setNotification
+        );
 
         const fetchSkillsData = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/position?CreatedBy=${userId}`);
-                console.log('Position data:', response.data);
-                setSkillsData(response.data);
+                const filteredPositions = await fetchFilterData('position', sharingPermissions);
+                setSkillsData(filteredPositions);
             } catch (error) {
                 console.error('Error fetching position data:', error);
             } finally {
@@ -373,23 +352,8 @@ const Position = () => {
             ws.close();
         };
 
-    }, []);
+    }, [sharingPermissions]);
 
-    // const FilteredData = () => {
-    //     return skillsData.filter(user => {
-    //         const fieldsToSearch = [
-    // user.title,
-    // user.companyname,
-    //             user.jobdescription,
-    //             user.additionalnotes,
-    //             user.Skill
-    //         ];
-
-    //         return fieldsToSearch.some(field =>
-    //             field !== undefined && field.toString().toLowerCase().includes(searchQuery.toLowerCase())
-    //         );
-    //     });
-    // };
 
     const [selectedFilters, setSelectedFilters] = useState({
         status: [],
@@ -443,11 +407,6 @@ const Position = () => {
     };
 
 
-
-
-
-
-
     const addLineBreaks = (text) => {
         const maxLength = 20;
         if (text.length > maxLength) {
@@ -465,7 +424,6 @@ const Position = () => {
         if (currentPage < totalPages - 1) {
             setCurrentPage(currentPage + 1);
             setActiveArrow('next');
-            console.log('Next Page:', currentPage + 1);
         }
     };
 
@@ -473,17 +431,12 @@ const Position = () => {
         if (currentPage > 0) {
             setCurrentPage(currentPage - 1);
             setActiveArrow('prev');
-            console.log('Previous Page:', currentPage - 1);
         }
     };
 
     const startIndex = currentPage * rowsPerPage;
     const endIndex = Math.min(startIndex + rowsPerPage, FilteredData().length);
     const currentFilteredRows = FilteredData().slice(startIndex, endIndex).reverse();
-
-    console.log('Current Page:', currentPage);
-    console.log('Filtered Data:', FilteredData());
-    console.log('Current Filtered Rows:', currentFilteredRows);
 
     const [viewMode, setViewMode] = useState("list");
 
@@ -548,11 +501,13 @@ const Position = () => {
                         )}
                     </div>
 
+                    {objectPermissions.Create && (
                     <div onClick={toggleSidebar} className="mr-6">
                         <span className="p-2 text-md font-semibold border shadow rounded-3xl">
                             Add Position
                         </span>
                     </div>
+                    )}
                 </div>
 
             </div>
@@ -632,15 +587,6 @@ const Position = () => {
                     </div>
                 </div>
             </div>
-
-
-
-
-
-
-
-
-
 
 
 
@@ -734,9 +680,12 @@ const Position = () => {
                                                                         {actionViewMore === position._id && (
                                                                             <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
                                                                                 <div className="space-y-1">
-                                                                                    <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handlePositionClick(position)}>View</p>
-                                                                                    <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(position)}>Edit</p>
-                                                                                </div>
+                                                                                    {objectPermissions.View && (
+                                                                                        <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handlePositionClick(position)}>View</p>
+                                                                                    )}
+                                                                                    {objectPermissions.Edit && (
+                                                                                        <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(position)}>Edit</p>
+                                                                                    )}                                                                                                                                                           </div>
                                                                             </div>
                                                                         )}
                                                                     </div>
@@ -825,7 +774,7 @@ const Position = () => {
                                                                             </p>
                                                                         </div>
                                                                         <div className="mt-7">
-                                                                            
+
                                                                             <p className="text-gray-700">
                                                                                 {position.companyname}
                                                                             </p>
@@ -869,6 +818,7 @@ const Position = () => {
                                                                             {actionViewMore === position._id && (
                                                                                 <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
                                                                                     <div className="space-y-1">
+                                                                                        {objectPermissions.View && (
                                                                                         <p
                                                                                             className="hover:bg-gray-200 p-1 rounded pl-3"
                                                                                             onClick={() =>
@@ -877,9 +827,12 @@ const Position = () => {
                                                                                         >
                                                                                             View
                                                                                         </p>
+                                                                                        )}
+                                                                                        {objectPermissions.Edit && (
                                                                                         <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(position)}>
                                                                                             Edit
                                                                                         </p>
+                                                                                        )}
                                                                                     </div>
                                                                                 </div>
                                                                             )}
@@ -936,14 +889,3 @@ const Position = () => {
 };
 
 export default Position;
-
-
-
-
-
-
-
-
-
-
-

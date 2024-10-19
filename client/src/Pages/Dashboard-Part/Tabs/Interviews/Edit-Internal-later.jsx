@@ -6,8 +6,10 @@ import axios from 'axios';
 import "react-datepicker/dist/react-datepicker.css";
 import AddCandidateForm from "../Candidate-Tab/CreateCandidate";
 import AddteamForm from "../Team-Tab/CreateTeams";
+import { fetchMultipleData } from "../../../../utils/dataUtils.js";
+import Cookies from 'js-cookie';
 
-const Schedulelater = ({ onClose, candidate1, interviewers }) => {
+const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }) => {
     console.log("interviewers", interviewers)
 
     const location = useLocation();
@@ -22,39 +24,32 @@ const Schedulelater = ({ onClose, candidate1, interviewers }) => {
     const [selectedPosition, setSelectedPosition] = useState(candidate1.Position || '');
     const [selectedTeamMembers, setSelectedTeamMembers] = useState(interviewers.map(name => ({ name })) || []);
     const [errors, setErrors] = useState({});
-
+    const [loading, setLoading] = useState(true);
 
     const [unsavedChanges, setUnsavedChanges] = useState(false); // Track unsaved changes
     const [showCloseConfirmation, setShowCloseConfirmation] = useState(false); // Show confirmation popup
 
     const [selectedPositionId, setSelectedPositionId] = useState('');
-    const [userLastName, setUserLastName] = useState(''); // Ensure this state is defined
-
-    const userId = localStorage.getItem("userId");
-
+    const userId = Cookies.get("userId");
+    const userName = Cookies.get("userName");
     useEffect(() => {
-        const fetchCandidateData = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate?createdBy=${userId}`);
-                if (Array.isArray(response.data)) {
-                    const candidatesWithImages = response.data.map((candidate) => {
-                        if (candidate.ImageData && candidate.ImageData.filename) {
-                            const imageUrl = `${process.env.REACT_APP_API_URL}/${candidate.ImageData.path.replace(/\\/g, '/')}`;
-                            return { ...candidate, imageUrl };
-                        }
-                        return candidate;
-                    });
-                    setCandidateData(candidatesWithImages);
-                } else {
-                    console.error('Expected an array but got:', response.data);
-                }
-            } catch (error) {
-                console.error('Error fetching candidate data:', error);
-            }
+        const fetchData = async () => {
+          setLoading(true);
+          try {
+            const [filteredCandidates, filteredTeams] = await fetchMultipleData([
+              { endpoint: 'candidate', sharingPermissions: sharingPermissions.candidate },
+              { endpoint: 'team', sharingPermissions: sharingPermissions.team }
+            ]);
+            setCandidateData(filteredCandidates);
+            setTeamData(filteredTeams);
+          } catch (error) {
+            console.error('Error fetching data:', error);
+          } finally {
+            setLoading(false);
+          }
         };
-
-        fetchCandidateData();
-    }, []);
+        fetchData();
+      }, [sharingPermissions]);
 
     const calculateEndTime = (startTime, duration) => {
         const [startHour, startMinute] = startTime.split(':').map(Number);
@@ -164,22 +159,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers }) => {
         setshowDropdownduration(false);
     };
 
-    const sub = localStorage.getItem("sub");
 
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/${sub}`);
-                if (response.data) {
-                    setUserLastName(response.data.Name);
-                }
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-            }
-        };
-
-        fetchUserData();
-    }, []);
 
     useEffect(() => {
         if (selectedPositionId) {
@@ -257,7 +237,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers }) => {
             await axios.put(`${process.env.REACT_APP_API_URL}/updateinterview`, interviewData);
             
             // Broadcast the updated interview data
-            const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
+            const ws = new WebSocket("ws://localhost:8080");
             ws.onopen = () => {
                 ws.send(JSON.stringify({ type: 'updateInterview', data: interviewData }));
                 ws.close();
@@ -348,8 +328,8 @@ const Schedulelater = ({ onClose, candidate1, interviewers }) => {
         }
 
         if (interview === "My Self") {
-            if (!newRounds[roundIndex].interviewers.includes(userLastName)) {
-                newRounds[roundIndex].interviewers.push(userLastName);
+            if (!newRounds[roundIndex].interviewers.includes(userName)) {
+                newRounds[roundIndex].interviewers.push(userName);
             }
             setShowDropdowninterview(null);
             setIsTeamMemberSelected(false);
@@ -387,28 +367,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers }) => {
         setShowTeamMemberDropdown(!showTeamMemberDropdown);
     };
     const [teamData, setTeamData] = useState([]);
-    useEffect(() => {
-        const fetchTeamsData = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/team?CreatedBy=${userId}`);
-                if (Array.isArray(response.data)) {
-                    const teamsWithImages = response.data.map((team) => {
-                        if (team.ImageData && team.ImageData.filename) {
-                            const imageUrl = `${process.env.REACT_APP_API_URL}/${team.ImageData.path.replace(/\\/g, '/')}`;
-                            return { ...team, imageUrl };
-                        }
-                        return team;
-                    });
-                    setTeamData(teamsWithImages);
-                } else {
-                    console.error('Expected an array but got:', response.data);
-                }
-            } catch (error) {
-                console.error("Error fetching team data:", error);
-            }
-        };
-        fetchTeamsData();
-    }, []);
+ 
     const handleTeamMemberSelect = (teamMember, roundIndex) => {
         const newRounds = [...rounds];
         if (!newRounds[roundIndex].interviewers) {

@@ -25,8 +25,10 @@ const candidateSchema = new mongoose.Schema({
         path: String,
         contentType: String,
     },
-    // createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Users', required: true },
-    createdBy:String,
+    CreatedById: String,
+    LastModifiedById: String,
+    OwnerId: String,
+    orgId: String,
 
 });
 

@@ -22,10 +22,17 @@ const Contact = () => {
     fetchsetContactData();
   }, []);
 
-  const navigate = useNavigate();
+  const [selectedContact, setSelectedContact] = useState(null); 
+
 
   const handleContactClick = (Contact) => {
-    navigate("/contactprofiledetails", { state: { Contacts:Contact } });
+  
+      setSelectedContact(Contact);
+    
+    setActionViewMore(false);
+  };
+  const handleCloseContact = () => {
+    setSelectedContact(null);
   };
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -81,7 +88,6 @@ const Contact = () => {
 
   const [isMenuOpen, setMenuOpen] = useState(false);
   const [isPopupOpen, setPopupOpen] = useState(false);
-  const [selectedContact, setSelectedContact] = useState(null);
   const [actionViewMore, setActionViewMore] = useState(null);
 
   const toggleMenu = () => {
@@ -126,7 +132,7 @@ const Contact = () => {
                 <div className="searchintabs mr-5 relative">
                   <div className="absolute inset-y-0 left-0 flex items-center">
                     <button type="submit" className="p-2">
-                      <IoMdSearch />
+                      <IoMdSearch className="text-custom-blue"/>
                     </button>
                   </div>
                   <input
@@ -180,7 +186,7 @@ const Contact = () => {
                     }}
                   >
                     <FaFilter
-                      className={`${isMenuOpen ? "text-blue-500" : ""}`}
+                      className={`${isMenuOpen ? "text-custom-blue" : ""}`}
                     />
                   </span>
                 </Tooltip>
@@ -201,8 +207,8 @@ const Contact = () => {
                 >
                   <div className="relative">
                     <table className="text-left w-full border-collapse border-gray-300">
-                      <thead className="text-xs border-t border-b bg-gray-300">
-                        <tr>
+                    <thead className="bg-custom-blue bg-opacity-5 text-custom-blue sticky top-0 z-10 text-xs">
+                    <tr>
                           <th scope="col" className="py-3 px-6">
                             Name
                           </th>
@@ -229,7 +235,7 @@ const Contact = () => {
                             <td className="py-3 px-6">
                               <span
                                 onClick={() => handleContactClick(Contact)}
-                                className="cursor-pointer text-blue-500"
+                                className="cursor-pointer text-custom-blue"
                               >
                                 {Contact.Name}
                               </span>
@@ -255,18 +261,21 @@ const Contact = () => {
                               {actionViewMore === Contact.UserId && (
                                 <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2">
                                   <div className="space-y-1">
+                               
                                     <p
                                       className="hover:bg-gray-200 p-1 rounded pl-3 cursor-pointer"
                                       onClick={() => handleContactClick(Contact)}
                                     >
                                       View
                                     </p>
+                                   
                                     <p
                                       className="hover:bg-gray-200 p-1 rounded pl-3 cursor-pointer"
                                       onClick={() => handleEditClick(Contact)}
                                     >
                                       Edit
                                     </p>
+                                     
                                   </div>
                                 </div>
                               )}
@@ -284,8 +293,9 @@ const Contact = () => {
           </div>
         )}
       </div>
-      {selectedContact && <ContactProfileDetails candidate={selectedContact} />}
-    </>
+      {selectedContact && ( 
+    <ContactProfileDetails contact={selectedContact} onCloseContact={handleCloseContact} />
+)}    </>
   );
 };
 

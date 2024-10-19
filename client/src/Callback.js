@@ -5,7 +5,6 @@ import axios from 'axios';
 
 const Callback = () => {
   const { isAuthenticated, user, isLoading } = useAuth0();
-  
   const navigate = useNavigate();
   const [isCheckingUser, setIsCheckingUser] = useState(true);
 
@@ -24,18 +23,16 @@ const Callback = () => {
       const userExists = await checkUserExistence(user.sub);
 
       if (userExists) {
-        localStorage.setItem('userId', userExists._id); // Store user ID in local storage
+        localStorage.setItem('userId', userExists._id);
         navigate('/home');
       } else {
-        navigate('/profile3'); // Redirect to Profile4 if user does not exist
+        navigate('/profile3'); 
       }
     } else {
       navigate('/');
     }
     setIsCheckingUser(false);
   };
-
-  
 
   useEffect(() => {
     if (!isLoading && isCheckingUser) {

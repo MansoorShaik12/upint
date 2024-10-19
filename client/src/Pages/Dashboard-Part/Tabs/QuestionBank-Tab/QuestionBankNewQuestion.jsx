@@ -6,6 +6,7 @@ import { VscSave } from "react-icons/vsc";
 import { ImCancelCircle } from "react-icons/im";
 import { FaRegEdit } from "react-icons/fa";
 import { AiTwotoneDelete } from "react-icons/ai";
+import Cookies from 'js-cookie';
 
 const optionLabels = Array.from({ length: 26 }, (_, i) =>
   String.fromCharCode(65 + i)
@@ -31,7 +32,8 @@ const InterviewNewQuestion = ({ isOpen, onClose, onOutsideClick, questionProfile
     setErrors({ ...errors, [name]: errorMessage });
   };
 
-  const userId = localStorage.getItem("userId");
+  const userId = Cookies.get("userId");
+  const orgId = Cookies.get("organizationId");
 
   const handleSubmit = async (e, isSaveAndNext) => {
     e.preventDefault();
@@ -66,9 +68,12 @@ const InterviewNewQuestion = ({ isOpen, onClose, onOutsideClick, questionProfile
       Skill: questionProfile.SkillName,
       Score: formData.Score,
       Options: mcqOptions.map(option => option.option),
-      createdBy: userId
-    };
+      OwnerId: userId,
+        };
 
+        if (orgId) {
+            questionData.orgId = orgId;
+        }
     console.log("Data being sent:", questionData);
 
     try {

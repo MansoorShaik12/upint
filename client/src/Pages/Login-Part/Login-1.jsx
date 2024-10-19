@@ -2,13 +2,14 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom';
 
 const Login_1 = () => {
-	const Naviagte = useNavigate()
+	const navigate = useNavigate()
+	
 	const Signup = () => {
-		Naviagte("/profile1")
+		navigate("/profile1", { state: { from: "signup" } });
 	};
 
 	const Login = () => {
-		Naviagte("/admin")
+		navigate("/profile1", { state: { from: "login" } });
 	};
 	
 	return (
@@ -28,3 +29,4 @@ const Login_1 = () => {
 }
 
 export default Login_1
+

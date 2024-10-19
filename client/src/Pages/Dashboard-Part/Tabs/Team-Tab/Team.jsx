@@ -20,6 +20,7 @@ import TeamProfileDetails from "./TeamProfileDetails";
 import maleImage from '../../../Dashboard-Part/Images/man.png';
 import femaleImage from '../../../Dashboard-Part/Images/woman.png';
 import genderlessImage from '../../../Dashboard-Part/Images/transgender.png';
+import { fetchFilterData, handleWebSocket } from '../../../../utils/dataUtils.js';
 
 
 
@@ -269,7 +270,7 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
 };
 
 
-const Team = () => {
+const Team = ({objectPermissions, sharingPermissions}) => {
   // sidebar code
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
@@ -305,8 +306,9 @@ const Team = () => {
   const [selectedTeam, setSelectedTeam] = useState(null);
 
   const handleCandidateClick = async (teams) => {
-    setSelectedTeam(teams);
-
+    if (objectPermissions.View) {
+      setSelectedTeam(teams);
+    }
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/team/${teams._id}/availability`);
       const availabilityData = response.data;
@@ -314,6 +316,7 @@ const Team = () => {
     } catch (error) {
       console.error("Error fetching availability data:", error);
     }
+    setActionViewMore(false);
   };
 
   const handleCloseProfile = () => {
@@ -327,46 +330,27 @@ const Team = () => {
   const [notification, setNotification] = useState("");
   const userId = localStorage.getItem("userId");
   useEffect(() => {
-    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
-
-    ws.onopen = () => {
-      console.log("WebSocket connection opened");
-    };
-
-    ws.onmessage = (event) => {
-      const { type, data } = JSON.parse(event.data);
-      if (type === "team") {
-        setCandidateData(data);
-        setNotification("A new team member has been successfully created!");
-
-        setTimeout(() => {
-          setNotification("");
-        }, 3000);
-      }
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket connection closed");
-    };
+    const ws = handleWebSocket(
+      `${process.env.REACT_APP_WS_URL}`,
+      'team',
+      setCandidateData,
+      setNotification
+    );
 
     const fetchTeamsData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/team?CreatedBy=${userId}`);
-        if (Array.isArray(response.data)) {
-          const teamsWithImages = response.data.map((team) => {
-            if (team.ImageData && team.ImageData.filename) {
-              const imageUrl = `${process.env.REACT_APP_API_URL}/${team.ImageData.path.replace(/\\/g, '/')}`;
-              return { ...team, imageUrl };
-            }
-            return team;
-          });
-          setCandidateData(teamsWithImages);
-        } else {
-          console.error('Expected an array but got:', response.data);
-        }
+        const filteredTeams = await fetchFilterData('team', sharingPermissions);
+        const teamsWithImages = filteredTeams.map((team) => {
+          if (team.ImageData && team.ImageData.filename) {
+            const imageUrl = `${process.env.REACT_APP_API_URL}/${team.ImageData.path.replace(/\\/g, '/')}`;
+            return { ...team, imageUrl };
+          }
+          return team;
+        });
+        setCandidateData(teamsWithImages);
       } catch (error) {
-        console.error("Error fetching team data:", error);
+        console.error('Error fetching team data:', error);
       } finally {
         setLoading(false);
       }
@@ -376,8 +360,7 @@ const Team = () => {
     return () => {
       ws.close();
     };
-  }, []);
-
+  }, [sharingPermissions]);
 
 
   const [selectedFilters, setSelectedFilters] = useState({
@@ -482,7 +465,7 @@ const Team = () => {
   const [selectedcandidate, setSelectedcandidate] = useState(null);
 
   const handleEditClick = async (teams) => {
-    console.log("Selected candidate for editing:", teams); // Log the selected candidate
+    console.log("Selected candidate for editing:", teams);
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/team/${teams._id}/availability`);
       const availability = response.data.Availability;
@@ -490,6 +473,7 @@ const Team = () => {
     } catch (error) {
       console.error("Error fetching availability:", error);
     }
+    setActionViewMore(false);
   };
 
   const handleclose = () => {
@@ -515,11 +499,13 @@ const Team = () => {
             )}
           </div>
 
+          {objectPermissions.Create && (
           <div onClick={toggleSidebar} className="mr-6">
             <span className="p-2 text-md font-semibold border shadow rounded-3xl">
               Add Team Member
             </span>
           </div>
+          )}
         </div>
 
       </div>
@@ -719,6 +705,7 @@ const Team = () => {
                                       {actionViewMore === teams._id && (
                                         <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2">
                                           <div className="space-y-1">
+                                            {objectPermissions.View && (
                                             <p
                                               className="hover:bg-gray-200 p-1 rounded pl-3"
                                               onClick={() =>
@@ -727,6 +714,8 @@ const Team = () => {
                                             >
                                               View
                                             </p>
+                                            )}
+                                            {objectPermissions.Edit && (
                                             <p
                                               className="hover:bg-gray-200 p-1 rounded pl-3"
                                               onClick={() =>
@@ -735,6 +724,7 @@ const Team = () => {
                                             >
                                               Edit
                                             </p>
+                                            )}
                                             <p
                                               className="hover:bg-gray-200 p-1 rounded pl-3"
                                               onClick={scheduling}
@@ -808,6 +798,7 @@ const Team = () => {
                                   {actionViewMore === teams._id && (
                                     <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2">
                                       <div className="space-y-1">
+                                        {objectPermissions.View && (
                                         <p
                                           className="hover:bg-gray-200 p-1 rounded pl-3"
                                           onClick={() =>
@@ -816,6 +807,8 @@ const Team = () => {
                                         >
                                           View
                                         </p>
+                                        )}
+                                        {objectPermissions.Edit && (
                                         <p
                                           className="hover:bg-gray-200 p-1 rounded pl-3"
                                           onClick={() =>
@@ -824,6 +817,7 @@ const Team = () => {
                                         >
                                           Edit
                                         </p>
+                                        )}
                                         <p
                                           className="hover:bg-gray-200 p-1 rounded pl-3"
                                           onClick={scheduling}

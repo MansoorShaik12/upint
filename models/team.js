@@ -24,7 +24,10 @@ const teamSchema = new mongoose.Schema({
     PreferredDuration: { type: String, required: true },
     TimeZone: { type: String, required: true },
     createdAt: { type: Date, default: Date.now },
-    CreatedBy:String,
+    CreatedById: String,
+    LastModifiedById: String,
+    OwnerId: String,
+    orgId: String,
 });
 
 const Team = mongoose.model("Team", teamSchema);

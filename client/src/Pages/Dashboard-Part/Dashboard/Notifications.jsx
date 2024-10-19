@@ -11,6 +11,7 @@ import { IoMdClock } from "react-icons/io";
 import { FaArrowRight } from "react-icons/fa";
 import axios from "axios";
 
+
 const Notifications = () => {
   useEffect(() => {
     document.title = "Notifications";

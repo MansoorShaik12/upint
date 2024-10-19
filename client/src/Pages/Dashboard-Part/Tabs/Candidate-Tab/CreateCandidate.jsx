@@ -16,8 +16,12 @@ import { IoIosAddCircle } from "react-icons/io";
 import AddPositionForm from "../Position-Tab/Position-Form";
 import { FaTimes } from "react-icons/fa";
 import { format, getYear } from 'date-fns';
-
-const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
+import { IoArrowBack } from "react-icons/io5";
+import { fetchFilterData } from '../../../../utils/dataUtils.js';
+import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
+import { validateEmail, validatePhoneNumber, validateCandidateForm, validateUrl } from '../../../../utils/CandidateValidation';
+import Cookies from 'js-cookie';
+const CreateCandidate = ({  onClose, onCandidateAdded, sharingPermissions }) => {
   const [showDropdown, setShowDropdown] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -48,38 +52,14 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
     PositionId: "",
   });
 
-  const [candidateData, setCandidateData] = useState([]);
-  const userId = localStorage.getItem("userId");
-  useEffect(() => {
-    const fetchCandidateData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate`);
-        if (Array.isArray(response.data)) {
-          setCandidateData(response.data);
-        } else {
-          console.error("Expected an array but got:", response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching candidate data:", error);
-      }
-    };
-    fetchCandidateData();
-  }, []);
+  // const userId = localStorage.getItem("userId");
+  const userId = Cookies.get("userId");
+
 
   // const handleChange = (e) => {
   //   setFormData({ ...formData, [e.target.name]: e.target.value });
   // };
   const [errors, setErrors] = useState({ Phone: "", Email: "" });
-
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@gmail\.com$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePhone = (phone) => {
-    const phoneRegex = /^[6-9]\d{9}$/; // Indian phone number validation (starts with 6-9 and has 10 digits)
-    return phoneRegex.test(phone);
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -94,7 +74,7 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
     } else if (name === "Phone") {
       if (!value) {
         errorMessage = "Phone number is required";
-      } else if (!validatePhone(value)) {
+      } else if (!validatePhoneNumber(value)) {
         errorMessage = "Invalid phone number";
       }
     }
@@ -146,30 +126,10 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
 
   const handleSubmit = async (e, openPopup) => {
     e.preventDefault();
+    // const orgId = localStorage.getItem("organizationId");
+    const orgId = Cookies.get("organizationId");
 
-    const requiredFields = {
-      LastName: "Last Name is required",
-      Email: "Email is required",
-      Phone: "Phone Number is required",
-      Gender: "Gender is required",
-      HigherQualification: "Higher Qualification is required",
-      UniversityCollege: "University/College is required",
-      CurrentExperience: "Current Experience is required",
-      Position: "Position Experience is required",
-    };
-    let formIsValid = true;
-    const newErrors = { ...errors };
-
-    Object.entries(requiredFields).forEach(([field, message]) => {
-      if (!formData[field] && !selectedPosition) {
-        newErrors[field] = message;
-        formIsValid = false;
-      }
-    });
-    if (entries.length === 0) {
-      newErrors.skills = "At least one skill is required";
-      formIsValid = false;
-    }
+    const { formIsValid, newErrors } = validateCandidateForm(formData, entries, selectedPosition, errors);
     setErrors(newErrors);
 
     // If the form is invalid, return early
@@ -195,8 +155,13 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
       })),
       Position: selectedPosition,
       PositionId: selectedPositionId,
-      createdBy: userId,
+      CreatedById: userId,
+      LastModifiedById: userId,
+      OwnerId: userId,
     };
+    if (orgId) {
+      data.orgId = orgId;
+    }
 
     try {
       // First, create the candidate
@@ -310,18 +275,27 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
     };
   }, []);
 
+
+
   const [skills, setSkills] = useState([]);
   useEffect(() => {
-    const fetchskillsData = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-        setSkills(response.data);
-        setFilteredSkills(response.data);
+        const skillsData = await fetchMasterData('skills');
+        setSkills(skillsData);
+        setFilteredSkills(skillsData);
+
+        const qualificationData = await fetchMasterData('qualification');
+        setQualification(qualificationData);
+
+        const collegeData = await fetchMasterData('universitycollege');
+        setCollege(collegeData);
       } catch (error) {
-        console.error("Error fetching SkillsData:", error);
+        console.error('Error fetching master data:', error);
       }
     };
-    fetchskillsData();
+
+    fetchData();
   }, []);
 
   const handleNewPositionAdded = (newPosition) => {
@@ -420,45 +394,12 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
   };
 
   const [qualification, setQualification] = useState([]);
-  useEffect(() => {
-    const fetchQualificationData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/qualification`);
-        setQualification(response.data);
-      } catch (error) {
-        console.error("Error fetching Qualification data:", error);
-      }
-    };
-    fetchQualificationData();
-  }, []);
+
 
   const [college, setCollege] = useState([]);
 
-  useEffect(() => {
-    const fetchCollegeData = async () => {
-      try {
-        const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/universitycollege`
-        );
-        setCollege(response.data);
-      } catch (error) {
-        console.error("Error fetching CollegeData:", error);
-      }
-    };
-    fetchCollegeData();
-  }, []);
 
-  useEffect(() => {
-    const fetchskillsData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-        setSkills(response.data);
-      } catch (error) {
-        console.error("Error fetching SkillsData:", error);
-      }
-    };
-    fetchskillsData();
-  }, []);
+
 
   // ABOUT POPUP
 
@@ -591,89 +532,6 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
     setDeleteIndex(null);
   };
 
-  // const handleChange = (e) => {
-  //   setFormData({ ...formData, [e.target.name]: e.target.value });
-  // };
-
-  // const handleInputClick = () => {
-  //   setShowPopup(true);
-  // };
-
-  // const handleFileChange = (e) => {
-  //   // Handle the file upload logic here
-  //   console.log(e.target.files[0]); // For now, just log the file
-  //   setFormData({ ...formData, Resume: e.target.files[0].name });
-  //   setShowPopup(false); // Close the popup after file selection
-  // };
-
-  // const [showCard, setShowCard] = useState(false);
-  // const handleInputClick = () => {
-  //   setShowCard(true);
-  // };
-
-  // const handleUploadClick = () => {
-  //   document.getElementById("fileInput").click();
-  // };
-
-  // const handleClose = () => {
-  //   setShowCard(false);
-  // };
-
-  // const handleInputClick = () => {
-  //   setShowCard(true);
-  // };
-
-  // const handleUploadClick = () => {
-  //   document.getElementById('fileInput').click();
-  // };
-
-  // const handleFileChange = (event) => {
-  //   const file = event.target.files[0];
-  //   if (file) {
-  //     setFormData({ ...formData, Resume: file.name });
-  //     setShowCard(false);
-  //   }
-  // };
-
-  // const handleClose = () => {
-  //   setShowCard(false);
-  // };
-
-  // const handleChange = (event) => {
-  //   setFormData({ ...formData, [event.target.name]: event.target.value });
-  // };
-
-  const [showCard, setShowCard] = useState(false);
-  const [fileName, setFileName] = useState("");
-
-  const handleInputClick = () => {
-    setShowCard(true);
-  };
-
-  const handleUploadClick = () => {
-    document.getElementById("fileInput").click();
-  };
-
-  // const handleFileChange = (e) => {
-  //   const file = e.target.files[0];
-  //   if (file) {
-  //     setFileName(file.name);
-  //     setFormData({ ...formData, Resume: file.name });
-  //     setShowCard(false);
-  //   }
-  // };
-
-  // const handleClose = () => {
-  //   setShowCard(false);
-  // };
-
-  const handleRemoveFile = () => {
-    setFileName("");
-    setFormData({ ...formData, Resume: "" });
-  };
-
-
-
 
   // position 
   const positionRef = useRef(null);
@@ -743,20 +601,25 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
   }, [value, skillsData]);
 
 
+  const [loading, setLoading] = useState(true);
 
 
   useEffect(() => {
+
     const fetchSkillsData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/position?CreatedBy=${userId}`);
-        setSkillsData(response.data);
-      } catch (error) {
-        console.error("Error fetching position data:", error);
-      }
+        setLoading(true);
+        try {
+            const filteredPositions = await fetchFilterData('position', sharingPermissions);
+            setSkillsData(filteredPositions);
+        } catch (error) {
+            console.error('Error fetching position data:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     fetchSkillsData();
-  }, []);
+}, [sharingPermissions]);
 
 
   const handleCountryCodeChange = (e) => {
@@ -780,9 +643,12 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
           <div>
             {/* Header */}
             <div className="fixed top-0 w-full bg-white border-b">
-              <div className="flex justify-between items-center p-4">
+              <div className="flex justify-between sm:justify-start items-center p-4">
+                <button onClick={handleClose} className="focus:outline-none md:hidden lg:hidden xl:hidden 2xl:hidden sm:w-8">
+                  <IoArrowBack className="text-2xl" />
+                </button>
                 <h2 className="text-lg font-bold">New Candidate</h2>
-                <button onClick={handleClose} className="focus:outline-none">
+                <button onClick={handleClose} className="focus:outline-none sm:hidden">
                   <svg
                     className="h-6 w-6"
                     fill="none"
@@ -806,7 +672,7 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
               <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-4">
 
-                  <div className="col-span-3">
+                  <div className="sm:col-span-4 md:col-span-3 lg:col-span-3 xl:col-span-3 2xl:col-span-3 sm:mt-44">
                     {/* first name */}
                     <div className="flex gap-5 mb-5">
                       <div>
@@ -1335,12 +1201,8 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
 
                   </div>
 
-
-
-
-
                   {/* Right content */}
-                  <div className="col-span-1 float-right">
+                  <div className="sm:col-span-4 sm:flex sm:justify-center md:col-span-1 lg:col-span-1 xl:col-span-1 2xl:col-span-1 sm:-mt-[48rem]">
                     <div className="ml-5">
                       <div className="w-32 h-32 border border-gray-300 rounded-md flex items-center justify-center relative">
                         <input
@@ -1387,9 +1249,6 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
                     </div>
                   </div>
 
-
-
-
                 </div>
                 {showImagePopup && (
                   <div className="fixed inset-0 flex z-50 items-center justify-center bg-gray-200 bg-opacity-50">
@@ -1403,7 +1262,7 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
                         >
                           Cancel
                         </button>
-                        <button type="submit" className="footer-button"
+                        <button type="submit" className="footer-button bg-custom-blue"
                           onClick={handleContinue}>
                           Save
                         </button>
@@ -1415,14 +1274,14 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
                 <div className="footer-buttons flex justify-end">
                   <button
                     type="submit"
-                    className="footer-button"
+                    className="footer-button bg-custom-blue"
                     onClick={(e) => handleSubmit(e, false)}
                   >
                     Save
                   </button>
                   <button
                     type="submit"
-                    className="footer-button"
+                    className="footer-button bg-custom-blue"
                     onClick={(e) => handleSubmit(e, true)}
                   >
                     Save & Schedule
@@ -1430,7 +1289,6 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
                 </div>
               </form>
               {/* skills */}
-              {/* start - mansoor - 31-07-2024 */}
               <div>
                 <div className="flex justify-between items-center">
                   <div className="flex items-center mb-2">
@@ -1442,7 +1300,7 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(true)}
-                    className="flex items-center justify-center text-sm bg-blue-500 text-white py-1 rounded w-28"
+                    className="flex items-center justify-center text-sm bg-custom-blue text-white py-1 rounded w-28"
                   >
                     <FaPlus className="text-md mr-2" />
                     Add Skills
@@ -1459,7 +1317,7 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
                         <div className="w-1/3 px-2">{entry.experience}</div>
                         <div className="w-1/3 px-2">{entry.expertise}</div>
                         <div className="w-full flex justify-end space-x-2 -mt-5">
-                          <button onClick={() => handleEdit(index)} className="text-blue-500 text-md">
+                          <button onClick={() => handleEdit(index)} className="text-custom-blue text-md">
                             <FaEdit />
                           </button>
                           <button type="button" onClick={() => handleDelete(index)} className="text-red-500 text-md">
@@ -1566,7 +1424,7 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
                                 setCurrentStep(1);
                                 setSearchTerm("");
                               }}
-                              className={`bg-blue-500 text-white px-4 py-2 rounded block float-right ${!isNextEnabled() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                              className={`bg-custom-blue text-white px-4 py-2 rounded block float-right ${!isNextEnabled() ? 'opacity-50 cursor-not-allowed' : ''}`}
                               disabled={!isNextEnabled()}
                             >
                               Next
@@ -1580,7 +1438,7 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
                               <button
                                 type="button"
                                 onClick={() => setCurrentStep(2)}
-                                className={`bg-blue-500 text-white px-4 py-2 rounded ${!isNextEnabled() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`bg-custom-blue text-white px-4 py-2 rounded ${!isNextEnabled() ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 disabled={!isNextEnabled()}
                               >
                                 Next
@@ -1595,7 +1453,7 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
                               <button
                                 type="button"
                                 onClick={handleAddEntry}
-                                className={`bg-blue-500 text-white px-4 py-2 rounded ${!isNextEnabled() ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`bg-custom-blue text-white px-4 py-2 rounded ${!isNextEnabled() ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 disabled={!isNextEnabled()}
                               >
                                 {editingIndex !== null ? 'Update' : 'Add'}
@@ -1630,7 +1488,6 @@ const CreateCandidate = ({ isOpen, onClose, onCandidateAdded }) => {
                   )}
                 </div>
               </div>
-              {/* end - mansoor - 31-07-2024 */}
             </div>
 
 

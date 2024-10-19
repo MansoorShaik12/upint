@@ -6,6 +6,8 @@ import { useLocation } from "react-router-dom";
 import { FaTimes } from "react-icons/fa";
 import { MdArrowDropDown, MdOutlineCancel } from 'react-icons/md';
 import { IoIosAddCircle } from 'react-icons/io';
+import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
+import { validateForm } from "../../../../utils/PositionValidation.js";
 
 const Position_Form = ({ onClose, candidate1, rounds, isOpen, onOutsideClick }) => {
 
@@ -52,28 +54,8 @@ const Position_Form = ({ onClose, candidate1, rounds, isOpen, onOutsideClick }) 
 
   const handleSubmit = async (_id, e) => {
     e.preventDefault();
-    const requiredFields = {
-      title: 'Title is required',
-      jobdescription: 'Job Description is required',
-    };
-    let formIsValid = true;
-    const newErrors = { ...errors };
 
-    Object.entries(requiredFields).forEach(([field, message]) => {
-      if (!formData[field]) {
-        newErrors[field] = message;
-        formIsValid = false;
-      }
-    });
-    if (entries.length === 0) {
-      newErrors.skills = "At least one skill is required";
-      formIsValid = false;
-    }
-
-    if (roundEntries.length === 0) {
-      newErrors.rounds = "At least one round is required";
-      formIsValid = false;
-    }
+    const { formIsValid, newErrors } = validateForm(formData, entries, roundEntries);
     setErrors(newErrors);
     if (!formIsValid) {
       setErrors(newErrors);
@@ -246,16 +228,19 @@ const Position_Form = ({ onClose, candidate1, rounds, isOpen, onOutsideClick }) 
 
   const [companies, setCompanies] = useState([]);
   useEffect(() => {
-    const fetchCompaniesData = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/company`);
-        setCompanies(response.data);
+        const skillsData = await fetchMasterData('skills');
+        setSkills(skillsData);
+
+        const companyData = await fetchMasterData('company');
+        setCompanies(companyData);
       } catch (error) {
-        console.error('Error fetching Companies data:', error);
+        console.error('Error fetching master data:', error);
       }
     };
 
-    fetchCompaniesData();
+    fetchData();
   }, []);
   const handleCompanySelect = (company) => {
     setSelectedCompany(company.CompanyName);
@@ -363,17 +348,6 @@ const Position_Form = ({ onClose, candidate1, rounds, isOpen, onOutsideClick }) 
   };
 
   const [skills, setSkills] = useState([]);
-  useEffect(() => {
-    const fetchSkillsData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-        setSkills(response.data);
-      } catch (error) {
-        console.error("Error fetching SkillsData:", error);
-      }
-    };
-    fetchSkillsData();
-  }, []);
   // (m
 
   // rounds

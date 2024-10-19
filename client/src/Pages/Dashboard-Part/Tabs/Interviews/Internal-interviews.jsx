@@ -24,6 +24,10 @@ import SchedulePopup from "./Schedulelater";
 import SchedulePopup1 from "./Schedulenow";
 import InterviewProfileDetails from "./Internalprofiledetails";
 import { MdOutlineImageNotSupported } from "react-icons/md";
+import { fetchFilterData, handleWebSocket } from '../../../../utils/dataUtils.js';
+import maleImage from '../../../Dashboard-Part/Images/man.png';
+import femaleImage from '../../../Dashboard-Part/Images/woman.png';
+import genderlessImage from '../../../Dashboard-Part/Images/transgender.png';
 
 const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
   const [isStatusDropdownOpen, setStatusDropdownOpen] = useState(false);
@@ -384,8 +388,8 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
   );
 };
 
-const Internal = () => {
-  const userId = localStorage.getItem("userId");
+const Internal = ({ objectPermissions, sharingPermissions }) => {
+  const interviewPermissions = sharingPermissions.interviews || {};
   useEffect(() => {
     document.title = "Internal interviews";
   }, []);
@@ -393,17 +397,56 @@ const Internal = () => {
   const fetchInterviewData = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/interview?CreatedBy=${userId}&Interviewstype=/internalinterview`
-      );
-      console.log("interview data:", response.data);
-      setCandidateData(response.data);
+      const filteredInterviews = await fetchFilterData('interview', interviewPermissions);
+
+      // Fetch candidate data for each interview
+      const interviewsWithCandidates = await Promise.all(filteredInterviews.map(async (interview) => {
+        try {
+          const candidateResponse = await axios.get(`${process.env.REACT_APP_API_URL}/candidate/${interview.CandidateId}`);
+          const candidate = candidateResponse.data;
+
+          // Construct image URL if ImageData is available
+          if (candidate.ImageData && candidate.ImageData.filename) {
+            candidate.imageUrl = `${process.env.REACT_APP_API_URL}/${candidate.ImageData.path.replace(/\\/g, '/')}`;
+          }
+
+          return {
+            ...interview,
+            candidate,
+          };
+        } catch (error) {
+          console.error(`Error fetching candidate for interview ${interview._id}:`, error);
+          return {
+            ...interview,
+            candidate: null,
+          };
+        }
+      }));
+
+      setCandidateData(interviewsWithCandidates);
+      console.log("Interviews with candidates", interviewsWithCandidates);
     } catch (error) {
       console.error("Error fetching InterviewData:", error);
     } finally {
       setLoading(false);
     }
   };
+
+
+  useEffect(() => {
+    const ws = handleWebSocket(
+      `${process.env.REACT_APP_WS_URL}`,
+      'interview',
+      setCandidateData,
+      setNotification
+    );
+
+    fetchInterviewData();
+
+    return () => {
+      ws.close();
+    };
+  }, [interviewPermissions]);
 
   const [showEditLater, setShowEditLater] = useState(false);
 
@@ -440,47 +483,7 @@ const Internal = () => {
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState("");
 
-  useEffect(() => {
-    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
 
-    ws.onopen = () => {
-      console.log("WebSocket connection opened");
-    };
-
-    ws.onmessage = (event) => {
-      const { type, data } = JSON.parse(event.data);
-      if (type === "interview") {
-        setCandidateData(data);
-        setNotification("A new candidate has been successfully created!");
-
-        setTimeout(() => {
-          setNotification("");
-        }, 3000);
-      }
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket connection closed");
-    };
-
-    const fetchInterviewData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/interview`);
-        setCandidateData(response.data);
-      } catch (error) {
-        console.error("Error fetching interview data:", error);
-      }
-    };
-
-    fetchInterviewData();
-
-    return () => {
-      ws.close();
-    };
-  }, []);
-
-  console.log('REACT_APP_API_URL 1:', process.env.REACT_APP_API_URL);
-  console.log('REACT_APP_WS_URL 1:', process.env.REACT_APP_WS_URL);
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -499,10 +502,13 @@ const Internal = () => {
         // user.TeamMember ? user.TeamMember.join(", ") : "",
         // user.CreatedDate,
       ];
-      return fieldsToSearch.some(
-        (field) =>
-          field !== undefined &&
-          field.toString().toLowerCase().includes(searchQuery.toLowerCase())
+      return (
+        user.Interviewstype === "/internalinterview" && // Add this condition
+        fieldsToSearch.some(
+          (field) =>
+            field !== undefined &&
+            field.toString().toLowerCase().includes(searchQuery.toLowerCase())
+        )
       );
     });
   };
@@ -511,27 +517,6 @@ const Internal = () => {
   // end of fetching candidate data from the mongo db
   // ------------------------------------------------
 
-  // const FilteredData = () => {
-  //   return candidateData.filter((user) => {
-  //     const fieldsToSearch = [
-  //       user.InterviewTitle,
-  //       user.InterviewType,
-  //       user.Position,
-  //       user.TeamMember ? user.TeamMember.join(", ") : "",
-  //       user.CreatedDAte,
-  //     ];
-  //     return fieldsToSearch.some(
-  //       (field) =>
-  //         field !== undefined &&
-  //         field.toString().toLowerCase().includes(searchQuery.toLowerCase())
-  //     );
-  //   });
-  // };
-
-  // const handleSearchInputChange = (event) => {
-  //   setSearchQuery(event.target.value);
-  //   console.log("Search query:", event.target.value);
-  // };
 
   const [currentPage, setCurrentPage] = useState(0);
   const rowsPerPage = 10;
@@ -670,29 +655,25 @@ const Internal = () => {
     }
   };
 
-  const [isSchedulePopupVisible, setSchedulePopupVisible] = useState(false); // State for popup visibility
-  const [isSchedulePopupVisible1, setSchedulePopupVisible1] = useState(false); // State for popup visibility
+  const [isSchedulePopupVisible, setSchedulePopupVisible] = useState(false);
+  const [isSchedulePopupVisible1, setSchedulePopupVisible1] = useState(false);
 
   const openSchedulePopup = () => {
-    setSchedulePopupVisible(true); // Show the popup
+    setSchedulePopupVisible(true);
   };
 
   const closeSchedulePopup = () => {
-    setSchedulePopupVisible(false); // Hide the popup
+    setSchedulePopupVisible(false);
   };
 
   const openSchedulePopup1 = () => {
-    setSchedulePopupVisible1(true); // Show the popup
+    setSchedulePopupVisible1(true);
   };
 
   const closeSchedulePopup1 = () => {
-    setSchedulePopupVisible1(false); // Hide the popup
+    setSchedulePopupVisible1(false);
   };
 
-  // const currentFilteredRows = FilteredData().slice(
-  //     currentPage * rowsPerPage,
-  //     currentPage * rowsPerPage + rowsPerPage
-  // );
 
   const currentFilteredRows = FilteredData()
     .slice(startIndex, endIndex)
@@ -709,21 +690,19 @@ const Internal = () => {
   }, []);
   const [triggerCancel, setTriggerCancel] = useState(false);
 
-  const handleInterviewClick = async (interviewId) => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/interview/${interviewId}`);
-      setSelectedCandidate(response.data);
+  const handleInterviewClick = async (interview) => {
+    if (objectPermissions.View) {
+      setSelectedCandidate(interview);
       setActionViewMore(false)
       setTriggerCancel(false);
-    } catch (error) {
-      console.error('Error fetching interview details:', error);
     }
+    setActionViewMore(false);
   };
 
   const handleEditClick = (interview) => {
     setShowEditLater({
       ...interview,
-      interviewers: interview.rounds[0]?.interviewers || [] // Pass the interviewers data
+      interviewers: interview.rounds[0]?.interviewers || []
     });
     fetchInterviewData();
     setActionViewMore(false)
@@ -742,40 +721,40 @@ const Internal = () => {
     setSelectedCandidate(null);
   };
 
-  useEffect(() => {
-    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
+  // useEffect(() => {
+  //   const ws = new WebSocket("ws://localhost:8080");
 
-    ws.onopen = () => {
-      console.log("WebSocket connection opened");
-    };
+  //   ws.onopen = () => {
+  //     console.log("WebSocket connection opened");
+  //   };
 
-    ws.onmessage = (event) => {
-      const { type, data } = JSON.parse(event.data);
-      if (type === "newInterview") {
-        setCandidateData((prevData) => [...prevData, data]);
-        setNotification("A new Internal Interview has been created successfully!");
+  //   ws.onmessage = (event) => {
+  //     const { type, data } = JSON.parse(event.data);
+  //     if (type === "newInterview") {
+  //       setCandidateData((prevData) => [...prevData, data]);
+  //       setNotification("A new Internal Interview has been created successfully!");
 
-        setTimeout(() => {
-          setNotification("");
-        }, 3000);
-      }
-    };
+  //       setTimeout(() => {
+  //         setNotification("");
+  //       }, 3000);
+  //     }
+  //   };
 
-    ws.onclose = () => {
-      console.log("WebSocket connection closed");
-    };
+  //   ws.onclose = () => {
+  //     console.log("WebSocket connection closed");
+  //   };
 
-    fetchInterviewData();
+  //   fetchInterviewData();
 
-    return () => {
-      ws.close();
-    };
-  }, []);
+  //   return () => {
+  //     ws.close();
+  //   };
+  // }, []);
 
   return (
     <>
       {/* 1 */}
-      <div className="fixed top-24 left-0 right-0 z-40">
+      <div className="fixed top-24 left-0 right-0 z-30">
         {" "}
         {/* Adjusted z-index */}
         <div className="flex justify-between p-4">
@@ -797,9 +776,11 @@ const Internal = () => {
             className="relative mr-6 z-50"
             onClick={() => setinterviewDropdown(!interviewDropdown)}
           >
-            <span className="p-2 w-fit text-md font-semibold border shadow rounded-3xl">
-              Create a New Schedule
-            </span>
+            {objectPermissions.Create && (
+              <span className="p-2 w-fit text-md font-semibold border shadow rounded-3xl">
+                Create a New Schedule
+              </span>
+            )}
 
             {interviewDropdown && (
               <div className="absolute mt-5 right-0 z-50 w-48 rounded-md shadow-lg bg-white ring-1 p-2 ring-black ring-opacity-5">
@@ -828,6 +809,7 @@ const Internal = () => {
           </div>
         </div>
       </div>
+
       {/* 2 */}
       <div className="fixed top-36 left-0 right-0">
         <div className="flex items-center justify-between p-4">
@@ -1040,20 +1022,23 @@ const Internal = () => {
                                       </>
                                     )}
                                     <div className="py-2 px-2 flex items-center gap-3 text-blue-400">
-                                      {interview.candidateImageUrl ? (
+                                      {interview.candidate?.imageUrl ? (
                                         <img
-                                          src={interview.candidateImageUrl}
+                                          src={interview.candidate.imageUrl}
                                           alt="Candidate"
                                           className="w-7 h-7 rounded"
                                         />
                                       ) : (
-                                        <MdOutlineImageNotSupported
-                                          className="w-7 h-7 text-gray-900"
-                                          alt="Default"
-                                        />
+                                        interview.candidate?.Gender === "Male" ? (
+                                          <img src={maleImage} alt="Male Avatar" className="w-7 h-7 rounded" />
+                                        ) : interview.candidate?.Gender === "Female" ? (
+                                          <img src={femaleImage} alt="Female Avatar" className="w-7 h-7 rounded" />
+                                        ) : (
+                                          <img src={genderlessImage} alt="Other Avatar" className="w-7 h-7 rounded" />
+                                        )
                                       )}
                                       <div
-                                        onClick={() => handleInterviewClick(interview._id)}
+                                        onClick={() => handleInterviewClick(interview)}
                                       >
                                         {interview.Candidate}
                                       </div>
@@ -1099,22 +1084,27 @@ const Internal = () => {
                                     {actionViewMore === interview._id && (
                                       <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2">
                                         <div className="space-y-1">
-                                          <p
-                                            className="hover:bg-gray-200 p-1 rounded pl-3"
-                                            onClick={() => handleInterviewClick(interview._id)}
-                                          >
-                                            View
-                                          </p>
+                                          {objectPermissions.View && (
+                                            <p
+                                              className="hover:bg-gray-200 p-1 rounded pl-3"
+                                              onClick={() => handleInterviewClick(interview._id)}
+                                            >
+                                              View
+                                            </p>
+                                          )}
+
                                           {interview.ScheduleType !== "instantinterview" && (
                                             <>
-                                              <p
-                                                className="hover:bg-gray-200 p-1 rounded pl-3"
-                                                onClick={() =>
-                                                  handleEditClick(interview)
-                                                }
-                                              >
-                                                Reschedule
-                                              </p>
+                                              {objectPermissions.Edit && (
+                                                <p
+                                                  className="hover:bg-gray-200 p-1 rounded pl-3"
+                                                  onClick={() =>
+                                                    handleEditClick(interview)
+                                                  }
+                                                >
+                                                  Reschedule
+                                                </p>
+                                              )}
                                               <p
                                                 className="hover:bg-gray-200 p-1 rounded pl-3"
                                                 onClick={() =>
@@ -1208,28 +1198,33 @@ const Internal = () => {
                                     {actionViewMore === interview._id && (
                                       <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2">
                                         <div className="space-y-1">
-                                          <p
-                                            className="hover:bg-gray-200 p-1 rounded pl-3"
-                                            onClick={() =>
-                                              handleInterviewClick(interview)
-                                            }
-                                          >
-                                            View
-                                          </p>
-                                          <p
-                                            className={`hover:bg-gray-200 p-1 rounded pl-3  ${interview.ScheduleType ===
-                                              "instantinterview"
-                                              ? "cursor-not-allowed text-gray-400"
-                                              : ""
-                                              }`}
-                                            onClick={() =>
-                                              interview.ScheduleType !==
-                                              "instantinterview" &&
-                                              handleEditClick(interview)
-                                            }
-                                          >
-                                            Reschedule
-                                          </p>
+                                          {objectPermissions.View && (
+                                            <p
+                                              className="hover:bg-gray-200 p-1 rounded pl-3"
+                                              onClick={() =>
+                                                handleInterviewClick(interview)
+                                              }
+                                            >
+                                              View
+                                            </p>
+                                          )}
+                                          {objectPermissions.Edit && (
+
+                                            <p
+                                              className={`hover:bg-gray-200 p-1 rounded pl-3  ${interview.ScheduleType ===
+                                                "instantinterview"
+                                                ? "cursor-not-allowed text-gray-400"
+                                                : ""
+                                                }`}
+                                              onClick={() =>
+                                                interview.ScheduleType !==
+                                                "instantinterview" &&
+                                                handleEditClick(interview)
+                                              }
+                                            >
+                                              Reschedule
+                                            </p>
+                                          )}
                                           <p
                                             className={`hover:bg-gray-200 p-1 rounded pl-3 ${interview.ScheduleType ===
                                               "instantinterview"
@@ -1254,17 +1249,20 @@ const Internal = () => {
                                   <div className="bg-white border border-orange-500 cursor-pointer p-2 rounded shadow-lg">
                                     <div className="flex">
                                       <div className="w-16 h-14 mt-3 ml-1 mr-3 overflow-hidden cursor-pointer rounded">
-                                        {interview.imageUrl ? (
+                                        {interview.candidate?.imageUrl ? (
                                           <img
-                                            src={interview.imageUrl}
+                                            src={interview.candidate.imageUrl}
                                             alt="Candidate"
                                             className="w-full h-full"
                                           />
                                         ) : (
-                                          <MdOutlineImageNotSupported
-                                            className="w-full h-full text-gray-900"
-                                            alt="Default"
-                                          />
+                                          interview.candidate?.Gender === "Male" ? (
+                                            <img src={maleImage} alt="Male Avatar" className="w-full h-full" />
+                                          ) : interview.candidate?.Gender === "Female" ? (
+                                            <img src={femaleImage} alt="Female Avatar" className="w-full h-full" />
+                                          ) : (
+                                            <img src={genderlessImage} alt="Other Avatar" className="w-full h-full" />
+                                          )
                                         )}
                                       </div>
                                       <div className="flex flex-col justify-between">
@@ -1407,6 +1405,7 @@ const Internal = () => {
           candidate1={showEditLater}
           rounds={showEditLater.rounds}
           interviewers={showEditLater.interviewers}
+          sharingPermissions={sharingPermissions}
         />
       )}
       {showPopup && (
@@ -1415,10 +1414,10 @@ const Internal = () => {
           onConfirm={(e) => handlePopupConfirm(e, currentInterviewId)}
         />
       )}
-      {isSchedulePopupVisible && <SchedulePopup onClose={closeSchedulePopup} />}{" "}
+      {isSchedulePopupVisible && <SchedulePopup onClose={closeSchedulePopup} sharingPermissions={sharingPermissions} />}{" "}
       {isSchedulePopupVisible1 && (
-        <SchedulePopup1 onClose={closeSchedulePopup1} />
-      )}{" "}
+        <SchedulePopup1 onClose={closeSchedulePopup1} sharingPermissions={sharingPermissions} />
+      )}
       {selectedCandidate && (
         <InterviewProfileDetails
           candidate={selectedCandidate}

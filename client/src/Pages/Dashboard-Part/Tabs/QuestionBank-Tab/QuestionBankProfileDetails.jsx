@@ -10,10 +10,13 @@ import { CiStar } from "react-icons/ci";
 import QuestionBank from "../QuestionBank-Tab/QuestionBank.jsx";
 import axios from "axios";
 import { MdModeEditOutline, MdDelete } from "react-icons/md";
+import { fetchFilterData } from '../../../../utils/dataUtils.js';
+import Cookies from 'js-cookie';
 
-const InterviewDetails = ({ questionProfile, onCloseprofile }) => {
+const InterviewDetails = ({ questionProfile, onCloseprofile,sharingPermissions }) => {
 
-  const userId = localStorage.getItem("userId");
+  const userId = Cookies.get("userId");
+  const orgId = Cookies.get("organizationId");
 
   const [suggestedQuestions, setSuggestedQuestions] = useState([]);
   const [setMyQuestions] = useState([]);
@@ -29,7 +32,6 @@ const InterviewDetails = ({ questionProfile, onCloseprofile }) => {
   });
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [filled, setFilled] = useState(false);
-
   useEffect(() => {
     const fetchSuggestedQuestions = async () => {
       try {
@@ -51,15 +53,12 @@ const InterviewDetails = ({ questionProfile, onCloseprofile }) => {
 
     const fetchMyQuestions = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/newquestion/${questionProfile.SkillName}`, {
-          params: { createdBy: userId }
-        });
-        const allQuestions = response.data;
-
+        const allQuestions = await fetchFilterData('newquestion', sharingPermissions);
+    
         const filteredQuestions = allQuestions.filter(
           (question) => question.Skill === questionProfile.SkillName
         );
-
+    
         setMyInterviewQuestions(filteredQuestions.filter(q => q.QuestionType === 'Interview Questions'));
         setMyMCQQuestions(filteredQuestions.filter(q => q.QuestionType === 'MCQ'));
         setMyShortAnswerQuestions(filteredQuestions.filter(q => q.QuestionType === 'Short Text(Single Line)'));

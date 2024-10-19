@@ -5,7 +5,9 @@ import DatePicker from "react-datepicker";
 import axios from "axios";
 import { FaSearch } from 'react-icons/fa';
 import PopupComponent from "../Interviews/OutsourceOption";
-const MockSchedulelater = ({ isOpen, onClose, onOutsideClick}) => {
+import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
+import Cookies from 'js-cookie';
+const MockSchedulelater = ({  onClose, onOutsideClick}) => {
 
     const [formData, setFormData] = useState({
         Title: "",
@@ -16,7 +18,7 @@ const MockSchedulelater = ({ isOpen, onClose, onOutsideClick}) => {
         Description: "",
     });
 
-
+    const userId = Cookies.get("userId");
     const [errors, setErrors] = useState("");
 
     const handleChange = (e) => {
@@ -26,6 +28,8 @@ const MockSchedulelater = ({ isOpen, onClose, onOutsideClick}) => {
         setFormData({ ...formData, [name]: value });
         setErrors({ ...errors, [name]: errorMessage });
     };
+    const organizationId = Cookies.get("organizationId");
+    console.log("organizationId", organizationId)
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -35,7 +39,6 @@ const MockSchedulelater = ({ isOpen, onClose, onOutsideClick}) => {
             DateTime: 'Date Time is required',
             Description: 'Description is required',
             Skills: 'Skills is required',
-
         };
         let formIsValid = true;
         const newErrors = { ...errors };
@@ -53,14 +56,24 @@ const MockSchedulelater = ({ isOpen, onClose, onOutsideClick}) => {
         }
 
         try {
-            const response = await axios.post(`${process.env.REACT_APP_API_URL}/mockinterview`, {
+            const payload = {
                 ...formData,
                 Skills: selectedSkill,
                 DateTime: confirmedDateTime,
                 Duration: duration,
                 Description: textareaValue,
-                Status: "Scheduled"
-            });
+                Status: "Scheduled",
+                CreatedById: userId,
+                LastModifiedById: userId,
+                OwnerId: userId,
+            };
+
+            if (organizationId) {
+                payload.orgId = organizationId;
+            }
+
+            const response = await axios.post(`${process.env.REACT_APP_API_URL}/mockinterview`, payload);
+
             console.log(response.data);
             setFormData({
                 Title: "",
@@ -97,16 +110,17 @@ const MockSchedulelater = ({ isOpen, onClose, onOutsideClick}) => {
     const [searchTermSkills, setSearchTermSkills] = useState('');
 
     useEffect(() => {
-        const fetchSkillsData = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-                setSkills(response.data);
-            } catch (error) {
-                console.error('Error fetching skills data:', error);
-            }
+        const fetchData = async () => {
+          try {
+            const skillsData = await fetchMasterData('skills');
+            setSkills(skillsData);
+          } catch (error) {
+            console.error('Error fetching master data:', error);
+          }
         };
-        fetchSkillsData();
-    }, []);
+    
+        fetchData();
+      }, []);
 
     const toggleDropdownSkills = () => {
         setShowDropdownSkills(!showDropdownSkills);
@@ -286,7 +300,7 @@ const MockSchedulelater = ({ isOpen, onClose, onOutsideClick}) => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50" >
             <div
                 onClick={onOutsideClick}
-                className={`fixed inset-y-0 right-0 w-1/2 bg-white shadow-lg transition-transform duration-5000 transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}`}
+                className={`fixed inset-y-0 right-0 w-1/2 bg-white shadow-lg transition-transform duration-5000 transform 'translate-x-0' : 'translate-x-full`}
             >
                 <div>
                     <div className="fixed top-0 w-full bg-white border-b z-0">

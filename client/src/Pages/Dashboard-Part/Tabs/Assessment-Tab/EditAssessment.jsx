@@ -17,10 +17,12 @@ import AddPositionForm from "../Interviews/Addpositionform.jsx";
 import { BsFillInfoCircleFill } from "react-icons/bs";
 import { useLocation } from "react-router-dom";
 import AddQuestion1 from './AddQuestion1.jsx';
-
-
-const EditAssessment = forwardRef(({ onClose, assessmentId, candidate1 }, ref) => {
-  console.log(candidate1, "ashraf");
+import { fetchFilterData } from "../../../../utils/dataUtils.js";
+import Cookies from 'js-cookie';
+const EditAssessment = forwardRef(({ onClose, assessmentId, candidate1, sharingPermissions }, ref) => {
+  const organizationId = Cookies.get("organizationId");
+  const positionPermissions = sharingPermissions.position || {};
+  const [loading, setLoading] = useState(false);
   const updatedCandidate = candidate1;
   const [formData, setFormData] = useState({
     AssessmentTitle: updatedCandidate.AssessmentTitle || '',
@@ -81,17 +83,21 @@ const EditAssessment = forwardRef(({ onClose, assessmentId, candidate1 }, ref) =
 
 
   useEffect(() => {
-    const fetchPositionsData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/position?CreatedBy=${userId}`);
-        setPositions(response.data);
-      } catch (error) {
-        console.error("Error fetching position data:", error);
-      }
+    const fetchSkillsData = async () => {
+        setLoading(true);
+        try {
+            const filteredPositions = await fetchFilterData('position', positionPermissions);
+            setPositions(filteredPositions);
+        } catch (error) {
+            console.error('Error fetching position data:', error);
+        } finally {
+            setLoading(false);
+        }
     };
-
-    fetchPositionsData();
-  }, [userId]);
+  
+    fetchSkillsData();
+  
+  }, [positionPermissions]);
 
   const handleSaveAll = async (e) => {
     e.preventDefault();

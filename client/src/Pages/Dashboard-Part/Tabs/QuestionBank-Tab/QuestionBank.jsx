@@ -12,6 +12,8 @@ import { CgInfo } from "react-icons/cg";
 import QuestionBankProfileDetails from "./QuestionBankProfileDetails.jsx";
 import { MdKeyboardArrowUp } from "react-icons/md";
 import { MdKeyboardArrowDown } from "react-icons/md";
+import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
+import Cookies from 'js-cookie';
 
 const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     const [isTechDropdownOpen, setTechDropdownOpen] = useState(false);
@@ -58,7 +60,6 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
         };
         fetchSkillsData();
     }, []);
-    
 
     useEffect(() => {
         onFilterChange({
@@ -136,7 +137,7 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     );
 };
 
-const QuestionBank = () => {
+const QuestionBank = ({objectPermissions, sharingPermissions}) => {
 
     const [suggestedQuestionsCount, setSuggestedQuestionsCount] = useState({});
     const [favoriteQuestionsCount, setFavoriteQuestionsCount] = useState({});
@@ -184,7 +185,7 @@ const QuestionBank = () => {
 
         const fetchFavoriteQuestionsCount = async () => {
             try {
-                const userId = localStorage.getItem("userId");
+                const userId = Cookies.get("userId");
                 const response = await axios.get(`${process.env.REACT_APP_API_URL}/favoritequestions-count/${userId}`);
                 setFavoriteQuestionsCount(response.data);
             } catch (error) {
@@ -204,8 +205,8 @@ const QuestionBank = () => {
         const fetchSkillsData = async () => {
             setLoading(true);
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-                setCurrentRows(response.data);
+                const skillsData = await fetchMasterData('skills');
+                setCurrentRows(skillsData);
             } catch (error) {
                 console.error('Error fetching SkillsData:', error);
             } finally {
@@ -214,6 +215,7 @@ const QuestionBank = () => {
         };
         fetchSkillsData();
     }, []);
+
     const getSuggestedQuestionCountForSkill = (skillName) => {
         return suggestedQuestionsCount[skillName] || 0;
     };
@@ -223,7 +225,9 @@ const QuestionBank = () => {
     };
 
     const handleCandidateClick = (row) => {
+        if (objectPermissions.View) {
         setQuestionProfile(row);
+        }
     };
 
     const handleSearchInputChange = (event) => {
@@ -347,12 +351,14 @@ const QuestionBank = () => {
                             </div>
                         )}
                     </div>
+                    {objectPermissions.Create && (
 
                     <div onClick={toggleSidebar} className="mr-6">
                         <span className="p-2 text-md font-semibold border shadow rounded-3xl">
                             Add Question
                         </span>
                     </div>
+                    )}
 
                 </div>
             </div>
@@ -593,6 +599,7 @@ const QuestionBank = () => {
                 <QuestionBankProfileDetails
                     questionProfile={questionProfile}
                     onCloseprofile={handleProfileClose}
+                    sharingPermissions={sharingPermissions}
                 />
             )}
 

@@ -1,30 +1,37 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
-import { useAuth0 } from '@auth0/auth0-react';
-import Home from './Pages/Dashboard-Part/Dashboard/Home.jsx'
-import Navbar from './Components/Navbar/Navbar-Sidebar.jsx'
+import axios from "axios";
+import Home from './Pages/Dashboard-Part/Dashboard/Home.jsx';
+import Navbar from './Components/Navbar/Navbar-Sidebar.jsx';
 import Assessment from "./Pages/Dashboard-Part/Tabs/Assessment-Tab/Assessment.jsx";
 import Analytics from "./Pages/Dashboard-Part/Tabs/Analytics-Tab/Analytics.jsx";
 import Candidate from "./Pages/Dashboard-Part/Tabs/Candidate-Tab/Candidate.jsx";
-import Position from "./Pages/Dashboard-Part/Tabs/Position-Tab/Position.jsx"
+import Position from "./Pages/Dashboard-Part/Tabs/Position-Tab/Position.jsx";
 import Billing from "./Pages/Dashboard-Part/Tabs/Billing-Tab/Billing.jsx";
 import QuestionBank from './Pages/Dashboard-Part/Tabs/QuestionBank-Tab/QuestionBank.jsx';
 import Settingssidebar from './Pages/Dashboard-Part/Tabs/Settings-Tab/Settings.jsx';
+import App_settings from './Pages/Dashboard-Part/Tabs/App_Settings-Tab/App_settings.jsx';
 import NewAssessment from './Pages/Dashboard-Part/Tabs/Assessment-Tab/NewAssessment.jsx';
 import Interviewcq from './Pages/Dashboard-Part/Tabs/QuestionBank-Tab/QuestionBank-Form.jsx';
 import CreateCandidate from './Pages/Dashboard-Part/Tabs/Candidate-Tab/CreateCandidate.jsx';
 import Team from "./Pages/Dashboard-Part/Tabs/Team-Tab/Team.jsx";
 import CreateTeams from "./Pages/Dashboard-Part/Tabs/Team-Tab/CreateTeams.jsx";
 import PositionProfileDetails from './Pages/Dashboard-Part/Tabs/Position-Tab/PositionProfileDetails.js';
-import Internalinterview from './Pages/Dashboard-Part/Tabs/Interviews/Internal-interviews.jsx'
-import Outsourceinterview from './Pages/Dashboard-Part/Tabs/Interviews/Outsource-interviews.jsx'
+import Internalinterview from './Pages/Dashboard-Part/Tabs/Interviews/Internal-interviews.jsx';
+import Outsourceinterview from './Pages/Dashboard-Part/Tabs/Interviews/Outsource-interviews.jsx';
 import AppViewMore from './Pages/Dashboard-Part/Dashboard/AppViewMore';
+import All_Sharing_settings from './Pages/Dashboard-Part/Dashboard/All_Sharing_settings.jsx';
+import InvoiceLine from './Pages/Dashboard-Part/Tabs/Settings-Tab/InvoiceLine.jsx';
+import Price from './Pages/Login-Part/price.jsx';
+import Sharing_settings from './Pages/Dashboard-Part/Tabs/Settings-Tab/Sharing_settings.jsx';
 // settings
 import Profile from './Pages/Dashboard-Part/Tabs/Settings-Tab/Profile.jsx';
 import Availability from './Pages/Dashboard-Part/Tabs/Settings-Tab/Availability.jsx';
 import Billingdetails from './Pages/Dashboard-Part/Tabs/Settings-Tab/Billing_details.jsx';
 import Invoice from './Pages/Dashboard-Part/Tabs/Settings-Tab/Invoice.jsx';
+import UserDetails from './Pages/Dashboard-Part/Tabs/Settings-Tab/User_details.jsx';
+import CompanyInfo from './Pages/Dashboard-Part/Tabs/Settings-Tab/Company_info.jsx';
+import Settings from './Pages/Dashboard-Part/Tabs/Settings-Tab/Settings.jsx';
 //Login
 import Login1 from './Pages/Login-Part/Login-1.jsx';
 import Login2 from './Pages/Login-Part/Login-2.jsx';
@@ -32,29 +39,29 @@ import Login3 from './Pages/Login-Part/Login-3.jsx';
 import Login4 from './Pages/Login-Part/Login-4.jsx';
 
 import CandidateProfileDetails from './Pages/Dashboard-Part/Tabs/Candidate-Tab/CandidateProfileDetails.js';
-import Schedulenow from './Pages/Dashboard-Part/Tabs/Interviews/Schedulenow.jsx'
-import TeamProfileDetails from './Pages/Dashboard-Part/Tabs/Team-Tab/TeamProfileDetails.js'
-import InterviewProfileDetails from './Pages/Dashboard-Part/Tabs/QuestionBank-Tab/QuestionBankProfileDetails.jsx'
-import AssessmentProfileDetails from './Pages/Dashboard-Part/Tabs/Assessment-Tab/Assessmentprofiledetails.jsx';
-import OutsourceOption from './Pages/Dashboard-Part/Tabs/Interviews/OutsourceOption.jsx'
+import Schedulenow from './Pages/Dashboard-Part/Tabs/Interviews/Schedulenow.jsx';
+import TeamProfileDetails from './Pages/Dashboard-Part/Tabs/Team-Tab/TeamProfileDetails.js';
+import InterviewProfileDetails from './Pages/Dashboard-Part/Tabs/QuestionBank-Tab/QuestionBankProfileDetails.jsx';
+import AssessmentPopUp from './Pages/Dashboard-Part/Tabs/Assessment-Tab/Assessmentprofiledetails.jsx';
+import OutsourceOption from './Pages/Dashboard-Part/Tabs/Interviews/OutsourceOption.jsx';
 import EditCandidate from './Pages/Dashboard-Part/Tabs/Candidate-Tab/EditCandidate.jsx';
 import EditAssessment from './Pages/Dashboard-Part/Tabs/Assessment-Tab/EditAssessment.jsx';
-import EditTeam from './Pages/Dashboard-Part/Tabs/Team-Tab/EditTeam.jsx'
-import EditQuestion from './Pages/Dashboard-Part/Tabs/QuestionBank-Tab/EditQuestionform.jsx'
-import Editpositionform from './Pages/Dashboard-Part/Tabs/Position-Tab/Editpositionform.jsx'
-import Notifications from './Pages/Dashboard-Part/Dashboard/Notifications.jsx'
-import Editinternallater from './Pages/Dashboard-Part/Tabs/Interviews/Edit-Internal-later.jsx'
+import EditTeam from './Pages/Dashboard-Part/Tabs/Team-Tab/EditTeam.jsx';
+import EditQuestion from './Pages/Dashboard-Part/Tabs/QuestionBank-Tab/EditQuestionform.jsx';
+import Editpositionform from './Pages/Dashboard-Part/Tabs/Position-Tab/Editpositionform.jsx';
+import Notifications from './Pages/Dashboard-Part/Dashboard/Notifications.jsx';
+import Editinternallater from './Pages/Dashboard-Part/Tabs/Interviews/Edit-Internal-later.jsx';
 import MockInterview from './Pages/Dashboard-Part/Tabs/MockInterview/MockInterview.jsx';
 import MockProfileDetails from './Pages/Dashboard-Part/Tabs/MockInterview/MockProfileDetails.jsx';
 import NewInterviewViewPage from './Pages/Dashboard-Part/Dashboard/NewInterviewViewPage.jsx';
 import NewInterviewRequest from './Pages/Dashboard-Part/Dashboard/NewInterviewRequest.jsx';
-import Internalprofiledetails from './Pages/Dashboard-Part/Tabs/Interviews/Internalprofiledetails.js'
+import Internalprofiledetails from './Pages/Dashboard-Part/Tabs/Interviews/Internalprofiledetails.js';
 // Assessment test
 import AssessmentTest from './Pages/Dashboard-Part/Tabs/AssessmentTest-Tab/AssessmentTest.jsx';
 import AssessmentText from './Pages/Dashboard-Part/Tabs/AssessmentTest-Tab/AssessementQuestion.jsx';
 import AssessmentSubmit from './Pages/Dashboard-Part/Tabs/AssessmentTest-Tab/AssessmentSubmit.jsx';
 // Start Interviews
-import CandidateVC from './Pages/Dashboard-Part/Tabs/StartInterview-Tab/CandidateCV.jsx'
+import CandidateVC from './Pages/Dashboard-Part/Tabs/StartInterview-Tab/CandidateCV.jsx';
 import VideoCallButton from './Pages/Dashboard-Part/Tabs/StartInterview-Tab/VideoCallButton.jsx';
 
 import MasterData from './Pages/Dashboard-Part/Dashboard/MasterData.jsx';
@@ -63,69 +70,66 @@ import Contact from './Pages/Dashboard-Part/Dashboard/Contact.jsx';
 import UserProfileDetails from './Pages/Dashboard-Part/Dashboard/UserProfileDetails.jsx';
 import ContactProfileDetails from './Pages/Dashboard-Part/Dashboard/ContactProfileDetails.jsx';
 import Inquirydesk from './Pages/Dashboard-Part/Dashboard/Inquirydesk.jsx';
-
+import Roles from './Pages/Dashboard-Part/Dashboard/Roles.jsx';
+import Profilefromapps from './Pages/Dashboard-Part/Dashboard/Profile.jsx';
 import Admin from './Pages/Login-Part/Admin.jsx';
 import NoFreelancer from './Pages/Login-Part/NoFreelancer.jsx';
 import Callback from './Callback.js';
 import JitsiMeeting from './jitsimeetingstart.jsx';
+import { Organization } from './Pages/Login-Part/Organization.jsx';
+
+// app settings
+import Connected_apps from './Pages/Dashboard-Part/Tabs/App_Settings-Tab/Connected_apps.jsx';
+import APIs from './Pages/Dashboard-Part/Tabs/App_Settings-Tab/APIs.jsx';
+import Auth_token from './Pages/Dashboard-Part/Tabs/App_Settings-Tab/Auth_token.jsx';
+import Access_token from './Pages/Dashboard-Part/Tabs/App_Settings-Tab/Access_token.jsx';
+import initializeApp from './utils/initializeApp.js';
+
+import Sharing_rules from './Pages/Dashboard-Part/Tabs/Settings-Tab/Sharing_rules.jsx';
+
+import Task from './Pages/Dashboard-Part/Dashboard/Task.jsx'
+
 
 const App = () => {
   const location = useLocation();
-  const shouldRenderNavbar = !['/', '/profile1', '/profile2', '/profile3', '/profile4', '/assessmenttest', '/assessmenttext', '/assessmentsubmit', '/candidatevc', '/admin', '/nofreelance', '/callback', '/jitsimeetingstart'].includes(location.pathname);
-  const pathsWithSidebar = ['/profile', '/availability', '/billing_details', '/invoice'];
+  const shouldRenderNavbar = !['/', '/profile1', '/price', '/profile2', '/profile3', '/profile4', '/assessmenttest', '/assessmenttext', '/assessmentsubmit', '/candidatevc', '/admin', '/nofreelance', '/callback', '/jitsimeetingstart', '/organization'].includes(location.pathname);
+  const pathsWithSidebar = ['/profile', '/availability', '/billing_details', '/invoice', '/user_details', '/company_info', '/invoiceline', '/sharing_settings', '/sharing_rules'];
+  const pathsWithSidebarAppSettings = ['/connected_apps', '/access_token', '/auth_token', '/apis'];
   const isNavbarHidden = !shouldRenderNavbar;
+  const [userProfile, setUserProfile] = useState(null);
+  const [userRole, setUserRole] = useState(null);
+  const [sharingSettings, setSharingSettings] = useState(null);
+  const [objectPermissions, setObjectPermissions] = useState({});
+  const [tabPermissions, setTabPermissions] = useState({});
+  const [sharingPermissions, setSharingPermissions] = useState({});
+  const [organization, setOrganization] = useState(false);
+  // console.log('organization',organization);
+  const [freelancer, setFreelancer] = useState(false);
+  // console.log('freelancer',freelancer);
 
-  // useEffect(() => {
-  //   const checkUserExistence = async () => {
-  //     if (isAuthenticated && user) {
-  //       try {
-  //         const response = await axios.get(`${process.env.REACT_APP_API_URL}/users/${user.sub}`);
-  //         if (response.data) {
-  //           navigate('/home');
-  //         } else {
-  //           if (!['/', '/profile1'].includes(location.pathname)) {
-  //             navigate('/profile4');
-  //           }
-  //         }
-  //       } catch (error) {
-  //         console.error('Error checking user existence:', error);
-  //       }
-  //     }
-  //   };
+  useEffect(() => {
+    initializeApp(setUserProfile, setUserRole, setSharingSettings, setOrganization, setFreelancer, setObjectPermissions, setTabPermissions, setSharingPermissions);
+    // WebSocket setup
+    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
+    ws.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === 'user') {
+        initializeApp(setUserProfile, setUserRole, setSharingSettings, setOrganization, setFreelancer, setObjectPermissions, setTabPermissions, setSharingPermissions);
+      }
+    };
 
-  //   if (!['/', '/profile1', '/profile2', '/profile3'].includes(location.pathname)) {
-  //     checkUserExistence();
-  //   }
-  // }, [isAuthenticated, user, navigate, location.pathname]);
+    return () => {
+      ws.close();
+    };
+  }, []);
 
-  // if (isLoading) {
-  //   return <div>Loading...</div>;
-  // }
-  // useEffect(() => {
-  //   // Fetch the user role from the backend
-  //   const fetchUserRole = async () => {
-  //     try {
-  //       const response = await fetch('/api/users/role', {
-  //         headers: {
-  //           'Authorization': 'Bearer ' + localStorage.getItem('token')
-  //         }
-  //       });
-  //       const data = await response.json();
-  //       setUserRole(data.role);
-  //     } catch (error) {
-  //       console.error('Error fetching user role:', error);
-  //     }
-  //   };
-
-  //   fetchUserRole();
-  // }, []);
   const [roomName, setRoomName] = useState('SampleRoom');
   const [displayName, setDisplayName] = useState('John Doe');
-  // const [jwtToken, setJwtToken] = useState('eyJraWQiOiJ2cGFhcy1tYWdpYy1jb29raWUtMDE5YWY1YjhlOWM3NGY0MmE0NDk0N2VlMGMwODU3MmQvYzZiYzBmLVNBTVBMRV9BUFAiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJhdWQiOiJqaXRzaSIsImlzcyI6ImNoYXQiLCJpYXQiOjE3MjUzNjczNDAsImV4cCI6MTcyNTM3NDU0MCwibmJmIjoxNzI1MzY3MzM1LCJzdWIiOiJ2cGFhcy1tYWdpYy1jb29raWUtMDE5YWY1YjhlOWM3NGY0MmE0NDk0N2VlMGMwODU3MmQiLCJjb250ZXh0Ijp7ImZlYXR1cmVzIjp7ImxpdmVzdHJlYW1pbmciOnRydWUsIm91dGJvdW5kLWNhbGwiOnRydWUsInNpcC1vdXRib3VuZC1jYWxsIjpmYWxzZSwidHJhbnNjcmlwdGlvbiI6dHJ1ZSwicmVjb3JkaW5nIjp0cnVlfSwidXNlciI6eyJoaWRkZW4tZnJvbS1yZWNvcmRlciI6ZmFsc2UsIm1vZGVyYXRvciI6dHJ1ZSwibmFtZSI6ImFzaHJhZnNoYWlrMjUwIiwiaWQiOiJnb29nbGUtb2F1dGgyfDExMTQ5NjEwNzE0OTQwNDU2MDIzNSIsImF2YXRhciI6IiIsImVtYWlsIjoiYXNocmFmc2hhaWsyNTBAZ21haWwuY29tIn19LCJyb29tIjoiKiJ9.DSat0QMav-gbIRq7Wf5vBT6MpE4l7YWQAEdmyzFhzSbIVcF9Q8XlTXYT7D4TCUWGbeVp7nAmUeyiINSChOZ1AFuTvuEaFBZz6VT0xFzj2UL1aew0bv9DbXBtPcCSY2flJ2dOntwy3yffJ9FOiqFVpIUvvspBm-TRa0HEpod03o9Gs4DpTKHQp5he8e_UdKVrN-aqSC-I4fepqlhtKd9rQ6W5COIVW4UOYrdVTUufEuWcoFlLa2XF6TN92h2FZRp2VVBlxhrFdew59Qw6Oe9pHiJ3SzEfjo96TMbrcgPdV71I_5KJT-n0TXxD4RdAF6oUZ6XyZ61-VEPasqWlCcgjHA');
   return (
     <React.Fragment>
       {shouldRenderNavbar && <Navbar />}
       {pathsWithSidebar.includes(location.pathname) && <Settingssidebar />}
+      {pathsWithSidebarAppSettings.includes(location.pathname) && <App_settings />}
       <div className={isNavbarHidden ? '' : 'mt-28'}>
         <Routes>
           {/* login */}
@@ -138,70 +142,77 @@ const App = () => {
           {/* home */}
           <Route path="/AppViewMore" element={<AppViewMore />} />
           <Route path="/notifications" element={<Notifications />} />
-          <Route path="/home" element={<Home />} />
-          {/* candidate */}
-          <Route path="/candidate" element={<Candidate />} />
-          <Route path="/create-new-candidate" element={<CreateCandidate />} />
-          <Route path="/candidate-profile-details" element={<CandidateProfileDetails />} />
-          <Route path="/edit-candidate" element={<EditCandidate />} />
-          {/* position */}
-          <Route path="/position" element={<Position />} />
-          <Route path="/position-profile-details" element={<PositionProfileDetails />} />
-          <Route path="/edit-position" element={<Editpositionform />} />
-          {/* teams */}
-          <Route path="/team" element={<Team />} />
-          <Route path="/create-new-team" element={<CreateTeams />} />
-          <Route path="/team-profile-details" element={<TeamProfileDetails />} />
-          <Route path="/edit-team" element={<EditTeam />} />
-          {/* assessment */}
-          <Route path="/assessment" element={<Assessment />} />
-          <Route path="/create-new-assessment" element={<NewAssessment />} />
-          <Route path="/assessment-profile-details" element={<AssessmentProfileDetails />} />
-          <Route path="/edit-assessment" element={<EditAssessment />} />
-          {/* Question Bank */}
-          <Route path="/edit-question" element={<EditQuestion />} />
-          {/* Assessment Test */}
-          <Route path="/assessmenttest" element={<AssessmentTest />} />
-          <Route path="/assessmenttext" element={<AssessmentText />} />
-          <Route path="/assessmentsubmit" element={<AssessmentSubmit />} />
-
-          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/home" element={<Home sharingPermissions={sharingPermissions} freelancer={freelancer} objectPermissions={objectPermissions} />} />
+          <Route path="/candidate" element={<Candidate objectPermissions={objectPermissions.candidate || {}} tabPermissions={tabPermissions.candidate || {}} sharingPermissions={sharingPermissions.candidate || {}} />} />
+          <Route path="/position" element={<Position objectPermissions={objectPermissions.position || {}} tabPermissions={tabPermissions.position || {}} sharingPermissions={sharingPermissions.position || {}} />}  />
+          <Route path="/assessment" element={<Assessment objectPermissions={objectPermissions.assessment || {}} tabPermissions={tabPermissions.assessment || {}} sharingPermissions={sharingPermissions|| {}} />} />
+          <Route path="/analytics" element={<Analytics objectPermissions={objectPermissions.analytics || {}} tabPermissions={tabPermissions.analytics || {}} sharingPermissions={sharingPermissions.analytics || {}} />} />
           <Route path="/billing" element={<Billing />} />
-          <Route path="/question-bank" element={<QuestionBank />} />  
+          <Route path="/interview-question" element={<QuestionBank objectPermissions={objectPermissions.questionBank || {}} sharingPermissions={sharingPermissions.questionBank || {}} />} />
+          <Route path="/newassessment" element={<NewAssessment />} />
           <Route path="/interviewcq" element={<Interviewcq />} />
+          <Route path="/createCandidate" element={<CreateCandidate sharingPermissions={sharingPermissions} organization={organization} />} />
+          <Route path="/team" element={<Team objectPermissions={objectPermissions.team || {}} tabPermissions={tabPermissions.team || {}} sharingPermissions={sharingPermissions.team || {}} />} />
+          <Route path="/createTeams" element={<CreateTeams />} />
           <Route path="/outsourceoption" element={<OutsourceOption />} />
+          <Route path="/candidate-profiledetails" element={<CandidateProfileDetails />} />
+          <Route path="/position-profiledetails" element={<PositionProfileDetails />} />
+          <Route path="/team-profiledetails" element={<TeamProfileDetails />} />
           <Route path="/interview-profiledetails" element={<InterviewProfileDetails />} />
+          <Route path="/assessmentpopup" element={<AssessmentPopUp />} />
           <Route path="/schedulenow" element={<Schedulenow />} />
           <Route path="/newinterviewviewpage" element={<NewInterviewViewPage />} />
           <Route path="/newinterviewrequest" element={<NewInterviewRequest />} />
           <Route path="/internalprofiledetails" element={<Internalprofiledetails />} />
-          <Route path="/internalinterview" element={<Internalinterview />} />
-          <Route path="/outsourceinterview" element={<Outsourceinterview />} />
+          <Route path="/internalinterview" element={<Internalinterview objectPermissions={objectPermissions.interviews || {}} tabPermissions={tabPermissions.interviews || {}} sharingPermissions={sharingPermissions || {}} />} />
+          <Route path="/outsourceinterview" element={<Outsourceinterview objectPermissions={objectPermissions.interviews || {}} tabPermissions={tabPermissions.interviews || {}} sharingPermissions={sharingPermissions || {}} />} />
+          <Route path="/editcandidate" element={<EditCandidate />} />
+          <Route path="/editassessment" element={<EditAssessment />} />
+          <Route path="/editteam" element={<EditTeam />} />
+          <Route path="/editquestion" element={<EditQuestion />} />
+          <Route path="/editpositionform" element={<Editpositionform />} />
           <Route path="/editinternallater" element={<Editinternallater />} />
           <Route path="/mock-profiledetails" element={<MockProfileDetails />} />
-          <Route path="/mockinterview" element={<MockInterview />} />
+          <Route path="/mockinterview" element={<MockInterview objectPermissions={objectPermissions.mockInterviews || {}} sharingPermissions={sharingPermissions.mockInterviews || {}} />} />
+          <Route path="/assessmenttest" element={<AssessmentTest />} />
+          <Route path="/assessmenttext" element={<AssessmentText />} />
+          <Route path="/assessmentsubmit" element={<AssessmentSubmit />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/availability" element={<Availability />} />
+          <Route path="/availability" element={<Availability objectPermissions={objectPermissions.availability || {}} tabPermissions={tabPermissions.availability || {}} sharingPermissions={sharingPermissions.availability || {}} />} />
           <Route path="/billing_details" element={<Billingdetails />} />
           <Route path="/invoice" element={<Invoice />} />
+          <Route path="/user_details" element={<UserDetails />} />
+          <Route path="/company_info" element={<CompanyInfo />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/sharing_settings" element={<Sharing_settings />} />
+          <Route path="/invoiceline" element={<InvoiceLine />} />
+          <Route path="/all_sharing_settings" element={<All_Sharing_settings />} />
+          <Route path="/sharing_rules" element={<Sharing_rules />} />
+          <Route path="/task" element={<Task sharingPermissions={sharingPermissions} />} />
+
           {/* Start Interviews */}
           <Route path="/candidatevc" element={<CandidateVC />} />
           <Route path="/videocallbutton" element={<VideoCallButton />} />
-          <Route path="/masterdata" element={<MasterData />} />
+          <Route path="/masterdata" element={<MasterData objectPermissions={objectPermissions.masterdata || {}} tabPermissions={tabPermissions.masterdata || {}} sharingPermissions={sharingPermissions.masterdata || {}} />} />
           <Route path="/users" element={<Users />} />
-          {/* <Route path="/users" element={<ProtectedRoute element={Users} requiredRole="user" userRole={userRole} />} /> */}
-
+          <Route path="/roles" element={<Roles objectPermissions={objectPermissions.roles || {}} tabPermissions={tabPermissions.roles || {}} sharingPermissions={sharingPermissions.roles || {}} />} />
           <Route path="/contact" element={<Contact />} />
-          <Route path="/userprofiledetails" element={<UserProfileDetails />} />
-          <Route path="/contactprofiledetails" element={<ContactProfileDetails />} />
+          <Route path="/user-profiledetails" element={<UserProfileDetails />} />
+          <Route path="/contact-profiledetails" element={<ContactProfileDetails />} />
           <Route path="/inquirydesk" element={<Inquirydesk />} />
-          <Route path="/Admin" element={<Admin />} />
+          <Route path="/profilefromapps" element={<Profilefromapps />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/price" element={<Price />} />
           <Route path="/jitsimeetingstart" element={<JitsiMeeting roomName={roomName} displayName={displayName} />} />
+          <Route path="/organization" element={<Organization />} />
+          <Route path="/connected_apps" element={<Connected_apps />} />
+          <Route path="/access_token" element={<Access_token />} />
+          <Route path="/auth_token" element={<Auth_token />} />
+          <Route path="/apis" element={<APIs />} />
         </Routes>
       </div>
     </React.Fragment>
+  );
+};
 
-  )
-}
-
-export default App
+export default App;

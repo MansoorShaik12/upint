@@ -24,7 +24,7 @@ const Divider = () => (
 
 
 const AddQuestion1 = React.forwardRef(({ isOpen, onClose, sectionName, onQuestionAdded, selectedAssessmentType }, ref) => {
-  
+
   const [questionNumber, setQuestionNumber] = useState(1);
   const questionTypeOptions = selectedAssessmentType;
   const [selectedQuestionType, setSelectedQuestionType] = useState("");
@@ -513,7 +513,7 @@ const AddQuestion1 = React.forwardRef(({ isOpen, onClose, sectionName, onQuestio
                     </div>
                   </div>
                 </div>
-             
+
                 <div className="flex gap-5 mb-5">
                   <div>
                     <label htmlFor="Question" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400 w-36">
@@ -585,22 +585,28 @@ const AddQuestion1 = React.forwardRef(({ isOpen, onClose, sectionName, onQuestio
                       {errors.Answer && <p className="text-red-500 text-sm -mt-4">{errors.Answer}</p>}
                     </div>
                   )}
-                  {selectedQuestionType === "Programming Questions" && (
-                    <div className="flex justify-between items-center mb-5">
+
+                </div>
+
+                {selectedQuestionType === "Programming Questions" && (
+                  <div className="flex justify-between items-center mb-7 -mt-5">
+                    <div>
                       <label htmlFor="TestCases" className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400 w-36">
                         Code <span className="text-red-500">*</span>
                       </label>
+                    </div>
+                    <div>
                       <button
                         type="button"
-                        className="ml-80 mr-4 bg-blue-500 text-white px-3 py-1 rounded"
+                        className="mr-2 bg-blue-500 text-white px-3 py-1 rounded"
                         onClick={handleAddButtonClick}
                       >
                         Add
                       </button>
                     </div>
-                  )}
-                </div>
-                
+                  </div>
+                )}
+
                 {selectedQuestionType === "Programming Questions" && (
                   <div className="space-y-4 mb-4">
                     {entries.map((entry, index) => (
@@ -694,7 +700,7 @@ const AddQuestion1 = React.forwardRef(({ isOpen, onClose, sectionName, onQuestio
                     </div>
                   </div>
                 </div>
-               
+
                 {showMcqFields && (
                   <div>
                     <div className="flex items-center gap-2 mb-2">

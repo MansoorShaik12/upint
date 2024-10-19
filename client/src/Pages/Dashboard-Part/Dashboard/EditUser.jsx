@@ -13,7 +13,6 @@ import { useNavigate } from "react-router-dom";
 
 // {f} //
 const EditUser = ({ isOpen,onClose,user }) => {
-console.log(user)
 
   const [userData, setUserData] = useState({
     FirstName: user?.Firstname || "",
@@ -30,7 +29,6 @@ console.log(user)
     Language: user?.Language ||"",
     // CountryCode: user.CountryCode || "+91",
   });
-  console.log(userData);
   useEffect(() => {
     if (user) {
         setUserData({

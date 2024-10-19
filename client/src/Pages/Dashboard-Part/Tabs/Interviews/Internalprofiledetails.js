@@ -5,6 +5,9 @@ import { FaTimes } from "react-icons/fa";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import Editinternallater from "./Edit-Internal-later";
 import axios from 'axios';
+import maleImage from '../../../Dashboard-Part/Images/man.png';
+import femaleImage from '../../../Dashboard-Part/Images/woman.png';
+import genderlessImage from '../../../Dashboard-Part/Images/transgender.png';
 
 const Internalprofiledetails = ({ candidate, onCloseprofile, triggerCancel, viewMode }) => {
     const [isViewMode, setIsViewMode] = useState(false);
@@ -29,7 +32,7 @@ const Internalprofiledetails = ({ candidate, onCloseprofile, triggerCancel, view
     }, [triggerCancel]);
 
     useEffect(() => {
-        const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
+        const ws = new WebSocket("ws://localhost:8080");
 
         ws.onopen = () => {
             console.log("WebSocket connection opened");
@@ -117,7 +120,23 @@ const Internalprofiledetails = ({ candidate, onCloseprofile, triggerCancel, view
     const handleBackClick = () => {
         setShowCheckboxes(false);
     };
-
+    const [selectedCandidate, setSelectedCandidate] = useState(null);
+    useEffect(() => {
+        const fetchRounds = async () => {
+            try {
+                // Assuming updatedCandidate.rounds contains the array of round IDs
+                const roundIds = updatedCandidate.rounds;
+                const response = await axios.post(`${process.env.REACT_APP_API_URL}/fetch-rounds-from-view`, { roundIds });
+                setSelectedCandidate({ ...updatedCandidate, rounds: response.data });
+            } catch (error) {
+                console.error('Error fetching rounds details:', error);
+            }
+        };
+    
+        if (updatedCandidate.rounds && updatedCandidate.rounds.length > 0) {
+            fetchRounds();
+        }
+    }, [updatedCandidate]);
     return (
         <>
             <div>
@@ -196,10 +215,30 @@ const Internalprofiledetails = ({ candidate, onCloseprofile, triggerCancel, view
                                         <div>
                                             <div className='flex justify-end text-center'>
                                                 <div>
-                                                    {updatedCandidate.candidateImageUrl ? (
-                                                        <img src={updatedCandidate.candidateImageUrl} alt="Candidate" className="w-32 h-32 rounded border border-gray-300" />
+                                                    {updatedCandidate.candidate && updatedCandidate.candidate.imageUrl ? (
+                                                        <img
+                                                            src={updatedCandidate.candidate.imageUrl}
+                                                            alt="Candidate"
+                                                            className="w-32 h-32 rounded border border-gray-300"
+                                                        />
+                                                    ) : updatedCandidate.candidate && updatedCandidate.candidate.Gender === "Male" ? (
+                                                        <img
+                                                            src={maleImage}
+                                                            alt="Male Avatar"
+                                                            className="w-32 h-32 rounded border border-gray-300"
+                                                        />
+                                                    ) : updatedCandidate.candidate && updatedCandidate.candidate.Gender === "Female" ? (
+                                                        <img
+                                                            src={femaleImage}
+                                                            alt="Female Avatar"
+                                                            className="w-32 h-32 rounded border border-gray-300"
+                                                        />
                                                     ) : (
-                                                        < MdOutlineImageNotSupported className="w-32 h-32 text-gray-900" alt="Default" />
+                                                        <img
+                                                            src={genderlessImage}
+                                                            alt="Other Avatar"
+                                                            className="w-32 h-32 rounded border border-gray-300"
+                                                        />
                                                     )}
                                                 </div>
                                             </div>
@@ -207,7 +246,7 @@ const Internalprofiledetails = ({ candidate, onCloseprofile, triggerCancel, view
                                     </div>
                                 </div>
 
-                                {updatedCandidate.rounds?.map((round, index) => (
+                                {selectedCandidate?.rounds?.map((round, index) => (
                                     <div key={index} className='mb-5'>
                                         <div className='border my-4 p-4 rounded-lg shadow-md mx-auto text-sm' style={{ maxWidth: "90%" }}>
                                             {!showCheckboxes && (

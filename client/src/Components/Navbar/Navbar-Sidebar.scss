@@ -1,7 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 :root {
-    --c-text-primary: #282a32;
     --c-text-secondary: #686b87;
     --c-text-action: #404089;
     --c-accent-primary: #434ce8;
@@ -39,9 +38,9 @@
     position: relative;
     display: flex;
     align-items: center;
-    width: 500px;
-    max-width: 340px;
-    margin-left: 14%;
+    // width: 500px;
+    // max-width: 340px;
+    // margin-left: 14%;
 
     input {
         font: inherit;
@@ -51,8 +50,9 @@
         align-items: center;
         justify-content: center;
         padding: 0 1em 0 36px;
-        height: 40px;
-        border: 1px solid black;
+        // height: 40px;
+        border-radius: 0.2rem;
+        border: 1px solid #288290;
         color: var(--c-text-action);
         font-size: 0.875rem;
         transition: 0.15s ease;
@@ -60,12 +60,12 @@
         line-height: 1;
 
         &::placeholder {
-            color: var(--c-text-action);
+            color: #217989;
         }
 
         &:focus,
         &:hover {
-            border-color: var(--c-accent-primary);
+            border-color: #217989;
         }
     }
 
@@ -80,7 +80,7 @@
         top: 50%;
         transform: translateY(-50%);
         font-size: 1.25em;
-        color: var(--c-text-action);
+        color: #217989;
         padding: 0;
         height: 40px;
     }
@@ -119,4 +119,50 @@
         color: var(--c-accent-primary);
     }
 
+}
+
+.serach-small-width{
+  width: 100%;
+  @media (max-width: 699px) {
+    width: 35%; 
+  }
+  @media (min-width:700px) and (max-width: 1024px) {
+    width: 40%; 
+  }
+}
+
+.icon-container {
+    text-align: center;
+    border: 1px solid;
+    border-radius: 0.4rem;
+    padding: 0.4rem;
+    font-size: 1.5rem; // Default icon size
+  
+    @media (min-width:700px) and (max-width: 1024px) {
+      font-size: 1.2rem; // Smaller icon size for smaller screens
+    }
+  
+    @media (max-width: 699px) {
+      font-size: 0.9rem; 
+      padding: 0.3rem;
+    }
+  }
+  
+.logo123{
+  font-size: 1.5rem;
+  @media (max-width: 699px) {
+    font-size: 1rem; 
+  } 
+  @media (min-width:700px) and (max-width: 1024px) {
+    font-size: 1.4rem; 
+  }
+}
+.sidebar-icon12{
+  font-size: 1.5rem;
+  @media (max-width: 699px) {
+    font-size: 1rem; 
+  } 
+  @media (min-width:700px) and (max-width: 1024px) {
+    font-size: 1.4rem; 
+  }
 }

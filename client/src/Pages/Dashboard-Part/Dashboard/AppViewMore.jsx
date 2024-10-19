@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { RiTeamFill } from "react-icons/ri";
 import { FcBusinessman } from "react-icons/fc";
 import { GoOrganization } from "react-icons/go";
 import { IoIosPerson } from "react-icons/io";
 import { LuFileSearch } from "react-icons/lu";
 import { IoMdLaptop } from "react-icons/io";
-import { FaFileCircleQuestion } from "react-icons/fa6";
-import { VscGraph } from "react-icons/vsc";
 import { NavLink } from "react-router-dom";
 import { SiGoogleanalytics } from "react-icons/si";
 import { BsQuestionCircle } from "react-icons/bs";
@@ -14,7 +12,6 @@ import { AiOutlineUsergroupAdd } from "react-icons/ai";
 import { LuUser2 } from "react-icons/lu";
 import { TiContacts } from "react-icons/ti";
 import { ImProfile } from "react-icons/im";
-
 
 const AppViewMore = ({ isModalOpen, closeModal }) => {
 
@@ -32,28 +29,31 @@ const AppViewMore = ({ isModalOpen, closeModal }) => {
         { to: "/users", icon: <LuUser2  className="text-4xl" />, title: "Users", description: "view users data and manage users easily, add new users and manage user roles easily" },
         { to: "/contact", icon: <TiContacts  className="text-4xl" />, title: "Contact", description: "Manage contacts easily with our Contact app and add new contacts easily" },
         { to: "/inquirydesk", icon: <TiContacts  className="text-4xl" />, title: "Inquiry Desk", description: "Manage contacts easily with our Contact app and add new contacts easily" },
-        { to: "", icon: <ImProfile className="text-4xl" />, title: "Profile", description: "Manage profile easily with our profile app and add new profile easily" },
+        { to: "/profilefromapps", icon: <ImProfile className="text-4xl" />, title: "Profile", description: "Manage profile easily with our profile app and add new profile easily" },
+        { to: "/roles", icon: <ImProfile className="text-4xl" />, title: "Roles", description: "Manage profile easily with our profile app and add new profile easily" },
+        { to: "/all_sharing_settings", icon: <ImProfile className="text-4xl" />, title: "All Sharing Settings", description: "Manage profile easily with our profile app and add new profile easily" },
       ];
 
     return (
         <div>
-            {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white shadow-lg overflow-auto" style={{ width: "97%", height: "94%" }}>
-                        <div className="flex items-center justify-between p-5 rounded-t border-b-2">
-                            <h2 className="font-semibold text-xl text-black-500">Apps</h2>
-                            <button onClick={closeModal} className="focus:outline-none">
-                                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                                </svg>
-                            </button>
-                        </div>
-                        {/* Content */}
-                        <div className="grid grid-cols-3 gap-4 p-10">
+        {isModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+                <div className="bg-white shadow-lg" style={{ width: "97%", height: "94%" }}>
+                    <div className="flex items-center justify-between p-5 rounded-t border-b-2">
+                        <h2 className="font-semibold text-xl text-black-500">Apps</h2>
+                        <button onClick={closeModal} className="focus:outline-none">
+                            <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    {/* Content */}
+                    <div className="p-5 overflow-y-scroll mb-5" style={{ height: "calc(100% - 72px)" }}>
+                        <div className="grid grid-cols-3 gap-4">
                             {apps.map((app, index) => (
-                                <div key={index} className="p-1 rounded-md shadow-md hover:shadow-lg border flex flex-col"> {/* Use flex to allow dynamic height */}
-                                    <NavLink to={app.to} className="flex-grow"> {/* Allow NavLink to grow */}
-                                        <div className="grid grid-cols-5 cursor-pointer gap-1 h-full"> {/* Ensure full height */}
+                                <div key={index} className="p-1 rounded-md shadow-md hover:shadow-lg border flex flex-col">
+                                    <NavLink to={app.to} className="flex-grow"> 
+                                        <div className="grid grid-cols-5 cursor-pointer gap-1 h-full"> 
                                             <div className="col-span-1 flex items-center">
                                                 {app.icon}
                                             </div>
@@ -70,8 +70,9 @@ const AppViewMore = ({ isModalOpen, closeModal }) => {
                         </div>
                     </div>
                 </div>
-            )}
-        </div>
+            </div>
+        )}
+    </div>
     );
 };
 

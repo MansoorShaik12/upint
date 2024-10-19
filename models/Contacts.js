@@ -3,7 +3,6 @@
 const mongoose = require('mongoose');
 
 const ContactsSchema = new mongoose.Schema({
-  // Fields from LoginBasicDetails1
   Name: String,
   Firstname: String,
   CountryCode: String,
@@ -12,7 +11,6 @@ const ContactsSchema = new mongoose.Schema({
   Phone: String,
   LinkedinUrl: String,
   Gender: String,
-  isFreelancer: String,
   ImageData: {
     filename: String,
     path: String,
@@ -20,26 +18,18 @@ const ContactsSchema = new mongoose.Schema({
   },
   TimeZone: String,
   PreferredDuration: String,
-
-  // Fields from LoginAdditionalDetails
   CurrentRole: String,
   industry: String,
   Experience: String,
   location: String,
   Introduction: String,
-
-  // Fields from LoginSkills
   Technology: [String],
   Skill: [String],
   experienceYears: String,
   previousExperience: String,
   expertiseLevel: String,
-
-  availability: [{ type: mongoose.Schema.Types.ObjectId, ref: 'LoginAvailability' }],
-  
-  // Reference to Users
+  availability: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Interviewavailability' }],
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'Users', required: true },
-
   CreatedDate: {
     type: Date,
     required: true,
@@ -47,7 +37,6 @@ const ContactsSchema = new mongoose.Schema({
   },
   CreatedBy: {
     type: String,
-    required: true
   },
   ModifiedDate: {
     type: Date,
@@ -57,6 +46,8 @@ const ContactsSchema = new mongoose.Schema({
     type: String 
   }
 });
+
+
 
 const ContactHistorySchema = new mongoose.Schema({
   contact: { type: mongoose.Schema.Types.ObjectId, ref: 'Contacts', required: true },

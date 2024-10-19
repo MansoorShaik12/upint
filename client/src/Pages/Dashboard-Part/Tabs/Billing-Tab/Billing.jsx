@@ -1,9 +1,15 @@
 import React from "react";
 
 const Billing = () => {
-
   return (
-    <div style={{ marginTop: "100px", marginLeft: "290px", marginBottom: "30px", marginRight: "15px" }}>
+    <div
+      style={{
+        marginTop: "100px",
+        marginLeft: "290px",
+        marginBottom: "30px",
+        marginRight: "15px",
+      }}
+    >
       <div className="container mx-auto">
         <div className="grid grid-cols-3 gap-x-8">
           <div className="border rounded shadow">
@@ -17,16 +23,19 @@ const Billing = () => {
               <div className="grid grid-cols-3 my-3">
                 <div> Job Position</div>
                 <div className="text-center">:</div>
+
                 <div>Marketing Manager</div>
               </div>
               <div className="grid grid-cols-3 my-3">
                 <div> Invoice</div>
                 <div className="text-center">:</div>
+
                 <div>INV2024001</div>
               </div>
               <div className="grid grid-cols-3 my-3">
                 <div> Payment Status</div>
                 <div className="text-center">:</div>
+
                 <div>Paid</div>
               </div>
               <div>
@@ -48,16 +57,19 @@ const Billing = () => {
               <div className="grid grid-cols-3 my-3">
                 <div> Job Position</div>
                 <div className="text-center">:</div>
+
                 <div>Marketing Manager</div>
               </div>
               <div className="grid grid-cols-3 my-3">
                 <div> Invoice</div>
                 <div className="text-center">:</div>
+
                 <div>INV2024001</div>
               </div>
               <div className="grid grid-cols-3 my-3">
                 <div> Payment Status</div>
                 <div className="text-center">:</div>
+
                 <div>Paid</div>
               </div>
               <div>
@@ -79,16 +91,19 @@ const Billing = () => {
               <div className="grid grid-cols-3 my-3">
                 <div> Job Position</div>
                 <div className="text-center">:</div>
+
                 <div>Marketing Manager</div>
               </div>
               <div className="grid grid-cols-3 my-3">
                 <div> Invoice</div>
                 <div className="text-center">:</div>
+
                 <div>INV2024001</div>
               </div>
               <div className="grid grid-cols-3 my-3">
                 <div> Payment Status</div>
                 <div className="text-center">:</div>
+
                 <div>Paid</div>
               </div>
               <div>

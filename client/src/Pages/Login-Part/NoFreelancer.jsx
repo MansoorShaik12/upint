@@ -5,13 +5,13 @@ import { MdUpdate } from "react-icons/md";
 import { ImCancelCircle } from "react-icons/im";
 import axios from "axios";
 import { FaSearch } from 'react-icons/fa';
-import { ProfileContext } from '../../Context/ProfileContext.js';
 import ImageUploading from 'react-images-uploading';
 import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
+import Cookies from 'js-cookie';
+import { fetchMasterData } from '../../utils/fetchMasterData';
 
 export default function NoFreelancer() {
-    const { setProfileData } = useContext(ProfileContext);
     const { user, isAuthenticated, isLoading } = useAuth0();
 
     // States for basic details
@@ -71,8 +71,8 @@ export default function NoFreelancer() {
         }));
         setGenderError('');
     };
-   
-    
+
+
     const handleChange = async (e) => {
         const { name, value } = e.target;
 
@@ -102,7 +102,7 @@ export default function NoFreelancer() {
         }
 
         if (name === 'Experience' && value) {
-            setExperienceError(''); 
+            setExperienceError('');
         }
 
 
@@ -248,47 +248,47 @@ export default function NoFreelancer() {
         // Validate all fields before submission
         if (!formData.Name) {
             setNameError('Last Name is required');
-            hasError = true
+            hasError = true;
         }
         if (!formData.UserId) {
             setUserIdError('UserId is required');
-            hasError = true
+            hasError = true;
         }
         if (!selectedGender) {
             setGenderError('Gender is required');
-            hasError = true
+            hasError = true;
         }
         if (!formData.Email) {
             setEmailError('Email is required');
-            hasError = true
+            hasError = true;
         }
         if (!formData.Phone) {
             setPhoneError('Phone Number is required');
-            hasError = true
+            hasError = true;
         }
         if (!formData.LinkedinUrl) {
             setLinkedinurlError('LinkedIn URL is required');
-            hasError = true
+            hasError = true;
         }
         if (!formData.CurrentRole) {
             setCurrentroleError('Current Role is required');
-            hasError = true
+            hasError = true;
         }
         if (!formData.Industry) {
             setIndustryError('Industry is required');
-            hasError = true
+            hasError = true;
         }
         if (!formData.Experience) {
             setExperienceError('Experience is required');
-            hasError = true
+            hasError = true;
         }
         if (!formData.Location) {
             setLocationError('Location is required');
-            hasError = true
+            hasError = true;
         }
         if (!formData.Introduction) {
             setIntroductionError('Introduction is required');
-            hasError = true
+            hasError = true;
         }
 
         if (hasError) return; // Prevent submission if errors exist
@@ -299,25 +299,25 @@ export default function NoFreelancer() {
         };
 
         const userData = {
-            Name:formData.Name,
-            Firstname:formData.Firstname,
-            UserId:formData.UserId,
-            Phone:formData.Phone,
-            LinkedinUrl:formData.LinkedinUrl,
+            Name: formData.Name,
+            Firstname: formData.Firstname,
+            UserId: formData.UserId,
+            sub: user.sub,
+            isFreelancer: 'no',
+            Phone: formData.Phone,
+            LinkedinUrl: formData.LinkedinUrl,
             Gender: selectedGender,
-            ImageData:formData.ImageData,
-            Email:formData.Email,
-            CountryCode:formData.CountryCode,
-             CreatedBy: 'Admin'
+            ImageData: formData.ImageData,
+            Email: formData.Email,
+            CountryCode: formData.CountryCode,
+            CreatedBy: 'Admin'
         };
-
 
         console.log('Submitting form with data:', contactData); // Log the data being sent
 
         try {
             const userResponse = await axios.post(`${process.env.REACT_APP_API_URL}/users`, userData);
             console.log('User saved successfully:', userResponse.data);
-
 
             contactData.user = userResponse.data._id;
             const contactResponse = await axios.post(`${process.env.REACT_APP_API_URL}/contacts`, contactData);
@@ -363,8 +363,10 @@ export default function NoFreelancer() {
 
         } catch (error) {
             console.error('Error saving contact or user:', error);
+            if (error.response) {
+                console.error('Server responded with:', error.response.data);
+            }
         }
-        
     };
 
 
@@ -390,18 +392,18 @@ export default function NoFreelancer() {
 
     };
 
-    useEffect(() => {
-        const fetchRoles = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/roles`);
-                setCurrentRoles(response.data);
-            } catch (error) {
-                console.error('Error fetching roles:', error);
-                // Optionally, you can set an error state here to display an error message in the UI
-            }
-        };
-        fetchRoles();
-    }, []);
+    // useEffect(() => {
+    //     const fetchRoles = async () => {
+    //         try {
+    //             const response = await axios.get(`${process.env.REACT_APP_API_URL}/roles`);
+    //             setCurrentRoles(response.data);
+    //         } catch (error) {
+    //             console.error('Error fetching roles:', error);
+    //             // Optionally, you can set an error state here to display an error message in the UI
+    //         }
+    //     };
+    //     fetchRoles();
+    // }, []);
 
     useEffect(() => {
         setFilteredCurrentRoles(
@@ -415,7 +417,7 @@ export default function NoFreelancer() {
 
 
 
-    // industry related things 
+    // industry related things
 
     const [searchTermIndustry, setSearchTermIndustry] = useState('');
     const [filteredIndustries, setFilteredIndustries] = useState([]);
@@ -438,17 +440,17 @@ export default function NoFreelancer() {
 
 
 
-    useEffect(() => {
-        const fetchIndustries = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/industries`);
-                setFilteredIndustries(response.data);
-            } catch (error) {
-                console.error('Error fetching industries:', error);
-            }
-        };
-        fetchIndustries();
-    }, []);
+    // useEffect(() => {
+    //     const fetchIndustries = async () => {
+    //         try {
+    //             const response = await axios.get('http://localhost:3000/industries');
+    //             setFilteredIndustries(response.data);
+    //         } catch (error) {
+    //             console.error('Error fetching industries:', error);
+    //         }
+    //     };
+    //     fetchIndustries();
+    // }, []);
 
     useEffect(() => {
         setFilteredIndustries((prevIndustries) =>
@@ -460,7 +462,7 @@ export default function NoFreelancer() {
 
 
 
-    // location related things 
+    // location related things
 
     const [searchTermLocation, setSearchTermLocation] = useState('');
     const [filteredLocations, setFilteredLocations] = useState([]);
@@ -481,17 +483,17 @@ export default function NoFreelancer() {
         setLocationError('');
     };
 
-    useEffect(() => {
-        const fetchLocations = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/locations`);
-                setFilteredLocations(response.data);
-            } catch (error) {
-                console.error('Error fetching locations:', error);
-            }
-        };
-        fetchLocations();
-    }, []);
+    // useEffect(() => {
+    //     const fetchLocations = async () => {
+    //         try {
+    //             const response = await axios.get(`${process.env.REACT_APP_API_URL}/locations`);
+    //             setFilteredLocations(response.data);
+    //         } catch (error) {
+    //             console.error('Error fetching locations:', error);
+    //         }
+    //     };
+    //     fetchLocations();
+    // }, []);
 
     useEffect(() => {
         setFilteredLocations((prevLocations) =>
@@ -536,6 +538,25 @@ const handleContinue = (e) => {
     setShowImagePopup(false);
     handleSubmit(e, false);
 };
+
+useEffect(() => {
+    const fetchData = async () => {
+        try {
+            const rolesData = await fetchMasterData('roles');
+            setCurrentRoles(rolesData);
+
+            const locationsData = await fetchMasterData('locations');
+            setFilteredLocations(locationsData);
+
+            const industriesData = await fetchMasterData('industries');
+            setFilteredIndustries(industriesData);
+        } catch (error) {
+            console.error('Error fetching master data:', error);
+        }
+    };
+
+    fetchData();
+}, []);
     return (
         <div>
 
@@ -589,8 +610,8 @@ const handleContinue = (e) => {
                                 {/* Gender */}
                                 <div className="flex gap-5 mb-5">
                                     <label htmlFor="Gender" className="block text-sm font-medium leading-6 text-gray-900 w-36">
-                                        Gender 
-                                      
+                                        Gender
+
                                         <span className="text-red-500">*</span>
                                     </label>
                                     <div className="relative flex-grow mb-5">

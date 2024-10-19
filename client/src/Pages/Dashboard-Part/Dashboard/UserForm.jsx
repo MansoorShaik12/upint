@@ -1,37 +1,54 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { TbCameraPlus } from "react-icons/tb";
-import { MdUpdate } from "react-icons/md";
+import { MdUpdate, MdArrowDropDown } from "react-icons/md";
 import { ImCancelCircle } from "react-icons/im";
 import ImageUploading from "react-images-uploading";
-import { MdArrowDropDown } from "react-icons/md";
 import "react-phone-input-2/lib/style.css";
 import "react-datepicker/dist/react-datepicker.css";
 import { FaSearch } from "react-icons/fa";
 import axios from "axios";
-
-// {f} //
+import bcrypt from 'bcryptjs';
+import TimezoneSelect from 'react-timezone-select';
+import Cookies from 'js-cookie';
 const UserForm = ({ isOpen, onClose }) => {
+  const organizationId = Cookies.get("organizationId");
+  const [file, setFile] = useState(null);
+  const [filePreview, setFilePreview] = useState();
+  const fileInputRef = useRef(null);
   const [userData, setUserData] = useState({
     FirstName: "",
     LastName: "",
     Gender: "",
     UserID: "",
     Password: "",
-    EmailAddress: "",
-    PhoneNumber: "",
+    Email: "",
+    Phone: "",
     LinkedinURL: "",
+    TimeZone: "",
+    Language: "",
+    ProfileId: '',
+    RoleId: '',
+    OrganizationId: organizationId,
+    ImageData: '',
   });
 
-  const maxNumber = 10;
+  const handleFileChange = (e) => {
+    const selectedFile = e.target.files[0];
+    if (selectedFile) {
+      setFile(selectedFile);
+      setFilePreview(URL.createObjectURL(selectedFile));
+    }
+  };
 
-  const [images, setImages] = useState([]);
-  const onChange = (imageList, addUpdateIndex) => {
-    setImages(imageList);
-    setUserData((prevState) => ({
-      ...prevState,
-      image: imageList.length > 0 ? imageList[0].data_url : "",
-    }));
+  const handleReplace = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleDeleteImage = () => {
+    setFile(null);
+    setFilePreview(null);
   };
 
   const [selectedGender, setSelectedGender] = useState("");
@@ -47,7 +64,7 @@ const UserForm = ({ isOpen, onClose }) => {
     setShowDropdownGender(false);
     setUserData((prevUserData) => ({
       ...prevUserData,
-      gender: gender,
+      Gender: gender,
     }));
   };
 
@@ -59,12 +76,11 @@ const UserForm = ({ isOpen, onClose }) => {
   };
 
   const validatePhone = (phone) => {
-    const phoneRegex = /^[6-9]\d{9}$/; // Indian phone number validation (starts with 6-9 and has 10 digits)
+    const phoneRegex = /^[6-9]\d{9}$/;
     return phoneRegex.test(phone);
   };
 
   const handleChange = (e) => {
-    // setFormData({ ...formData, [e.target.name]: e.target.value });
     const { name, value } = e.target;
     let errorMessage = "";
 
@@ -103,18 +119,15 @@ const UserForm = ({ isOpen, onClose }) => {
     setSelectedLanguage(event.target.value);
   };
 
-
-  // role//
-
+  // role
   const [selectedCurrentRole, setSelectedCurrentRole] = useState("");
+  const [selectedCurrentRoleId, setSelectedCurrentRoleId] = useState("");
   const [showDropdownCurrentRole, setShowDropdownCurrentRole] = useState(false);
-  const [currentroleError, setCurrentroleError] = useState("");
   const [CurrentRole, setCurrentRole] = useState([]);
   const [searchTermCurrentRole, setSearchTermCurrentRole] = useState("");
   const filteredCurrentRoles = CurrentRole.filter((role) =>
-    role.RoleName.toLowerCase().includes(searchTermCurrentRole.toLowerCase())
+    role.roleName ? role.roleName.toLowerCase().includes(searchTermCurrentRole.toLowerCase()) : false
   );
-
   const toggleCurrentRole = () => {
     setShowDropdownCurrentRole(!showDropdownCurrentRole);
   };
@@ -122,21 +135,204 @@ const UserForm = ({ isOpen, onClose }) => {
   useEffect(() => {
     const fetchsetcurrentrolesData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/roles`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/rolesdata?organizationId=${organizationId}`);
         setCurrentRole(response.data);
       } catch (error) {
         console.error("Error fetching roles data:", error);
       }
     };
     fetchsetcurrentrolesData();
-  }, []);
+  }, [organizationId]);
 
-  const handleRoleSelect = (role) => {
-    setSelectedCurrentRole(role);
-    handleChange({ target: { name: 'CurrentRole', value: role } });
-    setShowDropdownCurrentRole(false);
+  const [selectedProfile, setSelectedProfile] = useState("");
+  const [selectedProfileId, setSelectedProfileId] = useState("");
+  const [profileError, setProfileError] = useState("");
+  const [showDropdownProfile, setShowDropdownProfile] = useState(false);
+  const [Profiles, setProfiles] = useState([]);
+  const [searchTermProfile, setSearchTermProfile] = useState("");
+  const filteredProfiles = Profiles.filter((profile) =>
+    profile.Name ? profile.Name.toLowerCase().includes(searchTermProfile.toLowerCase()) : false
+  );
+  const toggleProfile = () => {
+    setShowDropdownProfile(!showDropdownProfile);
   };
 
+  useEffect(() => {
+    const fetchProfilesData = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/profiles/organization/${organizationId}`);
+        setProfiles(response.data);
+      } catch (error) {
+        console.error("Error fetching profiles data:", error);
+      }
+    };
+    fetchProfilesData();
+  }, [organizationId]);
+
+  const [selectedTimezone, setSelectedTimezone] = useState({});
+  const [timeZoneError, setTimeZoneError] = useState('');
+  // const handleTimezoneChange = (timezone) => {
+  //   setSelectedTimezone(timezone);
+  //   setUserData((prevState) => ({
+  //     ...prevState,
+  //     TimeZone: timezone.value,
+  //   }));
+  //   setTimeZoneError('');
+  // };
+
+  const handleProfileSelect = (profile) => {
+    setSelectedProfile(profile.Name);
+    setSelectedProfileId(profile._id);
+    setShowDropdownProfile(false);
+  };
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  const hashedPassword = await bcrypt.hash(userData.Password, 10);
+
+  const dataToSend = {
+    Name: userData.LastName,
+    Firstname: userData.FirstName || "",
+    CountryCode: userData.CountryCode || "+1",
+    UserId: userData.UserID || "",
+    Email: userData.Email || "",
+    Phone: userData.Phone || "",
+    LinkedinUrl: userData.LinkedinURL || "",
+    TimeZone: selectedTimezone.value || "",
+    Language: selectedLanguage || "",
+    Gender: selectedGender || "",
+    organizationId: userData.OrganizationId || "",
+    RoleId: selectedCurrentRoleId,
+    ProfileId: selectedProfileId,
+    sub: userData.OrganizationId || "",
+    password: hashedPassword,
+  };
+
+  console.log('User data being sent:', dataToSend);
+
+  try {
+    // Create user
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/users`, dataToSend);
+    console.log('User created:', response.data);
+
+    // Extract user ID from the response
+    const userId = response.data._id;
+
+    // Prepare contact data with matched fields and user ID
+    const contactData = {
+      Name: userData.LastName,
+      Firstname: userData.FirstName || "",
+      CountryCode: userData.CountryCode || "+1",
+      UserId: userData.UserID || "",
+      Email: userData.Email || "",
+      Phone: userData.Phone || "",
+      LinkedinUrl: userData.LinkedinURL || "",
+      TimeZone: selectedTimezone.value || "",
+      Gender: selectedGender || "",
+      user: userId, // Link the user ID to the contact
+      ImageData: userData.ImageData || "",
+    };
+
+    // Save data in Contacts and get the contact ID
+    const contactResponse = await axios.post(`${process.env.REACT_APP_API_URL}/contacts`, contactData);
+    const contactId = contactResponse.data._id;
+
+    // If an image is selected, upload it using the contact ID
+    if (file) {
+      const imageData = new FormData();
+      imageData.append("image", file);
+      imageData.append("type", "contact");
+      imageData.append("id", contactId); // Use the contact ID
+
+      try {
+        await axios.post(`${process.env.REACT_APP_API_URL}/upload`, imageData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } catch (error) {
+        console.error("Error uploading image:", error);
+        return;
+      }
+    }
+
+  } catch (error) {
+    console.error('Error creating user:', error.response ? error.response.data : error.message);
+  }
+  onClose();
+};
+
+
+  const [showDropdownTimezone, setShowDropdownTimezone] = useState(false);
+
+  const toggleDropdownTimezone = () => {
+    setShowDropdownTimezone(!showDropdownTimezone);
+    setSearchTermTimezone('');
+  };
+
+  const timezones = {
+    "Asia/Kolkata": "India Standard Time",
+    "Asia/Dubai": "Gulf Standard Time",
+    "Europe/Moscow": "Moscow Standard Time",
+    "America/New_York": "Eastern Time (US & Canada)",
+    "America/Chicago": "Central Time (US & Canada)",
+    "America/Los_Angeles": "Pacific Time (US & Canada)",
+    "Europe/London": "Greenwich Mean Time",
+    "Europe/Paris": "Central European Time",
+  };
+
+  const [searchTermTimezone, setSearchTermTimezone] = useState("");
+
+  const dropdownRef = useRef(null);
+
+  const handleTimezoneChange = (timezone) => {
+    setSelectedTimezone(timezone);
+    setUserData((prevState) => ({
+      ...prevState,
+      TimeZone: timezone.value,
+    }));
+    setShowDropdownTimezone(false);
+    setTimeZoneError('');
+    setSearchTermTimezone('');
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdownTimezone(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const [showDropdownRole, setShowDropdownRole] = useState(false);
+  const [searchTermRole, setSearchTermRole] = useState("");
+
+  const toggleDropdownRole = () => {
+    setShowDropdownRole(!showDropdownRole);
+  };
+
+  const handleRoleSelect = (role) => {
+    setSelectedCurrentRole(role.roleName);
+    setSelectedCurrentRoleId(role._id);
+    setShowDropdownRole(false);
+  };
+
+  const [showDropdownLanguage, setShowDropdownLanguage] = useState(false);
+  const [searchTermLanguage, setSearchTermLanguage] = useState("");
+
+  const toggleDropdownLanguage = () => {
+    setShowDropdownLanguage(!showDropdownLanguage);
+  };
+
+  const handleLanguageSelect = (language) => {
+    setSelectedLanguage(language);
+    setShowDropdownLanguage(false);
+  };
 
   return (
     <>
@@ -169,8 +365,8 @@ const UserForm = ({ isOpen, onClose }) => {
               </button>
             </div>
           </div>
-          <div className="fixed top-16 bottom-16 overflow-auto p-5 text-sm">
-            <form>
+          <div className="fixed top-16 bottom-16 right-0 left-0 overflow-auto p-5 text-sm">
+            <form onSubmit={handleSubmit}>
               <div className="grid grid-cols-4">
                 <div className="col-span-3">
                   <div className="flex gap-5 mb-5">
@@ -188,7 +384,8 @@ const UserForm = ({ isOpen, onClose }) => {
                         name="FirstName"
                         id="FirstName"
                         value={userData.FirstName}
-                        autoComplete="given-name"
+                        onChange={handleChange}
+                        autoComplete="off"
                         className="border-b border-gray-300 focus:border-black focus:outline-none mb-5 w-full"
                       />
                     </div>
@@ -207,9 +404,10 @@ const UserForm = ({ isOpen, onClose }) => {
                         type="text"
                         name="LastName"
                         id="LastName"
-                        autoComplete="family-name"
                         value={userData.LastName}
-                        className="border-b focus:outline-none mb-5 w-full"
+                        onChange={handleChange}
+                        autoComplete="family-name"
+                        className="border-b border-gray-300 focus:border-black focus:outline-none mb-5 w-full"
                       />
                     </div>
                   </div>
@@ -229,7 +427,9 @@ const UserForm = ({ isOpen, onClose }) => {
                           type="text"
                           className="border-b border-gray-300 focus:border-black focus:outline-none mb-5 w-full"
                           id="gender"
+                          onClick={toggleDropdowngender}
                           value={selectedGender}
+                          readOnly
                         />
 
                         <div
@@ -264,31 +464,20 @@ const UserForm = ({ isOpen, onClose }) => {
                         User ID <span className="text-red-500">*</span>
                       </label>
                     </div>
-                    <div style={{ position: "relative" }} className="flex-grow">
-                      <div className="border-b border-gray-300 mt-5  mb-5 w-full"></div>
+                    <div className="flex-grow">
+                      <input
+                        type="text"
+                        name="UserID"
+                        id="UserID"
+                        value={userData.UserID}
+                        onChange={handleChange}
+                        autoComplete="off"
+                        className="border-b border-gray-300 focus:border-black focus:outline-none mb-5 w-full"
+                      />
                     </div>
                   </div>
 
-                  <div className="flex gap-5 mb-5">
-                    <div>
-                      <label
-                        htmlFor="password"
-                        className="block text-sm font-medium leading-6 text-gray-900  w-36"
-                      >
-                        Password
-                        <span className="text-red-500">*</span>
-                      </label>
-                    </div>
-                    <div className="relative flex-grow">
-                      <div className="relative">
-                        <input
-                          className="border-b focus:outline-none mb-5 w-full"
-                          type="text"
-                        //   value={selectedQualification}
-                        />
-                      </div>
-                    </div>
-                  </div>
+
 
                   {/* email */}
                   <div className="flex gap-5 mb-5">
@@ -307,11 +496,11 @@ const UserForm = ({ isOpen, onClose }) => {
                         id="email"
                         value={userData.Email}
                         onChange={handleChange}
-                        placeholder="candidate@gmail.com"
+                        placeholder="example@gmail.com"
                         autoComplete="email"
                         className={`border-b focus:outline-none mb-5 w-full ${errors.Email
-                            ? "border-red-500"
-                            : "border-gray-300 focus:border-black"
+                          ? "border-red-500"
+                          : "border-gray-300 focus:border-black"
                           }`}
                       />
                       {errors.Email && (
@@ -321,6 +510,36 @@ const UserForm = ({ isOpen, onClose }) => {
                       )}
                     </div>
                   </div>
+
+                  <div className="flex gap-5 mb-5">
+                    <div>
+                      <label
+                        htmlFor="password"
+                        className="block text-sm font-medium leading-6 text-gray-900  w-36"
+                      >
+                        Password
+                        <span className="text-red-500">*</span>
+                      </label>
+                    </div>
+                    <div className="relative flex-grow">
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="Password"
+                          id="Password"
+                          value={userData.Password}
+                          onChange={handleChange}
+                          autoComplete="off"
+                          className={`border-b focus:outline-none mb-5 w-full ${errors.Password
+                            ? "border-red-500"
+                            : "border-gray-300 focus:border-black"
+                            }`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+
                   {/* phone */}
                   <div className="flex gap-5 mb-5">
                     <div>
@@ -356,8 +575,8 @@ const UserForm = ({ isOpen, onClose }) => {
                           autoComplete="tel"
                           placeholder="XXX-XXX-XXXX"
                           className={`border-b focus:outline-none mb-5 w-full ${errors.Phone
-                              ? "border-red-500"
-                              : "border-gray-300 focus:border-black"
+                            ? "border-red-500"
+                            : "border-gray-300 focus:border-black"
                             }`}
                         />
                       </div>
@@ -383,123 +602,178 @@ const UserForm = ({ isOpen, onClose }) => {
                       <div className="relative">
                         <input
                           type="text"
-                          className="border-b focus:outline-none mb-5 w-full "
-                        //   value={selectedCollege}
+                          name="LinkedinURL"
+                          id="linkedin"
+                          value={userData.LinkedinURL}
+                          onChange={handleChange}
+                          className="border-b focus:outline-none mb-5 w-full"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex gap-5 mb-5">
-                    <div>
-                      <label
-                        htmlFor="profile"
-                        className="block text-sm font-medium leading-6 text-gray-900 w-36"
-                      >
-                        Profile
-                        <span className="text-red-500">*</span>
-                      </label>
-                    </div>
-
-                    <div className="relative flex-grow">
-                      <div className="relative">
-                        <select
-                          id="profile"
-                          className="border-b focus:outline-none mb-5 w-full"
-                        // value={selectedCollege}
-                        >
-                          <option value=""></option>
-                          <option value="option1">Admin</option>
-                          <option value="option2">Super Admin</option>
-                          {/* Add more options as needed */}
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-
-
-                  {/* Current Role */}
-                  <div className="flex gap-5 mb-5">
-                    <label
-                      htmlFor="CurrentRole"
-                      className="block text-sm font-medium leading-6 text-gray-900 w-36"
-                    >
-                      Role
+                  {/* Profile */}
+                  <div className="flex gap-5 mb-9">
+                    <label htmlFor="Profile" className="block text-sm font-medium leading-6 text-gray-900 w-36">
+                      Profile <span className="text-red-500">*</span>
                     </label>
-                    <div className="relative w-80">
+                    <div className="relative flex-grow">
                       <input
-                        name="CurrentRole"
+                        name="Profile"
                         type="text"
-                        id="CurrentRole"
-                        value={selectedCurrentRole}
-                        onClick={toggleCurrentRole}
-                        className={`border-b ${currentroleError
-                            ? "border-red-500"
-                            : "border-gray-300"
-                          } border-b focus:outline-none mb-5 w-full`}
+                        id="Profile"
+                        value={selectedProfile}
+                        onClick={toggleProfile}
+                        className="border-b border-gray-300 focus:outline-none mb-1 w-full"
                         readOnly
                       />
-                      {currentroleError && (
-                        <p className="text-red-500 text-sm -mt-4">
-                          {currentroleError}
-                        </p>
-                      )}
-                      {showDropdownCurrentRole && (
-                        <div className="absolute bg-white border border-gray-300 w-full mt-1 max-h-60 overflow-y-auto z-10">
-                          <div className="flex items-center border-b p-2">
-                            <FaSearch className="absolute left-2 text-gray-500" />
+                      <div
+                        className="absolute right-0 top-0 mt-1 cursor-pointer"
+                        onClick={toggleProfile}
+                      >
+                        <MdArrowDropDown className="text-lg text-gray-500" />
+                      </div>
+                      {showDropdownProfile && (
+                        <div className="absolute bg-white border border-gray-300 w-full max-h-60 overflow-y-auto z-10">
+                          <div className="p-2 border-b border-gray-300">
                             <input
                               type="text"
-                              placeholder="Search Current Role"
-                              value={searchTermCurrentRole}
-                              onChange={(e) =>
-                                setSearchTermCurrentRole(e.target.value)
-                              }
-                              className="pl-8  focus:border-black focus:outline-none w-full"
+                              placeholder="Search Profile"
+                              value={searchTermProfile}
+                              onChange={(e) => setSearchTermProfile(e.target.value)}
+                              className="w-full border rounded p-1 border-gray-300 focus:outline-none"
                             />
                           </div>
-                          {filteredCurrentRoles.length > 0 ? (
-                            filteredCurrentRoles.map((role) => (
+                          {filteredProfiles
+                            .filter((profile) =>
+                              profile.Name.toLowerCase().includes(searchTermProfile.toLowerCase())
+                            )
+                            .map((profile) => (
                               <div
-                                key={role._id}
-                                onClick={() => handleRoleSelect(role.RoleName)}
+                                key={profile._id}
+                                onClick={() => handleProfileSelect(profile)}
                                 className="cursor-pointer hover:bg-gray-200 p-2"
                               >
-                                {role.RoleName}
+                                {profile.Name}
                               </div>
-                            ))
-                          ) : (
-                            <div className="p-2 text-gray-500">
-                              No roles found
-                            </div>
+                            ))}
+                          {filteredProfiles.length === 0 && (
+                            <div className="p-2 text-gray-500">No profiles found</div>
                           )}
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex gap-5 mb-5">
+                  {/* Current Role */}
+                  <div className="flex gap-5 mb-9">
+                    <label htmlFor="CurrentRole" className="block text-sm font-medium leading-6 text-gray-900 w-36">
+                      Role <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative flex-grow">
+                      <input
+                        name="CurrentRole"
+                        type="text"
+                        id="CurrentRole"
+                        className="border-b border-gray-300 focus:outline-none mb-1 w-full"
+                        readOnly
+                        onClick={toggleDropdownRole}
+                        value={selectedCurrentRole || ""}
+                      />
+                      <div
+                        className="absolute right-0 top-0 mt-1 cursor-pointer"
+                        onClick={toggleDropdownRole}
+                      >
+                        <MdArrowDropDown className="text-lg text-gray-500" />
+                      </div>
+                      {showDropdownRole && (
+                        <div className="absolute bg-white border border-gray-300 w-full max-h-60 overflow-y-auto z-10">
+                          <div className="p-2 border-b border-gray-300">
+                            <input
+                              type="text"
+                              placeholder="Search Role"
+                              value={searchTermRole}
+                              onChange={(e) => setSearchTermRole(e.target.value)}
+                              className="w-full border rounded p-1 border-gray-300 focus:outline-none"
+                            />
+                          </div>
+                          {filteredCurrentRoles
+                            .filter((role) =>
+                              role.roleName.toLowerCase().includes(searchTermRole.toLowerCase())
+                            )
+                            .map((role) => (
+                              <div
+                                key={role._id}
+                                onClick={() => handleRoleSelect(role)}
+                                className="cursor-pointer hover:bg-gray-200 p-2"
+                              >
+                                {role.roleName}
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Timezone */}
+                  <div className="flex gap-5 mb-9">
                     <div>
                       <label
-                        htmlFor="timezone"
+                        htmlFor="TimeZone"
                         className="block text-sm font-medium leading-6 text-gray-900 w-36"
                       >
-                        Time Zone
-                        <span className="text-red-500">*</span>
+                        Time Zone <span className="text-red-500">*</span>
                       </label>
                     </div>
-
-                    <div className="relative flex-grow">
-                      <div className="relative">
+                    <div className="flex-grow w-full overflow-visible -mt-1 relative">
+                      <div className="w-full overflow-visible">
                         <input
+                          name="TimeZone"
                           type="text"
-                          className="border-b focus:outline-none mb-5 w-full "
-                        //   value={selectedCollege}
+                          id="TimeZone"
+                          className="border-b border-gray-300 focus:outline-none w-full mb-1"
+                          readOnly
+                          onClick={toggleDropdownTimezone}
+                          value={selectedTimezone.label || ""}
                         />
+                        <div
+                          className="absolute right-0 top-0 mt-1 cursor-pointer"
+                          onClick={toggleDropdownTimezone}
+                        >
+                          <MdArrowDropDown className="text-lg text-gray-500" />
+                        </div>
+                        {showDropdownTimezone && (
+                          <div className="absolute bg-white border border-gray-300 w-full max-h-60 overflow-y-auto z-10">
+                            <div className="p-2 border-b border-gray-300">
+                              <input
+                                type="text"
+                                placeholder="Search Timezone"
+                                value={searchTermTimezone}
+                                onChange={(e) => setSearchTermTimezone(e.target.value)}
+                                className="w-full border rounded p-1 border-gray-300 focus:outline-none"
+                              />
+                            </div>
+                            {Object.entries(timezones)
+                              .filter(([key, value]) =>
+                                value.toLowerCase().includes(searchTermTimezone.toLowerCase())
+                              )
+                              .map(([key, value]) => (
+                                <div
+                                  key={key}
+                                  onClick={() => handleTimezoneChange({ value: key, label: value })}
+                                  className="cursor-pointer hover:bg-gray-200 p-2"
+                                >
+                                  {value}
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                        {timeZoneError && <p className="text-red-500 text-sm ml-5 mt-2">{timeZoneError}</p>}
                       </div>
                     </div>
                   </div>
 
+                  {/* Language */}
                   <div className="flex flex-col gap-5 mb-5">
                     <div className="flex gap-5">
                       <div>
@@ -514,17 +788,46 @@ const UserForm = ({ isOpen, onClose }) => {
 
                       <div className="relative flex-grow">
                         <div className="relative">
-                          <select
+                          <input
+                            type="text"
                             id="language"
-                            className="border-b focus:outline-none mb-5 w-full"
-                            value={selectedLanguage}
-                            onChange={handleLanguageChange}
+                            className="border-b border-gray-300 focus:outline-none mb-1 w-full"
+                            readOnly
+                            onClick={toggleDropdownLanguage}
+                            value={selectedLanguage || ""}
+                          />
+                          <div
+                            className="absolute right-0 top-0 mt-1 cursor-pointer"
+                            onClick={toggleDropdownLanguage}
                           >
-                            <option value="" disabled></option>
-                            <option value="English">English</option>
-                            <option value="Spanish">Spanish</option>
-                            <option value="French">French</option>
-                          </select>
+                            <MdArrowDropDown className="text-lg text-gray-500" />
+                          </div>
+                          {showDropdownLanguage && (
+                            <div className="absolute bg-white border border-gray-300 w-full max-h-60 overflow-y-auto z-10">
+                              <div className="p-2 border-b border-gray-300">
+                                <input
+                                  type="text"
+                                  placeholder="Search Language"
+                                  value={searchTermLanguage}
+                                  onChange={(e) => setSearchTermLanguage(e.target.value)}
+                                  className="w-full border rounded p-1 border-gray-300 focus:outline-none"
+                                />
+                              </div>
+                              {["English", "Spanish", "French"]
+                                .filter((language) =>
+                                  language.toLowerCase().includes(searchTermLanguage.toLowerCase())
+                                )
+                                .map((language) => (
+                                  <div
+                                    key={language}
+                                    onClick={() => handleLanguageSelect(language)}
+                                    className="cursor-pointer hover:bg-gray-200 p-2"
+                                  >
+                                    {language}
+                                  </div>
+                                ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -532,62 +835,49 @@ const UserForm = ({ isOpen, onClose }) => {
                 </div>
 
                 <div className="col-span-1">
-                  <div className="App">
-                    <ImageUploading
-                      multiple
-                      value={images}
-                      onChange={onChange}
-                      maxNumber={maxNumber}
-                      dataURLKey="data_url"
-                    >
-                      {({
-                        imageList,
-                        onImageUpload,
-                        onImageUpdate,
-                        onImageRemove,
-                      }) => (
-                        <div className="upload__image-wrapper">
-                          {imageList.length === 0 && (
-                            <button onClick={onImageUpload}>
-                              <div className="border-2 p-10 rounded-md ml-5 mr-2 mt-2">
-                                <span style={{ fontSize: "40px" }}>
-                                  <TbCameraPlus />
-                                </span>
-                              </div>
+                  <div className="flex justify-end">
+                    <div className="w-32 h-32 border border-gray-300 rounded-md flex items-center justify-center relative">
+                      <input
+                        type="file"
+                        id="imageInput"
+                        className="hidden"
+                        onChange={handleFileChange}
+                        ref={fileInputRef}
+                      />
+                      {filePreview ? (
+                        <>
+                          <img src={filePreview} alt="Selected" className="w-full h-full object-cover" />
+                          <div className="absolute bottom-0 left-0">
+                            <button
+                              type="button"
+                              onClick={handleReplace}
+                              className="text-white"
+                            >
+                              <MdUpdate className="text-xl ml-2 mb-1" />
                             </button>
-                          )}
-                          {imageList.map((image, index) => (
-                            <div key={index} className="image-item">
-                              <div className="image-item__btn-wrapper">
-                                <div className="border-2 rounded-md mt-2 ml-5 mr-2 relative">
-                                  <img
-                                    src={image["data_url"]}
-                                    alt=""
-                                    style={{ height: "100px" }}
-                                  />
-                                  <div className="absolute bottom-0 left-0">
-                                    <button
-                                      onClick={() => onImageUpdate(index)}
-                                      className="text-white"
-                                    >
-                                      <MdUpdate className="text-xl ml-2 mb-1" />
-                                    </button>
-                                  </div>
-                                  <div className="absolute bottom-0 right-0">
-                                    <button
-                                      onClick={() => onImageRemove(index)}
-                                      className="text-white"
-                                    >
-                                      <ImCancelCircle className="text-xl mr-2 mb-1" />
-                                    </button>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                          </div>
+                          <div className="absolute bottom-0 right-0">
+                            <button
+                              type="button"
+                              onClick={handleDeleteImage}
+                              className="text-white"
+                            >
+                              <ImCancelCircle className="text-xl mr-2 mb-1" />
+                            </button>
+                          </div>
+                        </>
+                      ) : (
+                        <button
+                          className="flex flex-col items-center justify-center"
+                          onClick={() => fileInputRef.current.click()}
+                          type="button"
+                        >
+                          <span style={{ fontSize: "40px" }}>
+                            <TbCameraPlus />
+                          </span>
+                        </button>
                       )}
-                    </ImageUploading>
+                    </div>
                   </div>
                 </div>
               </div>

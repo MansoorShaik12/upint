@@ -23,6 +23,10 @@ import { FaTimes } from "react-icons/fa";
 import { CgInfo } from "react-icons/cg";
 import OutsourceInterview from "./Internalprofiledetails.js";
 import { MdOutlineImageNotSupported } from "react-icons/md";
+import { fetchFilterData, handleWebSocket } from '../../../../utils/dataUtils.js';
+import maleImage from '../../../Dashboard-Part/Images/man.png';
+import femaleImage from '../../../Dashboard-Part/Images/woman.png';
+import genderlessImage from '../../../Dashboard-Part/Images/transgender.png';
 
 const OffcanvasMenu = ({ isOpen }) => {
   const [isStatusDropdownOpen, setStatusDropdownOpen] = useState(false);
@@ -139,7 +143,8 @@ const OffcanvasMenu = ({ isOpen }) => {
   );
 };
 
-const Outsource = () => {
+const Outsource = ({ objectPermissions, sharingPermissions }) => {
+  const interviewPermissions = sharingPermissions.interviews || {};
   useEffect(() => {
     document.title = "Candidate Tab";
   }, []);
@@ -157,20 +162,6 @@ const Outsource = () => {
   }, []);
   const userId = localStorage.getItem("userId");
 
-  const fetchInterviewData = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/interview?CreatedBy=${userId}&Interviewstype=/outsourceinterview`
-      );
-      console.log("interview data:", response.data);
-      setCandidateData(response.data);
-    } catch (error) {
-      console.error("Error fetching InterviewData:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const [selectedInterview, setSelectedInterview] = useState(null);
 
@@ -204,35 +195,60 @@ const Outsource = () => {
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState("");
 
+
+  const fetchInterviewData = async () => {
+    setLoading(true);
+    try {
+      const filteredInterviews = await fetchFilterData('interview', interviewPermissions);
+
+      // Fetch candidate data for each interview
+      const interviewsWithCandidates = await Promise.all(filteredInterviews.map(async (interview) => {
+        try {
+          const candidateResponse = await axios.get(`${process.env.REACT_APP_API_URL}/candidate/${interview.CandidateId}`);
+          const candidate = candidateResponse.data;
+
+          // Construct image URL if ImageData is available
+          if (candidate.ImageData && candidate.ImageData.filename) {
+            candidate.imageUrl = `${process.env.REACT_APP_API_URL}/${candidate.ImageData.path.replace(/\\/g, '/')}`;
+          }
+
+          return {
+            ...interview,
+            candidate,
+          };
+        } catch (error) {
+          console.error(`Error fetching candidate for interview ${interview._id}:`, error);
+          return {
+            ...interview,
+            candidate: null,
+          };
+        }
+      }));
+
+      setCandidateData(interviewsWithCandidates);
+      console.log("Interviews with candidates", interviewsWithCandidates);
+    } catch (error) {
+      console.error("Error fetching InterviewData:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
-
-    ws.onopen = () => {
-      console.log("WebSocket connection opened");
-    };
-
-    ws.onmessage = (event) => {
-      const { type, data } = JSON.parse(event.data);
-      if (type === "interview") {
-        setCandidateData(data);
-        setNotification("A new candidate has been successfully created!");
-
-        setTimeout(() => {
-          setNotification("");
-        }, 3000);
-      }
-    };
-
-    ws.onclose = () => {
-      console.log("WebSocket connection closed");
-    };
+    const ws = handleWebSocket(
+      `${process.env.REACT_APP_WS_URL}`,
+      'interview',
+      setCandidateData,
+      setNotification
+    );
 
     fetchInterviewData();
 
     return () => {
       ws.close();
     };
-  }, []);
+  }, [interviewPermissions]);
+
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -251,10 +267,13 @@ const Outsource = () => {
         // user.TeamMember ? user.TeamMember.join(", ") : "",
         // user.CreatedDate,
       ];
-      return fieldsToSearch.some(
-        (field) =>
-          field !== undefined &&
-          field.toString().toLowerCase().includes(searchQuery.toLowerCase())
+      return (
+        user.Interviewstype === "/outsourceinterview" &&
+        fieldsToSearch.some(
+          (field) =>
+            field !== undefined &&
+            field.toString().toLowerCase().includes(searchQuery.toLowerCase())
+        )
       );
     });
   };
@@ -262,28 +281,6 @@ const Outsource = () => {
   // ------------------------------------------------
   // end of fetching candidate data from the mongo db
   // ------------------------------------------------
-
-  // const FilteredData = () => {
-  //   return candidateData.filter((user) => {
-  //     const fieldsToSearch = [
-  //       user.InterviewTitle,
-  //       user.InterviewType,
-  //       user.Position,
-  //       user.TeamMember ? user.TeamMember.join(", ") : "",
-  //       user.CreatedDAte,
-  //     ];
-  //     return fieldsToSearch.some(
-  //       (field) =>
-  //         field !== undefined &&
-  //         field.toString().toLowerCase().includes(searchQuery.toLowerCase())
-  //     );
-  //   });
-  // };
-
-  // const handleSearchInputChange = (event) => {
-  //   setSearchQuery(event.target.value);
-  //   console.log("Search query:", event.target.value);
-  // };
 
   const [currentPage, setCurrentPage] = useState(0);
   const rowsPerPage = 10;
@@ -481,15 +478,18 @@ const Outsource = () => {
 
   const [triggerCancel, setTriggerCancel] = useState(false);
 
-  const handleInterviewClick = (interview) => {
-    setTriggerCancel(false);
-    setSelectedCandidate(interview);
+  const handleInterviewClick = async (interview) => {
+    if (objectPermissions.View) {
+      setSelectedCandidate(interview);
+      setActionViewMore(false)
+      setTriggerCancel(false);
+    }
     setActionViewMore(false);
   };
   const handleEditClick = (interview) => {
     setShowEditLater({
       ...interview,
-      interviewers: interview.rounds[0]?.interviewers || [] // Pass the interviewers data
+      interviewers: interview.rounds[0]?.interviewers || []
     });
     fetchInterviewData();
     setActionViewMore(false)
@@ -509,7 +509,7 @@ const Outsource = () => {
   };
 
   useEffect(() => {
-    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
+    const ws = new WebSocket("ws://localhost:8080");
 
     ws.onopen = () => {
       console.log("WebSocket connection opened");
@@ -541,7 +541,7 @@ const Outsource = () => {
   return (
     <>
       {/* 1 */}
-      <div className="fixed top-24 left-0 right-0 z-40">
+      <div className="fixed top-24 left-0 right-0 z-30">
         <div className="flex justify-between p-4">
           <div>
             <span className="p-3 w-fit text-lg font-semibold">
@@ -558,12 +558,14 @@ const Outsource = () => {
           </div>
 
           <div className="relative mr-6 z-50">
-            <span
-              className="p-2 w-fit text-md font-semibold border shadow rounded-3xl cursor-pointer"
-              onClick={toggleInterviewDropdown}
-            >
-              Request an Interview
-            </span>
+            {objectPermissions.Create && (
+              <span
+                className="p-2 w-fit text-md font-semibold border shadow rounded-3xl cursor-pointer"
+                onClick={toggleInterviewDropdown}
+              >
+                Request an Interview
+              </span>
+            )}
             {interviewDropdown && (
               <div className="absolute mt-5 z-50 w-48 rounded-md shadow-lg bg-white ring-1 p-2 ring-black ring-opacity-5">
                 {/* Dropdown items */}
@@ -814,22 +816,23 @@ const Outsource = () => {
                                         </>
                                       )}
                                       <div className="py-2 px-2 flex items-center gap-3 text-blue-400">
-                                        {interview.candidateImageUrl ? (
+                                        {interview.candidate?.imageUrl ? (
                                           <img
-                                            src={interview.candidateImageUrl}
+                                            src={interview.candidate.imageUrl}
                                             alt="Candidate"
                                             className="w-7 h-7 rounded"
                                           />
                                         ) : (
-                                          <MdOutlineImageNotSupported
-                                            className="w-7 h-7 text-gray-900"
-                                            alt="Default"
-                                          />
+                                          interview.candidate?.Gender === "Male" ? (
+                                            <img src={maleImage} alt="Male Avatar" className="w-7 h-7 rounded" />
+                                          ) : interview.candidate?.Gender === "Female" ? (
+                                            <img src={femaleImage} alt="Female Avatar" className="w-7 h-7 rounded" />
+                                          ) : (
+                                            <img src={genderlessImage} alt="Other Avatar" className="w-7 h-7 rounded" />
+                                          )
                                         )}
                                         <div
-                                          onClick={() =>
-                                            handleInterviewClick(interview)
-                                          }
+                                          onClick={() => handleInterviewClick(interview)}
                                         >
                                           {interview.Candidate}
                                         </div>
@@ -872,37 +875,42 @@ const Outsource = () => {
                                       {actionViewMore === interview._id && (
                                         <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2">
                                           <div className="space-y-1">
-                                            <p
-                                              className="hover:bg-gray-200 p-1 rounded pl-3"
-                                              onClick={() =>
-                                                handleInterviewClick(interview)
-                                              }
-                                            >
-                                              View
-                                            </p>
+                                            {objectPermissions.View && (
+                                              <p
+                                                className="hover:bg-gray-200 p-1 rounded pl-3"
+                                                onClick={() =>
+                                                  handleInterviewClick(interview)
+                                                }
+                                              >
+                                                View
+                                              </p>
+                                            )}
+
                                             {interview.ScheduleType !== "instantinterview" && (
-                                            <>
-                                              <p
-                                                className="hover:bg-gray-200 p-1 rounded pl-3"
-                                                onClick={() =>
-                                                  handleEditClick(interview)
-                                                }
-                                              >
-                                                Reschedule
-                                              </p>
-                                              <p
-                                                className="hover:bg-gray-200 p-1 rounded pl-3"
-                                                onClick={() =>
-                                                  handleUpdate(
-                                                    interview._id,
-                                                    interview.ScheduleType
-                                                  )
-                                                }
-                                              >
-                                                Cancel
-                                              </p>
-                                            </>
-                                          )}
+                                              <>
+                                                {objectPermissions.Edit && (
+                                                  <p
+                                                    className="hover:bg-gray-200 p-1 rounded pl-3"
+                                                    onClick={() =>
+                                                      handleEditClick(interview)
+                                                    }
+                                                  >
+                                                    Reschedule
+                                                  </p>
+                                                )}
+                                                <p
+                                                  className="hover:bg-gray-200 p-1 rounded pl-3"
+                                                  onClick={() =>
+                                                    handleUpdate(
+                                                      interview._id,
+                                                      interview.ScheduleType
+                                                    )
+                                                  }
+                                                >
+                                                  Cancel
+                                                </p>
+                                              </>
+                                            )}
                                           </div>
                                         </div>
                                       )}
@@ -1044,17 +1052,20 @@ const Outsource = () => {
                                   <div className="bg-white border border-orange-500 cursor-pointer p-2 rounded shadow-lg">
                                     <div className="flex">
                                       <div className="w-16 h-14 mt-3 ml-1 mr-3 overflow-hidden cursor-pointer rounded">
-                                        {interview.candidateImageUrl ? (
+                                        {interview.candidate?.imageUrl ? (
                                           <img
-                                            src={interview.candidateImageUrl}
+                                            src={interview.candidate.imageUrl}
                                             alt="Candidate"
                                             className="w-full h-full"
                                           />
                                         ) : (
-                                          <MdOutlineImageNotSupported
-                                            className="w-full h-full text-gray-900"
-                                            alt="Default"
-                                          />
+                                          interview.candidate?.Gender === "Male" ? (
+                                            <img src={maleImage} alt="Male Avatar" className="w-full h-full" />
+                                          ) : interview.candidate?.Gender === "Female" ? (
+                                            <img src={femaleImage} alt="Female Avatar" className="w-full h-full" />
+                                          ) : (
+                                            <img src={genderlessImage} alt="Other Avatar" className="w-full h-full" />
+                                          )
                                         )}
                                       </div>
                                       <div className="flex flex-col justify-between">
@@ -1192,7 +1203,7 @@ const Outsource = () => {
       {/* {selectedCandidate && (
 				<CandidateProfileDetails candidate={selectedCandidate} />
 			)} */}
- {showPopup && (
+      {showPopup && (
         <Popup
           onClose={handlePopupClose}
           onConfirm={(e) => handlePopupConfirm(e, currentInterviewId)}
@@ -1204,18 +1215,19 @@ const Outsource = () => {
           candidate1={showEditLater}
           rounds={showEditLater.rounds}
           interviewers={showEditLater.interviewers}
+          sharingPermissions={sharingPermissions}
         />
       )}
-      {isSchedulePopupVisible && <SchedulePopup onClose={closeSchedulePopup} />}
+      {isSchedulePopupVisible && <SchedulePopup onClose={closeSchedulePopup} sharingPermissions={sharingPermissions} />}
       {isSchedulePopupVisible1 && (
-        <SchedulePopup1 onClose={closeSchedulePopup1} />
+        <SchedulePopup1 onClose={closeSchedulePopup1} sharingPermissions={sharingPermissions} />
       )}
       {selectedCandidate && (
         <OutsourceInterview
-        candidate={selectedCandidate}
-        onCloseprofile={handleCloseProfile}
-        triggerCancel={triggerCancel}
-        viewMode={viewMode} // Pass viewMode as a prop
+          candidate={selectedCandidate}
+          onCloseprofile={handleCloseProfile}
+          triggerCancel={triggerCancel}
+          viewMode={viewMode} // Pass viewMode as a prop
         />
       )}
     </>

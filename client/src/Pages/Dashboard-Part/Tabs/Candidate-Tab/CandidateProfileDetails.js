@@ -6,9 +6,11 @@ import { MdOutlineCancel } from "react-icons/md";
 import maleImage from '../../../Dashboard-Part/Images/man.png';
 import femaleImage from '../../../Dashboard-Part/Images/woman.png';
 import genderlessImage from '../../../Dashboard-Part/Images/transgender.png';
+import { IoArrowBack } from "react-icons/io5";
 import axios from "axios";
 import { format } from 'date-fns';
 import EditCandidateForm from "./EditCandidate";
+import { TbFoldersOff } from "react-icons/tb";
 
 const CandidateDetails = ({ candidate, onCloseprofile }) => {
   useEffect(() => {
@@ -16,6 +18,8 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
   }, []);
   const navigate = useNavigate();
   const location = useLocation();
+  // const candidateData = location.state?.candidate;
+  // const [candidate] = useState(candidateData);
   const [activeTab, setActiveTab] = useState("candidate");
   const handleNavigate = () => {
     navigate("/candidate", { state: { candidate } });
@@ -49,6 +53,11 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
     setIsArrowUp(!isArrowUp);
   };
 
+  const [isArrowUp1, setIsArrowUp1] = useState(false);
+
+  const toggleArrow1 = () => {
+    setIsArrowUp1(!isArrowUp1);
+  };
   const currentRows = [
     {
       id: 1,
@@ -87,7 +96,6 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
       Status: "Rejected",
     },
   ];
-
   const [isArrowUp2, setIsArrowUp2] = useState(true);
   const trFontstyle = {
     fontSize: "14px",
@@ -114,6 +122,9 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
     setIsArrowUp4(updatedArrows);
   };
 
+  // const closeModalAndNavigate = () => {
+  //   navigate("/candidate");
+  // };
   const [showMainContent, setShowMainContent] = useState(true);
   const [showNewCandidateContent, setShowNewCandidateContent] = useState(false);
 
@@ -146,8 +157,9 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
     }
   }, [selectedPositionId]);
   const formattedDateOfBirth = candidate.Date_Of_Birth
-  ? format(new Date(candidate.Date_Of_Birth), 'dd-MM-yyyy')
-  : '';
+    ? format(new Date(candidate.Date_Of_Birth), 'dd-MM-yyyy')
+    : '';
+
 
   return (
     <>
@@ -155,11 +167,13 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
         {showMainContent ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div
-              className="bg-white shadow-lg overflow-auto"
-              style={{ width: "97%", height: "94%" }}
+              className="bg-white shadow-lg overflow-auto w-[97%] h-[94%] sm:w-[100%] sm:h-[100%]"
             >
               <div className="border-b p-2">
-                <div className="mx-8 my-3 flex justify-between items-center">
+                <div className="md:mx-8 lg:mx-8 xl:mx-8 sm:mx-1 my-3 flex justify-between sm:justify-start items-center">
+                  <button className="sm:w-8 md:hidden lg:hidden xl:hidden 2xl:hidden" onClick={onCloseprofile}>
+                    <IoArrowBack className="text-2xl" />
+                  </button>
                   <p className="text-xl">
                     <span
                       className="text-orange-500 font-semibold cursor-pointer"
@@ -170,7 +184,7 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                     / {candidate.LastName}
                   </p>
                   <button
-                    className="shadow-lg rounded-full"
+                    className="shadow-lg rounded-full sm:hidden"
                     onClick={onCloseprofile}
                   >
                     <MdOutlineCancel className="text-2xl" />
@@ -178,44 +192,54 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                 </div>
               </div>
               <div>
-                <div className="mx-10 pt-5 pb-2">
+                <div className="mx-10 pt-5 pb-2 sm:hidden md:hidden">
                   <p className="text-xl space-x-10">
                     <span
-                      className={`cursor-pointer ${
-                        activeTab === "candidate"
-                          ? "text-orange-500 font-semibold pb-3 border-b-2 border-orange-500"
-                          : "text-gray-500"
-                      }`}
+                      className={`cursor-pointer ${activeTab === "candidate"
+                        ? "text-orange-500 font-semibold pb-3 border-b-2 border-orange-500"
+                        : "text-gray-500"
+                        }`}
                       onClick={() => handleTabClick("candidate")}
                     >
                       Candidate
                     </span>
                     <span
-                      className={`cursor-pointer ${
-                        activeTab === "position"
-                          ? "text-orange-500 font-semibold pb-3 border-b-2 border-orange-500"
-                          : "text-gray-500"
-                      }`}
+                      className={`cursor-pointer ${activeTab === "position"
+                        ? "text-orange-500 font-semibold pb-3 border-b-2 border-orange-500"
+                        : "text-gray-500"
+                        }`}
                       onClick={() => handleTabClick("position")}
                     >
                       Positions
                     </span>
                     <span
-                      className={`cursor-pointer ${
-                        activeTab === "schedule"
-                          ? "text-orange-500 font-semibold pb-3 border-b-2 border-orange-500"
-                          : "text-gray-500"
-                      }`}
+                      className={`cursor-pointer ${activeTab === "schedule"
+                        ? "text-orange-500 font-semibold pb-3 border-b-2 border-orange-500"
+                        : "text-gray-500"
+                        }`}
                       onClick={() => handleTabClick("schedule")}
                     >
                       Schedule History
                     </span>
                   </p>
                 </div>
+
+                <div>
+                  <select
+                    className="w-52 p-2 text-custom-blue border border-gray-300 rounded-md mt-5 ml-5 lg:hidden xl:hidden 2xl:hidden"
+                    onChange={(e) => handleTabClick(e.target.value)}
+                    value={activeTab}
+                  >
+                    <option value="candidate">Candidate</option>
+                    <option value="position">Position</option>
+                    <option value="schedule">Schedule History</option>
+                  </select>
+                </div>
+
               </div>
               {activeTab === "candidate" && (
                 <>
-                  <div className="flex float-end -mt-7">
+                  <div className="flex float-end -mt-7 sm:hidden md:hidden">
                     <button
                       className=" text-gray-500 mr-7"
                       onClick={handleEditClick}
@@ -225,13 +249,35 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                     <button className=" text-gray-500 mr-7">Schedule</button>
                   </div>
 
-                  <div className="mx-16 mt-7 grid grid-cols-4">
-                    <div className="col-span-3">
+                  <div className="mx-16 sm:mx-5 mt-7 grid grid-cols-4 sm:mt-5">
+
+                    {/* candidate image only for mobile */}
+                    <div className="col-span-4 md:hidden lg:hidden xl:hidden 2xl:hidden sm:flex sm:justify-center">
+                      <div>
+                        <div className="flex justify-end text-center">
+                          <div>
+                            {candidate.imageUrl ? (
+                              <img src={candidate.imageUrl} alt="Candidate" className="w-32 h-32 rounded" />
+                            ) : (
+                              candidate.Gender === "Male" ? (
+                                <img src={maleImage} alt="Male Avatar" className="w-32 h-32 rounded" />
+                              ) : candidate.Gender === "Female" ? (
+                                <img src={femaleImage} alt="Female Avatar" className="w-32 h-32 rounded" />
+                              ) : (
+                                <img src={genderlessImage} alt="Other Avatar" className="w-32 h-32 rounded" />
+                              )
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="sm:col-span-4 md:col-span-3 lg:col-span-3 xl:col-span-3 2xl:col-span-3 sm:mt-[1rem]">
                       <div className="flex mb-5">
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <div className="font-medium">First Name</div>
                         </div>
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <p>
                             <span className="font-normal text-gray-500">
                               {candidate.FirstName}
@@ -241,10 +287,10 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                       </div>
 
                       <div className="flex mb-5">
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <div className="font-medium">Last Name</div>
                         </div>
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <p>
                             <span className="font-normal text-gray-500">
                               {candidate.LastName}
@@ -254,10 +300,10 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                       </div>
 
                       <div className="flex mb-5">
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <div className="font-medium">Email</div>
                         </div>
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <p>
                             <span className="font-normal text-gray-500">
                               {candidate.Email}
@@ -267,10 +313,10 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                       </div>
 
                       <div className="flex mb-5">
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <div className="font-medium">Phone</div>
                         </div>
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <p>
                             <span className="font-normal text-gray-500">
                               {candidate.Phone}
@@ -280,23 +326,23 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                       </div>
 
                       <div className="flex mb-5">
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <div className="font-medium">Date-of-Birth</div>
                         </div>
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <p>
                             <span className="font-normal text-gray-500">
-                            {formattedDateOfBirth}
+                              {formattedDateOfBirth}
                             </span>
                           </p>
                         </div>
                       </div>
 
                       <div className="flex mb-5">
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <div className="font-medium">Gender</div>
                         </div>
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <p>
                             <span className="font-normal text-gray-500">
                               {candidate.Gender}
@@ -306,12 +352,12 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                       </div>
 
                       <div className="flex mb-5">
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <div className="font-medium">
                             Higher Qualification
                           </div>
                         </div>
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <p>
                             <span className="font-normal text-gray-500">
                               {candidate.HigherQualification}
@@ -321,10 +367,10 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                       </div>
 
                       <div className="flex mb-5">
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <div className="font-medium">University/College</div>
                         </div>
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <p>
                             <span className="font-normal text-gray-500">
                               {candidate.UniversityCollege}
@@ -334,10 +380,10 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                       </div>
 
                       <div className="flex mb-5">
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <div className="font-medium">Current Experience</div>
                         </div>
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <p>
                             <span className="font-normal text-gray-500">
                               {candidate.CurrentExperience}
@@ -346,10 +392,10 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                         </div>
                       </div>
                       <div className="flex mb-5">
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <div className="font-medium">Position</div>
                         </div>
-                        <div className="w-1/3">
+                        <div className="w-1/3 sm:w-1/2">
                           <p>
                             <span className="font-normal text-gray-500">
                               {candidate.Position}
@@ -359,28 +405,29 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                       </div>
                     </div>
 
-                    <div className="col-span-1">
+                    <div className="col-span-1 sm:hidden">
                       <div>
                         <div className="flex justify-end text-center">
                           <div>
-                          {candidate.imageUrl ? (
-                                    <img src={candidate.imageUrl} alt="Candidate" className="w-32 h-32 rounded" />
-                                  ) : (
-                                    candidate.Gender === "Male" ? (
-                                      <img src={maleImage} alt="Male Avatar" className="w-32 h-32 rounded" />
-                                    ) : candidate.Gender === "Female" ? (
-                                      <img src={femaleImage} alt="Female Avatar" className="w-32 h-32 rounded" />
-                                    ) : (
-                                      <img src={genderlessImage} alt="Other Avatar" className="w-32 h-32 rounded" />
-                                    )
-                                  )}
+                            {candidate.imageUrl ? (
+                              <img src={candidate.imageUrl} alt="Candidate" className="w-32 h-32 rounded" />
+                            ) : (
+                              candidate.Gender === "Male" ? (
+                                <img src={maleImage} alt="Male Avatar" className="w-32 h-32 rounded" />
+                              ) : candidate.Gender === "Female" ? (
+                                <img src={femaleImage} alt="Female Avatar" className="w-32 h-32 rounded" />
+                              ) : (
+                                <img src={genderlessImage} alt="Other Avatar" className="w-32 h-32 rounded" />
+                              )
+                            )}
                           </div>
                         </div>
                       </div>
                     </div>
+
                   </div>
                   <div className="mb-5">
-                    <div className="mt-4 mx-16">
+                    <div className="mt-4 mx-16 sm:mx-5">
                       <div className="flex justify-between">
                         <div className="flex items-center">
                           <div
@@ -460,7 +507,7 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                                     Experience:{" "}
                                   </span>
                                   <p className="ml-40">
-                                  {positionData.minexperience} to {positionData.maxexperience} years
+                                    {positionData.minexperience} to {positionData.maxexperience} years
                                   </p>
                                 </div>
                               </div>
@@ -512,7 +559,7 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
 
                           {/* Rounds */}
                           <div className="mb-5">
-                          <div className="mx-3">
+                            <div className="mx-3">
                               <div className="flex justify-between">
                                 <div
                                   htmlFor="rounds"
@@ -546,13 +593,13 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                           </div>
 
                           <div className="flex mb-2">
-  <span className="text-md font-semibold">
-    Additional Notes:{" "}
-  </span>
-  <p className="ml-32">
-    {positionData.additionalnotes}
-  </p>
-</div>
+                            <span className="text-md font-semibold">
+                              Additional Notes:{" "}
+                            </span>
+                            <p className="ml-32">
+                              {positionData.additionalnotes}
+                            </p>
+                          </div>
 
                         </div>
                       </div>
@@ -560,6 +607,7 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                   )}
                 </div>
               )}
+
               {activeTab === "schedule" && (
                 <div>
                   <div className="mt-7">
@@ -616,15 +664,14 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
                                   <td className="py-1 px-6">{row.duration}</td>
                                   <td className="py-1 px-6 relative">
                                     <div
-                                      className={`py-2 rounded-full text-center ${
-                                        row.Status === "Cancelled"
-                                          ? "bg-red-500"
-                                          : row.Status === "Interviewed"
+                                      className={`py-2 rounded-full text-center ${row.Status === "Cancelled"
+                                        ? "bg-red-500"
+                                        : row.Status === "Interviewed"
                                           ? "bg-yellow-300"
                                           : row.Status === "Selected"
-                                          ? "bg-green-300"
-                                          : "bg-orange-300"
-                                      }`}
+                                            ? "bg-green-300"
+                                            : "bg-orange-300"
+                                        }`}
                                     >
                                       {row.Status}
                                       {row.Status === "Selected" && (

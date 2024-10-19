@@ -63,9 +63,9 @@ const MockProfileDetails = () => {
               });
             console.log('Cancelled interview:', response.data);
             console.log('Notification posted:', notificationResponse.data);
-            setCandidate({ ...candidate, Status: 'ScheduleCancel' }); // Update candidate status
+            setCandidate({ ...candidate, Status: 'ScheduleCancel' });
             setShowPopup(false);
-            navigate('/mockinterview'); // Navigate back to the main page
+            navigate('/mockinterview');
         } catch (error) {
             console.error('Error cancelling interview:', error);
         }

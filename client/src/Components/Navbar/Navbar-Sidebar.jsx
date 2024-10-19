@@ -12,17 +12,22 @@ import { IoMdSearch } from "react-icons/io";
 import { IoIosArrowDown, IoIosArrowUp } from "react-icons/io";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 import "./Navbar-Sidebar.scss";
+import Cookies from 'js-cookie';
+import { FaBars } from "react-icons/fa";
+import { CiCreditCard1 } from "react-icons/ci";
+import { LiaWalletSolid } from "react-icons/lia";
+
 
 const Navbar = () => {
-
-  const userId = localStorage.getItem('userId');
+  const userId = Cookies.get("userId");
+  console.log(userId);
+  const userName = Cookies.get("userName");
+  const { logout } = useAuth0();
   const [assessmentDropdown, setAssessmentDropdown] = useState(false);
   const [moreDropdown, setMoreDropdown] = useState(false);
-  const [profileDropdown, setProfileDropdown] = useState(false);
-  const [notificationDropdown, setnotificationDropdown] = useState(false);
-  const [interviewDropdown, setinterviewDropdown] = useState(false);
-  const [outlineDropdown, setoutlineDropdown] = useState(false);
+  const [interviewDropdown, setInterviewDropdown] = useState(false);
   const [isDetailDropdownOpen, setIsDetailDropdownOpen] = useState(false);
   const [isGettingDropdownOpen, setIsGettingDropdownOpen] = useState(false);
   const [isQuestionDropdownOpen, setIsQuestionDropdownOpen] = useState(false);
@@ -31,79 +36,35 @@ const Navbar = () => {
   const [isAdditionalDropdownOpen, setIsAdditionalDropdownOpen] = useState(false);
   const [isLegalDropdownOpen, setIsLegalDropdownOpen] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const organization = Cookies.get("organization") === 'true';
 
   const assessmentRef = useRef(null);
   const moreRef = useRef(null);
-  const profileRef = useRef(null);
-  const outlineRef = useRef(null);
-  const notificationRef = useRef(null);
   const interviewRef = useRef(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        assessmentRef.current &&
-        !assessmentRef.current.contains(event.target)
-      ) {
-        setAssessmentDropdown(false);
-      }
-      if (moreRef.current && !moreRef.current.contains(event.target)) {
-        setMoreDropdown(false);
-      }
-      if (profileRef.current && !profileRef.current.contains(event.target)) {
-        setProfileDropdown(false);
-      }
-      if (
-        interviewRef.current &&
-        !interviewRef.current.contains(event.target)
-      ) {
-        setinterviewDropdown(false);
-      }
-      if (
-        notificationRef.current &&
-        !notificationRef.current.contains(event.target)
-      ) {
-        setnotificationDropdown(false);
-      }
-      if (
-        outlineRef.current &&
-        !outlineRef.current.contains(event.target)
-      ) {
-        setoutlineDropdown(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
-
-  useEffect(() => {
     const fetchProfileImage = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/contacts`);
-        if (Array.isArray(response.data) && response.data.length > 0) {
-          const contact = response.data[0];
-          if (contact.ImageData && contact.ImageData.filename) {
-            const imageUrl = `${process.env.REACT_APP_API_URL}/${contact.ImageData.path.replace(/\\/g, '/')}`;
-            setProfileImage(imageUrl);
-          }
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/contacts/${userId}`);
+        if (response.data && response.data.ImageData && response.data.ImageData.path) {
+          const imageUrl = `${process.env.REACT_APP_API_URL}/${response.data.ImageData.path.replace(/\\/g, '/')}`;
+          setProfileImage(imageUrl);
+          console.log(imageUrl);
         }
       } catch (error) {
         console.error('Error fetching profile image:', error);
       }
     };
-
+  
     fetchProfileImage();
-  }, []);
-
-  const handleCancel = () => {
-    setnotificationDropdown(false);
-  };
-  const handleCancelled = () => {
-    setoutlineDropdown(false);
-  };
+  }, [userId]);
+  // const handleCancel = () => {
+  //   setnotificationDropdown(false);
+  // };
+  // const handleCancelled = () => {
+  //   setoutlineDropdown(false);
+  // };
   const handleGettingToggle = () => {
     setIsGettingDropdownOpen(!isGettingDropdownOpen);
   };
@@ -145,82 +106,398 @@ const Navbar = () => {
 
   const notifications = () => {
     navigate("/notifications");
-    setnotificationDropdown(false);
+    // setnotificationDropdown(false);
   };
+
+  const handleSettingsClick = () => {
+    if (organization) {
+      navigate('/user_details');
+    } else {
+      navigate('/profile');
+    }
+  };
+  const [outlineDropdown, setOutlineDropdown] = useState(false);
+  const [notificationDropdown, setNotificationDropdown] = useState(false);
+  const [profileDropdown, setProfileDropdown] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const outlineRef = useRef(null);
+  const notificationRef = useRef(null);
+  const profileRef = useRef(null);
+
+  // const handleClickOutside = (event) => {
+  //   if (
+  //     outlineRef.current && !outlineRef.current.contains(event.target) &&
+  //     notificationRef.current && !notificationRef.current.contains(event.target) &&
+  //     profileRef.current && !profileRef.current.contains(event.target)
+  //   ) {
+  //     setOutlineDropdown(false);
+  //     setNotificationDropdown(false);
+  //     setProfileDropdown(false);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
+
+  const toggleOutlineDropdown = () => {
+    setOutlineDropdown(prev => !prev);
+    setNotificationDropdown(false);
+    setProfileDropdown(false);
+  };
+
+  const toggleNotificationDropdown = () => {
+    setNotificationDropdown(prev => !prev);
+    setOutlineDropdown(false);
+    setProfileDropdown(false);
+  };
+
+  const toggleProfileDropdown = () => {
+    setProfileDropdown(prev => !prev);
+    setOutlineDropdown(false);
+    setNotificationDropdown(false);
+  };
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(prev => !prev);
+  };
+
+
+
+  const outlineDropdownContent = (
+    <div className="absolute top-12 w-80 text-sm rounded-md bg-white border border-custom-blue right-0 z-50 -mr-20">
+      <div className="flex justify-between items-center px-4 py-2 border-b">
+        <h2 className="text-start font-medium text-custom-blue">Help & Training</h2>
+        <button className="text-custom-blue hover:text-blue-500" onClick={toggleOutlineDropdown}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M15.293 4.293a1 1 0 1 1 1.414 1.414L11.414 10l5.293 5.293a1 1 0 1 1-1.414 1.414L10 11.414l-5.293 5.293a1 1 0 1 1-1.414-1.414L8.586 10 3.293 4.707a1 1 0 1 1 1.414-1.414L10 8.586l5.293-5.293z" clipRule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      <div>
+        <div className="text-sm border-b w-full">
+          <div className="mt-2 mb-2 ml-8 flex items-center">
+            <p className="text-custom-blue">Introduction</p>
+          </div>
+          <div className="flex justify-between mr-4 mt-2">
+            <div className="cursor-pointer">
+              <label className="inline-flex items-center ml-5">
+                <span className="ml-3 text-custom-blue"> Getting Started</span>
+              </label>
+            </div>
+            <div className="cursor-pointer ml-30" onClick={handleGettingToggle}>
+              {isGettingDropdownOpen ? (
+                <FaCaretUp className="ml-10 text-custom-blue" />
+              ) : (
+                <FaCaretDown className="ml-10 text-custom-blue" />
+              )}
+            </div>
+          </div>
+          <div className="flex mt-2 justify-between mr-4">
+            <div className="cursor-pointer">
+              <label className="inline-flex items-center ml-5">
+                <span className="ml-3 text-custom-blue">Detailed Instructions</span>
+              </label>
+            </div>
+            <div className="cursor-pointer ml-[88px]" onClick={handleDetailToggle}>
+              {isDetailDropdownOpen ? (
+                <FaCaretUp className="ml-10 text-custom-blue" />
+              ) : (
+                <FaCaretDown className="ml-10 text-custom-blue" />
+              )}
+            </div>
+          </div>
+          <div className="flex justify-between mr-4 mt-2">
+            <div className="cursor-pointer">
+              <label className="inline-flex items-center ml-5">
+                <span className="ml-3 text-custom-blue">FAQs (Frequently Asked Questions) </span>
+              </label>
+            </div>
+            <div className="cursor-pointer" onClick={handleQuestionToggle}>
+              {isQuestionDropdownOpen ? (
+                <FaCaretUp className="ml-10 text-custom-blue" />
+              ) : (
+                <FaCaretDown className="ml-10 text-custom-blue" />
+              )}
+            </div>
+          </div>
+          <div className="flex justify-between mr-4 mt-2">
+            <div className="cursor-pointer">
+              <label className="inline-flex items-center ml-5">
+                <span className="ml-3 text-custom-blue">Search Functionalilty</span>
+              </label>
+            </div>
+            <div className="cursor-pointer ml-[88px]" onClick={handleFunctionToggle}>
+              {isFunctionDropdownOpen ? (
+                <FaCaretUp className="ml-10 text-custom-blue" />
+              ) : (
+                <FaCaretDown className="ml-10 text-custom-blue" />
+              )}
+            </div>
+          </div>
+          <div className="flex justify-between mr-4 mt-2">
+            <div className="cursor-pointer">
+              <label className="inline-flex items-center ml-5">
+                <span className="ml-3 text-custom-blue">Contact Support</span>
+              </label>
+            </div>
+            <div className="cursor-pointer ml-[114px]" onClick={handleContactToggle}>
+              {isContactDropdownOpen ? (
+                <FaCaretUp className="ml-10 text-custom-blue" />
+              ) : (
+                <FaCaretDown className="ml-10 text-custom-blue" />
+              )}
+            </div>
+          </div>
+          <div className="flex justify-between mr-4 mt-2">
+            <div className="cursor-pointer">
+              <label className="inline-flex items-center ml-5">
+                <span className="ml-3 text-custom-blue">Additional Resources</span>
+              </label>
+            </div>
+            <div className="cursor-pointer ml-[85px]" onClick={handleAdditionalToggle}>
+              {isAdditionalDropdownOpen ? (
+                <FaCaretUp className="ml-10 text-custom-blue" />
+              ) : (
+                <FaCaretDown className="ml-10 text-custom-blue" />
+              )}
+            </div>
+          </div>
+          <div className="flex justify-between mr-4 mt-2 mb-2">
+            <div className="cursor-pointer">
+              <label className="inline-flex items-center ml-5">
+                <span className="ml-3 text-custom-blue">Legal and Privacy Information</span>
+              </label>
+            </div>
+            <div className="cursor-pointer ml-[30px]" onClick={handleLegalToggle}>
+              {isLegalDropdownOpen ? (
+                <FaCaretUp className="ml-10 text-custom-blue" />
+              ) : (
+                <FaCaretDown className="ml-10 text-custom-blue" />
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  const notificationDropdownContent = (
+    <div className="absolute top-12 w-80 text-sm rounded-md bg-white border border-custom-blue right-0 z-50 -mr-10">
+      <div className="flex justify-between items-center px-4 py-2 border-b">
+        <h2 className="text-start font-medium text-custom-blue">Notifications</h2>
+        <button className="text-custom-blue hover:text-blue-500" onClick={toggleNotificationDropdown}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M15.293 4.293a1 1 0 1 1 1.414 1.414L11.414 10l5.293 5.293a1 1 0 1 1-1.414 1.414L10 11.414l-5.293 5.293a1 1 0 1 1-1.414-1.414L8.586 10 3.293 4.707a1 1 0 1 1 1.414-1.414L10 8.586l5.293-5.293z" clipRule="evenodd" />
+          </svg>
+        </button>
+      </div>
+      <div>
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="flex text-sm border-b w-full justify-between bg-gray-100">
+            <div className="flex item-center mt-2">
+              <div className={`w-10 ml-3 mt-1 ${i === 2 ? "w-14 mr-5" : ""}`}>
+                {i === 2 ? <AiTwotoneSchedule className="text-xl text-custom-blue" /> : <PiNotificationBold className="text-xl text-custom-blue" />}
+              </div>
+              <div>
+                <p className="font-bold text-custom-blue">{i === 2 ? "Interview Scheduled" : "New Interview Requests"}</p>
+                <p className="text-custom-blue">Skill: Apex, AURA, LWC</p>
+                <p className="mb-2 text-custom-blue">15 May 2024, 05:40 PM</p>
+              </div>
+            </div>
+            <div className={`text-xl mt-12 mr-2 ${i === 2 ? "mt-28" : ""}`}>
+              <FaArrowRight className="text-custom-blue" />
+            </div>
+          </div>
+        ))}
+        <div>
+          <p onClick={notifications}
+            style={{ cursor: "pointer" }} className="float-right text-sm mr-2 p-2 text-custom-blue">View More</p>
+        </div>
+      </div>
+    </div>
+  );
+  
+  const profileDropdownContent = (
+    <div className="absolute top-10 border border-custom-blue w-40 text-sm rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 right-0 -mr-2 z-10">
+      <div className="p-2 flex items-center">
+        <CgProfile className="text-xl text-custom-blue mr-2" />
+        <span className="font-medium">{userName}</span>
+      </div>
+      <div className="flex justify-between px-3 py-1 border-b text-xs">
+        <button
+          className="text-custom-blue hover:text-blue-500 ml-6"
+          onClick={() => {
+            setProfileDropdown(false);
+            handleSettingsClick();
+          }}
+        >
+          Settings
+        </button>
+        <button
+          className="text-custom-blue hover:text-blue-500"
+          onClick={() => {
+            setProfileDropdown(false);
+            logout({ returnTo: window.location.origin });
+          }}
+        >
+          Log Out
+        </button>
+      </div>
+      <div className="px-2 py-1">
+        {[
+          { to: "/billing", label: "Billing", icon: <CiCreditCard1 /> },
+          {
+            to: "/wallet", label: "My Wallet", icon: <LiaWalletSolid />
+          },
+        ].map(({ to, label, icon }, index) => (
+          <NavLink
+            key={index}
+            className="flex items-center py-2 hover:bg-gray-200 hover:text-custom-blue rounded-md"
+            activeClassName="bg-gray-200 text-gray-800"
+            to={to}
+            onClick={() => setProfileDropdown(false)}
+          >
+            <span className="mr-2 text-xl">{icon}</span>
+            {label}
+          </NavLink>
+        ))}
+      </div>
+    </div>
+  );
+
+
 
   return (
     <>
       <div className="bg-white fixed top-0 left-0 right-0 z-50">
         <div className="mx-auto relative">
-          <div className="flex justify-between items-center border-b-2 border-gray-100 py-6 px-10">
-            <div className="flex items-center">
-              <p className="text-2xl font-bold">Logo</p>
+          <div className="xl:flex lg:flex 2xl:flex justify-between items-center border-b-2 border-gray-100 xl:p-5 2xl:p-5 lg:p-5 sm:px-5 md:px-5 sm:py-3 md:py-3">
+            <div>
+              <p className="text-2xl font-bold block sm:hidden md:hidden">Logo</p>
             </div>
-            <nav className="flex space-x-10">
-              <div className="relative" ref={interviewRef}>
-                <button className="text-black font-medium flex items-center" onClick={() => setinterviewDropdown(!interviewDropdown)} >
+            {/* Navbar icons for small and medium screens */}
+            <div className="flex-col hidden sm:flex md:flex lg:hidden xl:hidden 2xl:hidden">
+              <div className="flex items-center justify-between w-full">
+                <button className="sidebar-icon12" onClick={toggleSidebar}>
+                  <FaBars />
+                </button>
+                <div className="flex-1 flex justify-center -mr-28">
+                  <p className="logo123 font-bold">Logo</p>
+                </div>
+                <div className="flex space-x-2 text-custom-blue">
+                  <div className="icon-container">
+                    <NavLink to="/home">
+                      <IoHome />
+                    </NavLink>
+                  </div>
+                  <div className="icon-container" ref={outlineRef}>
+                    <div className="relative">
+                      <p className="font-medium text-custom-blue" onClick={toggleOutlineDropdown}>
+                        <IoMdInformationCircleOutline />
+                      </p>
+                      {outlineDropdown && outlineDropdownContent}
+                    </div>
+                  </div>
+                  <div className="icon-container" ref={notificationRef}>
+                    <div className="relative">
+                      <p className="font-medium text-custom-blue" onClick={toggleNotificationDropdown}>
+                        <FaBell />
+                      </p>
+                      {notificationDropdown && notificationDropdownContent}
+                    </div>
+                  </div>
+                  <div className="icon-container" ref={profileRef}>
+                    <div className="relative">
+                      <p className="font-medium text-custom-blue" onClick={toggleProfileDropdown}>
+                        {profileImage ? (
+                          <img src={profileImage} alt="Profile" className="w-12 h-7 rounded-full" />
+                        ) : (
+                          <CgProfile className="text-custom-blue" />
+                        )}
+                      </p>
+                      {profileDropdown && profileDropdownContent}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="search search-small-width mx-auto mt-2">
+                <input type="text" placeholder="Search" className="rounded-full text-custom-blue h-7" />
+                <button type="submit" className="text-custom-blue"><IoMdSearch /></button>
+              </div>
+            </div>
+
+
+
+            <nav className="flex justify-center items-center text-custom-blue lg:flex xl:flex 2xl:flex lg:space-x-10 xl:space-x-10 2xl:space-x-10">
+              <div className="relative hidden lg:block xl:block 2xl:block" ref={interviewRef} >
+                <button className="font-medium flex items-center text-custom-blue" onClick={() => setInterviewDropdown(!interviewDropdown)} >
                   Interviews &nbsp; {interviewDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
                 </button>
                 {interviewDropdown && (
-                  <div className="absolute mt-2 z-50 w-48 rounded-md shadow-lg bg-white ring-1 p-2 ring-black ring-opacity-5">
+                  <div className="absolute mt-2 z-50 w-48 rounded-md shadow-lg bg-white ring-1 p-2 ring-black ring-opacity-5 border border-custom-blue">
                     <div className="space-y-1">
-                      <NavLink className="block px-3 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/internalinterview" onClick={() => { setinterviewDropdown(false); }} >
+                      <NavLink className="block px-3 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/internalinterview" onClick={() => { setInterviewDropdown(false); }} >
                         Internal Interviews
                       </NavLink>
-                      <NavLink className="block px-3 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/outsourceinterview" onClick={() => { setinterviewDropdown(false); }} >
+                      <NavLink className="block px-3 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/outsourceinterview" onClick={() => { setInterviewDropdown(false); }} >
                         Outsource Interviews
                       </NavLink>
-                      <NavLink className="block px-3 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/mockinterview" onClick={() => { setMoreDropdown(false); }} >
+                      <NavLink className="block px-3 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/mockinterview" onClick={() => { setInterviewDropdown(false); }} >
                         Mock Interviews
                       </NavLink>
-                      <NavLink className="block px-3 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/videocallbutton" onClick={() => { setinterviewDropdown(false); }} >
+                      {/* <NavLink className="block px-3 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/videocallbutton" onClick={() => { setInterviewDropdown(false); }} >
                         Start Interview
-                      </NavLink>
+                      </NavLink> */}
                     </div>
                   </div>
                 )}
               </div>
-              <div className="relative" ref={assessmentRef}>
-                <button className="text-black font-medium flex items-center" onClick={() => setAssessmentDropdown(!assessmentDropdown)} >
+              <div className="relative text-custom-blue hidden lg:block xl:block 2xl:block" ref={assessmentRef}>
+                <button className="font-medium flex items-center text-custom-blue" onClick={() => setAssessmentDropdown(!assessmentDropdown)} >
                   Assessments&nbsp;
                   {assessmentDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
                 </button>
                 {assessmentDropdown && (
-                  <div className="absolute mt-2 z-10 w-44 rounded-md shadow-lg bg-white ring-1 p-2 ring-black ring-opacity-5">
+                  <div className="absolute mt-2 z-10 w-44 rounded-md shadow-lg bg-white ring-1 p-2 ring-black ring-opacity-5 border border-custom-blue">
                     <div className="space-y-1">
-                      <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" onClick={() => { setAssessmentDropdown(false); }} activeclassname="bg-gray-200 text-gray-800" to="/assessment" >
+                      <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md" onClick={() => { setAssessmentDropdown(false); }} activeclassname="bg-gray-200 text-gray-800" to="/assessment" >
                         Assessments
                       </NavLink>
-                      <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/question-bank" onClick={() => { setAssessmentDropdown(false); }} >
+                      <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/interview-question" onClick={() => { setAssessmentDropdown(false); }} >
                         Question Bank
                       </NavLink>
-                      <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/assessmenttest" onClick={() => { setAssessmentDropdown(false); }} >
+                      {/* <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/assessmenttest" onClick={() => { setAssessmentDropdown(false); }} >
                         Assessment Test
-                      </NavLink>
+                      </NavLink> */}
                     </div>
                   </div>
                 )}
               </div>
-              <p className="text-base font-medium text-black">
-                <NavLink activeclassname="bg-gray-200 text-gray-800" to="/analytics" >
+              <p className="text-base font-medium text-custom-blue hidden lg:block xl:block 2xl:block">
+                <NavLink activeclassname="bg-gray-200 text-custom-blue" to="/analytics" >
                   Analytics
                 </NavLink>
               </p>
-              <div className="relative" ref={moreRef}>
-                <button className="text-black font-medium flex items-center" onClick={() => setMoreDropdown(!moreDropdown)} >
+              <div className="relative text-custom-blue hidden lg:block xl:block 2xl:block" ref={moreRef}>
+                <button className="font-medium flex items-center text-custom-blue" onClick={() => setMoreDropdown(!moreDropdown)} >
                   More&nbsp;
                   {moreDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
                 </button>
                 {moreDropdown && (
-                  <div className="absolute p-2 z-10 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+                  <div className="absolute p-2 z-10 mt-2 w-44 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 border border-custom-blue">
                     <div className="space-y-1">
-                      <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/candidate" onClick={() => { setMoreDropdown(false); }} >
+                      <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/candidate" onClick={() => { setMoreDropdown(false); }} >
                         Candidates
                       </NavLink>
-                      <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/position" onClick={() => { setMoreDropdown(false); }} >
+                      <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/position" onClick={() => { setMoreDropdown(false); }} >
                         Positions
                       </NavLink>
-                      <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/team" onClick={() => { setMoreDropdown(false); }} >
+                      <NavLink className="block px-4 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md" activeclassname="bg-gray-200 text-gray-800" to="/team" onClick={() => { setMoreDropdown(false); }} >
                         Teams
                       </NavLink>
                     </div>
@@ -228,232 +505,228 @@ const Navbar = () => {
                 )}
               </div>
             </nav>
-            <div className="flex space-x-2 text-black">
-              <div className="search">
-                <input type="text" placeholder="Search" className="rounded-full" />
-                <button type="submit"><IoMdSearch /></button>
+            {/* Navbar icons for big screens */}
+            <div className="flex space-x-2 text-custom-blue  sm:hidden md:hidden">
+              <div className="search w-60">
+                <input type="text" placeholder="Search" className="rounded-full text-custom-blue h-8" />
+                <button type="submit" className="text-custom-blue"><IoMdSearch /></button>
               </div>
-              <div className="text-2xl border-2 rounded-md p-2">
+              <div className="text-2xl border rounded-md p-2 text-custom-blue border-[#288290]">
                 <NavLink to="/home">
                   <IoHome />
                 </NavLink>
               </div>
-              <div className="text-2xl border-2 rounded-md p-2" ref={outlineRef} >
+              <div className="text-2xl border rounded-md p-2 text-custom-blue border-[#288290]" ref={outlineRef} >
                 <div className="relative">
-                  <p className="text-black font-medium" onClick={() => setoutlineDropdown(!outlineDropdown)} >
+                  <p className="font-medium text-custom-blue" onClick={toggleOutlineDropdown}>
                     <IoMdInformationCircleOutline />
                   </p>
-                  {outlineDropdown && (
-                    <div className="absolute top-12 w-80 text-sm rounded-md bg-white border right-0 z-50 -mr-20">
-                      <div className="flex justify-between items-center px-4 py-2 border-b">
-                        <h2 className="text-start font-medium text-gray-400">Help & Training</h2>
-                        <button className="text-gray-500 hover:text-gray-700" onClick={handleCancelled}>
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M15.293 4.293a1 1 0 1 1 1.414 1.414L11.414 10l5.293 5.293a1 1 0 1 1-1.414 1.414L10 11.414l-5.293 5.293a1 1 0 1 1-1.414-1.414L8.586 10 3.293 4.707a1 1 0 1 1 1.414-1.414L10 8.586l5.293-5.293z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </div>
-                      <div>
-                        <div className="text-sm border-b w-full">
-                          <div className="mt-2 mb-2 ml-8 flex items-center">
-                            <p>Introduction</p>
-                          </div>
-                          <div className="flex justify-between mr-4 mt-2">
-                            <div className="cursor-pointer">
-                              <label className="inline-flex items-center ml-5">
-                                <span className="ml-3"> Getting Started</span>
-                              </label>
-                            </div>
-                            <div className="cursor-pointer ml-30" onClick={handleGettingToggle}>
-                              {isGettingDropdownOpen ? (
-                                <FaCaretUp className="ml-10" />
-                              ) : (
-                                <FaCaretDown className="ml-10" />
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex mt-2 justify-between mr-4">
-                            <div className="cursor-pointer">
-                              <label className="inline-flex items-center ml-5">
-                                <span className="ml-3">Detailed Instructions</span>
-                              </label>
-                            </div>
-                            <div className="cursor-pointer ml-[88px]" onClick={handleDetailToggle}>
-                              {isDetailDropdownOpen ? (
-                                <FaCaretUp className="ml-10" />
-                              ) : (
-                                <FaCaretDown className="ml-10" />
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex justify-between mr-4 mt-2">
-                            <div className="cursor-pointer">
-                              <label className="inline-flex items-center ml-5">
-                                <span className="ml-3">FAQs (Frequently Asked Questions) </span>
-                              </label>
-                            </div>
-                            <div className="cursor-pointer" onClick={handleQuestionToggle}>
-                              {isQuestionDropdownOpen ? (
-                                <FaCaretUp className="ml-10" />
-                              ) : (
-                                <FaCaretDown className="ml-10" />
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex justify-between mr-4 mt-2">
-                            <div className="cursor-pointer">
-                              <label className="inline-flex items-center ml-5">
-                                <span className="ml-3">Search Functionalilty</span>
-                              </label>
-                            </div>
-                            <div className="cursor-pointer ml-[88px]" onClick={handleFunctionToggle}>
-                              {isFunctionDropdownOpen ? (
-                                <FaCaretUp className="ml-10" />
-                              ) : (
-                                <FaCaretDown className="ml-10" />
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex justify-between mr-4 mt-2">
-                            <div className="cursor-pointer">
-                              <label className="inline-flex items-center ml-5">
-                                <span className="ml-3">Contact Support</span>
-                              </label>
-                            </div>
-                            <div className="cursor-pointer ml-[114px]" onClick={handleContactToggle}>
-                              {isContactDropdownOpen ? (
-                                <FaCaretUp className="ml-10" />
-                              ) : (
-                                <FaCaretDown className="ml-10" />
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex justify-between mr-4 mt-2">
-                            <div className="cursor-pointer">
-                              <label className="inline-flex items-center ml-5">
-                                <span className="ml-3">Additional Resources</span>
-                              </label>
-                            </div>
-                            <div className="cursor-pointer ml-[85px]" onClick={handleAdditionalToggle}>
-                              {isAdditionalDropdownOpen ? (
-                                <FaCaretUp className="ml-10" />
-                              ) : (
-                                <FaCaretDown className="ml-10" />
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex justify-between mr-4 mt-2">
-                            <div className="cursor-pointer">
-                              <label className="inline-flex items-center ml-5">
-                                <span className="ml-3">Legal and Privacy Information</span>
-                              </label>
-                            </div>
-                            <div className="cursor-pointer ml-[30px]" onClick={handleLegalToggle}>
-                              {isLegalDropdownOpen ? (
-                                <FaCaretUp className="ml-10" />
-                              ) : (
-                                <FaCaretDown className="ml-10" />
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  {outlineDropdown && outlineDropdownContent}
                 </div>
               </div>
-              <div className="text-2xl border-2 rounded-md p-2" ref={notificationRef}>
+              <div className="text-2xl border rounded-md p-2 text-custom-blue border-[#288290]" ref={notificationRef}>
                 <div className="relative">
-                  <p className="text-black font-medium" onClick={() => setnotificationDropdown(!notificationDropdown)}>
+                  <p className="font-medium text-custom-blue" onClick={toggleNotificationDropdown}>
                     <FaBell />
                   </p>
-                  {notificationDropdown && (
-                    <div className="absolute top-12 w-80 text-sm rounded-md bg-white border right-0 z-50 -mr-20">
-                      <div className="flex justify-between items-center px-4 py-2 border-b">
-                        <h2 className="text-start font-medium">Notifications</h2>
-                        <button className="text-gray-500 hover:text-gray-700" onClick={handleCancel}>
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M15.293 4.293a1 1 0 1 1 1.414 1.414L11.414 10l5.293 5.293a1 1 0 1 1-1.414 1.414L10 11.414l-5.293 5.293a1 1 0 1 1-1.414-1.414L8.586 10 3.293 4.707a1 1 0 1 1 1.414-1.414L10 8.586l5.293-5.293z" clipRule="evenodd" />
-                          </svg>
-                        </button>
-                      </div>
-                      <div>
-                        {[...Array(2)].map((_, i) => (
-                          <div key={i} className="flex text-sm border-b w-full justify-between bg-gray-100">
-                            <div className="flex item-center mt-2">
-                              <div className={`w-10 ml-3 mt-1 ${i === 2 ? "w-14 mr-5" : ""}`}>
-                                {i === 2 ? <AiTwotoneSchedule className="text-xl" /> : <PiNotificationBold className="text-xl" />}
-                              </div>
-                              <div>
-                                <p className="font-bold">{i === 2 ? "Interview Scheduled" : "New Interview Requests"}</p>
-                                <p>Skill: Apex, AURA, LWC</p>
-                                <p className="mb-2">15 May 2024, 05:40 PM</p>
-                              </div>
-                            </div>
-                            <div className={`text-xl mt-12 mr-2 ${i === 2 ? "mt-28" : ""}`}>
-                              <FaArrowRight />
-                            </div>
-                          </div>
-                        ))}
-                        <div>
-                          <p onClick={notifications}
-                            style={{ cursor: "pointer" }} className="float-right text-sm mr-2 p-2">View More</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
+                  {notificationDropdown && notificationDropdownContent}
                 </div>
               </div>
-              <div className="text-2xl border-2 rounded-md px-1 py-1 flex items-center" ref={profileRef}>
+              <div className="text-2xl border rounded-md px-1 py-1 flex items-center border-[#288290] text-custom-blue" ref={profileRef}>
                 <div className="relative">
-                  <p
-                    className="text-black font-medium"
-                    onClick={() => setProfileDropdown(!profileDropdown)}
-                  >
-                    {profileImage ? (
+                  <p className="font-medium text-custom-blue" onClick={toggleProfileDropdown}>
+                    {/* {profileImage ? ( */}
                       <img src={profileImage} alt="Profile" className="w-12 h-7 rounded-full" />
-                    ) : (
-                      <CgProfile />
-                    )}
+                    {/* // ) : (
+                    //   <CgProfile className="text-custom-blue" />
+                    // )} */}
                   </p>
-                  {profileDropdown && (
-                    <div className="absolute top-10 w-40 text-sm rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 right-0 z-10">
-                      <div className="p-2">
-                        {[
-                          { to: "/billing", label: "Billing" },
-                          { to: "/wallet", label: "My Wallet" },
-                          { to: "/profile", label: "Settings" },
-                        ].map(({ to, label }, index) => (
-                          <NavLink
-                            key={index}
-                            className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md"
-                            activeClassName="bg-gray-200 text-gray-800"
-                            to={to}
-                            onClick={() => setProfileDropdown(false)}
-                          >
-                            {label}
-                          </NavLink>
-                        ))}
-                      </div>
-                      <p className="border-b"></p>
-                      <div className="p-2 text-red-600">
-                        <NavLink
-                          className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md"
-                          activeClassName="bg-gray-200 text-gray-800"
-                          to="/logout"
-                          onClick={() => setProfileDropdown(false)}
-                        >
-                          Logout
-                        </NavLink>
-                      </div>
-                    </div>
-                  )}
+                  {profileDropdown && profileDropdownContent}
                 </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>
+
+
+
+      {/* Sidebar for tab and mobile */}
+      {isSidebarOpen && (
+        <div className="fixed inset-0 top-[70px] bg-gray-800 bg-opacity-75 z-40 block lg:hidden xl:hidden 2xl:hidden">
+          <div className="fixed mt-4 left-0 w-64 bg-white h-full z-50">
+            <div className="relative p-4" ref={interviewRef}>
+              <button
+                className="font-medium flex items-center text-custom-blue mb-2"
+                onClick={() => setInterviewDropdown(!interviewDropdown)}
+              >
+                Interviews &nbsp; {interviewDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
+              </button>
+              {interviewDropdown && (
+                <div className="mt-2 w-full rounded-md bg-white ring-1 p-2 ring-black ring-opacity-5 text-custom-blue border border-custom-blue">
+                  <div className="space-y-1">
+                    <NavLink
+                      className="block px-3 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md"
+                      activeclassname="bg-gray-200 text-gray-800"
+                      to="/internalinterview"
+                      onClick={() => {
+                        setInterviewDropdown(false);
+                        toggleSidebar();
+                      }}
+                    >
+                      Internal Interviews
+                    </NavLink>
+                    <NavLink
+                      className="block px-3 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md"
+                      activeclassname="bg-gray-200 text-gray-800"
+                      to="/outsourceinterview"
+                      onClick={() => {
+                        setInterviewDropdown(false);
+                        toggleSidebar();
+                      }}
+                    >
+                      Outsource Interviews
+                    </NavLink>
+                    <NavLink
+                      className="block px-3 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md"
+                      activeclassname="bg-gray-200 text-gray-800"
+                      to="/mockinterview"
+                      onClick={() => {
+                        setInterviewDropdown(false);
+                        toggleSidebar();
+                      }}
+                    >
+                      Mock Interviews
+                    </NavLink>
+                    {/* <NavLink
+                      className="block px-3 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md"
+                      activeclassname="bg-gray-200 text-gray-800"
+                      to="/videocallbutton"
+                      onClick={() => {
+                        setInterviewDropdown(false);
+                        toggleSidebar();
+                      }}
+                    >
+                      Start Interview
+                    </NavLink> */}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="relative p-4" ref={assessmentRef}>
+              <button
+                className="font-medium flex items-center text-custom-blue mb-2"
+                onClick={() => setAssessmentDropdown(!assessmentDropdown)}
+              >
+                Assessments&nbsp;
+                {assessmentDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
+              </button>
+              {assessmentDropdown && (
+                <div className="mt-2 w-full rounded-md bg-white ring-1 p-2 ring-black ring-opacity-5 text-custom-blue border border-custom-blue">
+                  <div className="space-y-1">
+                    <NavLink
+                      className="block px-4 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md"
+                      onClick={() => {
+                        setAssessmentDropdown(false);
+                        toggleSidebar();
+                      }}
+                      activeclassname="bg-gray-200 text-gray-800"
+                      to="/assessment"
+                    >
+                      Assessments
+                    </NavLink>
+                    <NavLink
+                      className="block px-4 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md"
+                      activeclassname="bg-gray-200 text-gray-800"
+                      to="/interview-question"
+                      onClick={() => {
+                        setAssessmentDropdown(false);
+                        toggleSidebar();
+                      }}
+                    >
+                      Question Bank
+                    </NavLink>
+                    {/* <NavLink
+                      className="block px-4 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md"
+                      activeclassname="bg-gray-200 text-gray-800"
+                      to="/assessmenttest"
+                      onClick={() => {
+                        setAssessmentDropdown(false);
+                        toggleSidebar();
+                      }}
+                    >
+                      Assessment Test
+                    </NavLink> */}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <p className="text-base font-medium text-custom-blue p-4">
+              <NavLink
+                activeclassname="bg-gray-200 text-custom-blue"
+                to="/analytics"
+                onClick={() => {
+                  toggleSidebar();
+                }}
+              >
+                Analytics
+              </NavLink>
+            </p>
+
+            <div className="relative p-4" ref={moreRef}>
+              <button
+                className="font-medium flex items-center text-custom-blue mb-2"
+                onClick={() => setMoreDropdown(!moreDropdown)}
+              >
+                More&nbsp;
+                {moreDropdown ? <IoIosArrowUp /> : <IoIosArrowDown />}
+              </button>
+              {moreDropdown && (
+                <div className="mt-2 w-full rounded-md bg-white ring-1 p-2 ring-black ring-opacity-5 text-custom-blue border border-custom-blue">
+                  <div className="space-y-1">
+                    <NavLink
+                      className="block px-4 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md"
+                      activeclassname="bg-gray-200 text-gray-800"
+                      to="/candidate"
+                      onClick={() => {
+                        setMoreDropdown(false);
+                        toggleSidebar();
+                      }}
+                    >
+                      Candidates
+                    </NavLink>
+                    <NavLink
+                      className="block px-4 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md"
+                      activeclassname="bg-gray-200 text-gray-800"
+                      to="/position"
+                      onClick={() => {
+                        setMoreDropdown(false);
+                        toggleSidebar();
+                      }}
+                    >
+                      Positions
+                    </NavLink>
+                    <NavLink
+                      className="block px-4 py-1 hover:bg-gray-200 hover:text-custom-blue rounded-md"
+                      activeclassname="bg-gray-200 text-gray-800"
+                      to="/team"
+                      onClick={() => {
+                        setMoreDropdown(false);
+                        toggleSidebar();
+                      }}
+                    >
+                      Teams
+                    </NavLink>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

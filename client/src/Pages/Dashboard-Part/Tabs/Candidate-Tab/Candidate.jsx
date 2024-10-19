@@ -1,3 +1,4 @@
+// (a
 import { useState, useRef, useEffect, useCallback } from "react";
 import "../../../../index.css";
 import "../styles/tabs.scss";
@@ -12,7 +13,6 @@ import { FaFilter } from "react-icons/fa";
 import Sidebar from "../Candidate-Tab/CreateCandidate";
 import { MdMoreHoriz } from "react-icons/md";
 import { IoMdMore } from "react-icons/io";
-import axios from "axios";
 import { MdKeyboardArrowUp } from "react-icons/md";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import Editcandidate from "./EditCandidate";
@@ -21,6 +21,8 @@ import { CgInfo } from "react-icons/cg";
 import maleImage from '../../../Dashboard-Part/Images/man.png';
 import femaleImage from '../../../Dashboard-Part/Images/woman.png';
 import genderlessImage from '../../../Dashboard-Part/Images/transgender.png';
+import { fetchFilterData, handleWebSocket } from '../../../../utils/dataUtils.js';
+import { IoIosAdd } from "react-icons/io";
 
 const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
   const [isStatusDropdownOpen, setStatusDropdownOpen] = useState(false);
@@ -31,7 +33,10 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
   const [selectedStatusOptions, setSelectedStatusOptions] = useState([]);
   const [selectedTechOptions, setSelectedTechOptions] = useState([]);
   const [selectedExperienceOptions, setSelectedExperienceOptions] = useState([]);
+
+
   const isAnyOptionSelected = selectedStatusOptions.length > 0 || selectedTechOptions.length > 0 || selectedExperienceOptions.length > 0;
+
 
   const handleUnselectAll = () => {
     setSelectedStatusOptions([]);
@@ -44,12 +49,12 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     setMaxExperience('');
     onFilterChange({ status: [], tech: [], experience: [] });
   };
-
   useEffect(() => {
     if (!isStatusMainChecked) setSelectedStatusOptions([]);
     if (!isTechMainChecked) setSelectedTechOptions([]);
     if (!isExperienceMainChecked) setSelectedExperienceOptions([]);
   }, [isStatusMainChecked, isTechMainChecked, isExperienceMainChecked]);
+
 
   const handleStatusMainToggle = () => {
     setStatusMainChecked(!isStatusMainChecked);
@@ -63,6 +68,13 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     const newSelectedTech = isTechMainChecked ? [] : [...techOptions];
     setSelectedTechOptions(newSelectedTech);
     onFilterChange({ status: selectedStatusOptions, tech: newSelectedTech, experience: selectedExperienceOptions });
+  };
+
+  const handleExperienceMainToggle = () => {
+    setIsExperienceMainChecked(!isExperienceMainChecked);
+    const newSelectedExperience = isExperienceMainChecked ? [] : [...experienceOptions];
+    setSelectedExperienceOptions(newSelectedExperience);
+    onFilterChange({ status: selectedStatusOptions, tech: selectedTechOptions, experience: newSelectedExperience });
   };
 
   const handleStatusOptionToggle = (option) => {
@@ -85,6 +97,17 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     onFilterChange({ status: selectedStatusOptions, tech: updatedOptions, experience: selectedExperienceOptions });
   };
 
+  const handleExperienceOptionToggle = (option) => {
+    const selectedIndex = selectedExperienceOptions.indexOf(option);
+    const updatedOptions = selectedIndex === -1
+      ? [...selectedExperienceOptions, option]
+      : selectedExperienceOptions.filter((_, index) => index !== selectedIndex);
+
+    setSelectedExperienceOptions(updatedOptions);
+    onFilterChange({ status: selectedStatusOptions, tech: selectedTechOptions, experience: updatedOptions });
+  };
+
+
   const statusOptions = [
     "Bachelor of Arts (BA)",
     "Bachelor of Science (BSc)",
@@ -104,6 +127,20 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     "Diploma in Engineering",
     "Diploma in Computer Applications (DCA)",
     "Diploma in Business Administration",
+  ];
+
+  const experienceOptions = [
+    "0-1 years",
+    "1-2 years",
+    "2-3 years",
+    "3-4 years",
+    "4-5 years",
+    "5-6 years",
+    "6-7 years",
+    "7-8 years",
+    "8-9 years",
+    "9-10 years",
+    "10+ years",
   ];
 
   const techOptions = [
@@ -133,6 +170,10 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     "Biometric Authentication Technology",
   ];
 
+
+  const [isExperienceDropdownOpen, setExperienceDropdownOpen] = useState(false);
+
+
   const [minExperience, setMinExperience] = useState('');
   const [maxExperience, setMaxExperience] = useState('');
 
@@ -149,7 +190,6 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
       experience: { min: type === 'min' ? value : minExperience, max: type === 'max' ? value : maxExperience },
     });
   };
-
   useEffect(() => {
     onFilterChange({
       status: selectedStatusOptions,
@@ -157,6 +197,7 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
       experience: { min: minExperience, max: maxExperience },
     });
   }, [selectedStatusOptions, selectedTechOptions, minExperience, maxExperience, onFilterChange]);
+
 
   return (
     <div
@@ -172,6 +213,7 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
           <div>
             <h2 className="text-lg font-bold ">Filter</h2>
           </div>
+          {/* Unselect All Option */}
           <div>
             {(isAnyOptionSelected || minExperience || maxExperience) && (
               <div>
@@ -223,6 +265,8 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
           </div>
         )}
 
+
+
         <div className="flex justify-between mt-2 ml-5">
           <div className="cursor-pointer">
             <label className="inline-flex items-center">
@@ -254,6 +298,7 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
             />
           </div>
         </div>
+
 
         {/* Skill/Technology */}
         <div className="flex mt-2 justify-between">
@@ -300,13 +345,14 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
   );
 };
 
-const Candidate = () => {
+const Candidate = ({ objectPermissions, tabPermissions, sharingPermissions }) => {
+
   useEffect(() => {
     document.title = "Candidate Tab";
   }, []);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
-
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -336,56 +382,34 @@ const Candidate = () => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
 
   const handleCandidateClick = (candidate) => {
-    setSelectedCandidate(candidate);
+    if (objectPermissions.View) {
+      setSelectedCandidate(candidate);
+    }
+    setActionViewMore(false);
   };
-
   const handleCloseProfile = () => {
     setSelectedCandidate(null);
   };
 
+
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState("");
-  const userId = localStorage.getItem("userId");
+
+
 
   useEffect(() => {
-    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
-
-    ws.onopen = () => {
-      console.log('WebSocket connection opened');
-    };
-
-    ws.onmessage = (event) => {
-      const { type, data } = JSON.parse(event.data);
-      if (type === 'candidate') {
-        setCandidateData(data);
-        setNotification("A new candidate has been successfully created!");
-
-        setTimeout(() => {
-          setNotification("");
-        }, 3000);
-      }
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
-
     const fetchCandidateData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate?createdBy=${userId}`);
-        if (Array.isArray(response.data)) {
-          const candidatesWithImages = response.data.map((candidate) => {
-            if (candidate.ImageData && candidate.ImageData.filename) {
-              const imageUrl = `${process.env.REACT_APP_API_URL}/${candidate.ImageData.path.replace(/\\/g, '/')}`;
-              return { ...candidate, imageUrl };
-            }
-            return candidate;
-          });
-          setCandidateData(candidatesWithImages);
-        } else {
-          console.error('Expected an array but got:', response.data);
-        }
+        const filteredCandidates = await fetchFilterData('candidate', sharingPermissions);
+        const candidatesWithImages = filteredCandidates.map((candidate) => {
+          if (candidate.ImageData && candidate.ImageData.filename) {
+            const imageUrl = `${process.env.REACT_APP_API_URL}/${candidate.ImageData.path.replace(/\\/g, '/')}`;
+            return { ...candidate, imageUrl };
+          }
+          return candidate;
+        });
+        setCandidateData(candidatesWithImages);
       } catch (error) {
         console.error('Error fetching candidate data:', error);
       } finally {
@@ -394,11 +418,7 @@ const Candidate = () => {
     };
 
     fetchCandidateData();
-
-    return () => {
-      ws.close();
-    };
-  }, [userId]);
+  }, [sharingPermissions]);
 
   const [candidateData, setCandidateData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -437,6 +457,7 @@ const Candidate = () => {
     });
   };
 
+
   useEffect(() => {
     setCurrentPage(0);
   }, [selectedFilters]);
@@ -449,30 +470,32 @@ const Candidate = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const rowsPerPage = 10;
 
-  const [activeArrow] = useState(null);
+
+
+
+
+  const [activeArrow, setActiveArrow] = useState(null);
+
+
 
   const nextPage = () => {
-    console.log("Next button clicked");
     if (currentPage < totalPages - 1) {
       setCurrentPage((prevPage) => {
-        console.log("Current page before increment:", prevPage);
         return prevPage + 1;
       });
     }
   };
 
   const prevPage = () => {
-    console.log("Previous button clicked");
     if (currentPage > 0) {
       setCurrentPage((prevPage) => {
-        console.log("Current page before decrement:", prevPage);
         return prevPage - 1;
       });
     }
   };
 
+
   const totalPages = Math.ceil(FilteredData().length / rowsPerPage);
-  console.log("Total pages:", totalPages);
 
   const startIndex = currentPage * rowsPerPage;
   const endIndex = Math.min(startIndex + rowsPerPage, FilteredData().length);
@@ -480,6 +503,10 @@ const Candidate = () => {
   const currentFilteredRows = FilteredData()
     .slice(startIndex, endIndex)
     .reverse();
+
+
+
+  const noResults = currentFilteredRows.length === 0 && searchQuery !== "";
 
   const [tableVisible] = useState(true);
   const [viewMode, setViewMode] = useState("list");
@@ -523,54 +550,40 @@ const Candidate = () => {
     setShowPopup(false);
   };
 
+  // Detect screen size and set view mode to "kanban" for sm
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setViewMode("kanban");
+      } else {
+        setViewMode("list");
+      }
+    };
+
+    // Set initial view mode based on current window size
+    handleResize();
+
+    // Add event listener to handle window resize
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <>
-      <div className="fixed top-24 left-0 right-0">
-        <div className="flex justify-between p-4">
-          <div>
-            <span className="text-lg font-semibold">Candidates</span>
-          </div>
-
-          <div>
-            {notification && (
-              <div className="fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-500 px-4 py-2 rounded shadow-lg z-50 transition-opacity duration-300">
-                {notification}
-              </div>
-            )}
-          </div>
-
-          <div onClick={toggleSidebar} className="mr-6">
-            <span className="p-2 text-md font-semibold border shadow rounded-3xl">
-              Add Candidate
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div className="fixed top-36 left-0 right-0">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center">
-            <Tooltip title="List" enterDelay={300} leaveDelay={100} arrow>
-              <span onClick={handleListViewClick}>
-                <FaList
-                  className={`text-2xl mr-4 ${viewMode === "list" ? "text-blue-500" : ""}`}
-                />
-              </span>
-            </Tooltip>
-            <Tooltip title="Kanban" enterDelay={300} leaveDelay={100} arrow>
-              <span onClick={handleKanbanViewClick}>
-                <TbLayoutGridRemove
-                  className={`text-2xl ${viewMode === "kanban" ? "text-blue-500" : ""}`}
-                />
-              </span>
-            </Tooltip>
-          </div>
-          <div className="flex items-center">
+      {/* sm header */}
+      {/* <section>
+        <div className="sm:block md:block lg:hidden xl:hidden 2xl:hidden">
+          <div className="fixed top-24 left-0 right-0 flex justify-end items-center gap-3 mt-5">
+         
             <div className="relative">
-              <div className="searchintabs mr-5 relative">
+              <div className="searchintabs relative">
                 <div className="absolute inset-y-0 left-0 flex items-center">
-                  <button type="submit" className="p-2">
-                    <IoMdSearch />
+                  <button type="submit" className="">
+                    <IoMdSearch className="text-custom-blue" />
                   </button>
                 </div>
                 <input
@@ -582,33 +595,8 @@ const Candidate = () => {
                 />
               </div>
             </div>
-
-            <div>
-              <span className="p-2 text-xl mr-2">
-                {currentPage + 1}/{totalPages}
-              </span>
-            </div>
-            <div className="flex">
-              <Tooltip title="Previous" enterDelay={300} leaveDelay={100} arrow>
-                <span
-                  className={`border-2 p-2 mr-2 text-2xl ${currentPage === 0 ? " cursor-not-allowed" : ""} ${activeArrow === "prev" ? "text-blue-500" : ""}`}
-                  onClick={prevPage}
-                >
-                  <IoIosArrowBack />
-                </span>
-              </Tooltip>
-
-              <Tooltip title="Next" enterDelay={300} leaveDelay={100} arrow>
-                <span
-                  className={`border-2 p-2 text-2xl ${currentPage === totalPages - 1 ? " cursor-not-allowed" : ""} ${activeArrow === "next" ? "text-blue-500" : ""}`}
-                  onClick={nextPage}
-                >
-                  <IoIosArrowForward />
-                </span>
-              </Tooltip>
-            </div>
-
-            <div className="ml-4 text-2xl border-2 rounded-md p-2">
+           
+            <div className="text-xl border-2 rounded-md p-2">
               <Tooltip title="Filter" enterDelay={300} leaveDelay={100} arrow>
                 <span
                   onClick={candidateData.length === 0 ? null : toggleMenu}
@@ -617,27 +605,165 @@ const Candidate = () => {
                     pointerEvents: candidateData.length === 0 ? "none" : "auto",
                   }}
                 >
-                  <FaFilter className={`${isMenuOpen ? "text-blue-500" : ""}`} />
+                  <FaFilter className="text-custom-blue" />
                 </span>
               </Tooltip>
             </div>
+            <div>
+                <span className="p-2 text-xl">
+                  {currentPage + 1}/{totalPages}
+                </span>
+              </div>
+              <div className="flex">
+                <Tooltip title="Previous" enterDelay={300} leaveDelay={100} arrow>
+                  <span
+                    className={`border-2 p-2 mr-2 text-xl ${currentPage === 0 ? " cursor-not-allowed" : ""} ${activeArrow === "prev" ? "text-blue-500" : ""}`}
+                    onClick={prevPage}
+                  >
+                    <IoIosArrowBack className="text-custom-blue" />
+                  </span>
+                </Tooltip>
+
+                <Tooltip title="Next" enterDelay={300} leaveDelay={100} arrow>
+                  <span
+                    className={`border-2 p-2 text-xl ${currentPage === totalPages - 1 ? " cursor-not-allowed" : ""} ${activeArrow === "next" ? "text-blue-500" : ""}`}
+                    onClick={nextPage}
+                  >
+                    <IoIosArrowForward className="text-custom-blue" />
+                  </span>
+                </Tooltip>
+              </div>
+           
+            {objectPermissions.Create && (
+              <div onClick={toggleSidebar} className="mr-6 text-xl border-2 rounded-md p-2">
+                <span>
+                <IoIosAdd className="text-custom-blue" />
+                </span>
+              </div>
+            )}
+          </div>
+          <div>
+            <span className="fixed top-40 left-7 text-lg font-semibold sm:mt-1">Candidates</span>
           </div>
         </div>
-      </div>
+      </section> */}
 
-      <div className="fixed left-0 right-0 mx-auto top-56 z-10">
+      <section>
+        <div className="fixed top-24 left-0 right-0">
+          <div className="flex justify-between p-4">
+            <div>
+              <span className="text-lg font-semibold">Candidates</span>
+            </div>
+
+            <div>
+              {notification && (
+                <div className="fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-500 px-4 py-2 rounded shadow-lg z-50 transition-opacity duration-300">
+                  {notification}
+                </div>
+              )}
+            </div>
+
+            {objectPermissions.Create && (
+              <div onClick={toggleSidebar} className="">
+                <span className="p-2 bg-custom-blue text-md sm:text-sm md:text-sm text-white font-semibold border shadow rounded">
+                  Add
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="fixed top-36 left-0 right-0">
+          <div className="lg:flex xl:flex 2xl:flex items-center lg:justify-between xl:justify-between 2xl:justify-between sm:float-end md:float-end p-4">
+            <div className="flex items-center sm:hidden md:hidden">
+              <Tooltip title="List" enterDelay={300} leaveDelay={100} arrow>
+                <span onClick={handleListViewClick}>
+                  <FaList
+                    className={`text-xl mr-4 ${viewMode === "list" ? "text-custom-blue" : ""}`}
+                  />
+                </span>
+              </Tooltip>
+              <Tooltip title="Kanban" enterDelay={300} leaveDelay={100} arrow>
+                <span onClick={handleKanbanViewClick}>
+                  <TbLayoutGridRemove
+                    className={`text-xl ${viewMode === "kanban" ? "text-custom-blue" : ""}`}
+                  />
+                </span>
+              </Tooltip>
+            </div>
+            <div className="flex items-center">
+              <div className="relative">
+                <div className="searchintabs relative">
+                  <div className="absolute inset-y-0 left-0 flex items-center">
+                    <button type="submit" className="p-2">
+                      <IoMdSearch className="text-custom-blue" />
+                    </button>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search by Candidate, Email, Phone."
+                    value={searchQuery}
+                    onChange={handleSearchInputChange}
+                    className="pl-10 pr-12 "
+                  />
+                </div>
+              </div>
+
+
+              <div>
+                <span className="p-2 text-xl sm:text-sm md:text-sm">
+                  {currentPage + 1}/{totalPages}
+                </span>
+              </div>
+              <div className="flex">
+                <Tooltip title="Previous" enterDelay={300} leaveDelay={100} arrow>
+                  <span
+                    className={`border-2 p-2 mr-2 text-xl sm:text-md md:text-md ${currentPage === 0 ? " cursor-not-allowed" : ""} ${activeArrow === "prev" ? "text-blue-500" : ""}`}
+                    onClick={prevPage}
+                  >
+                    <IoIosArrowBack className="text-custom-blue" />
+                  </span>
+                </Tooltip>
+
+                <Tooltip title="Next" enterDelay={300} leaveDelay={100} arrow>
+                  <span
+                    className={`border-2 p-2 text-xl sm:text-md md:text-md ${currentPage === totalPages - 1 ? " cursor-not-allowed" : ""} ${activeArrow === "next" ? "text-blue-500" : ""}`}
+                    onClick={nextPage}
+                  >
+                    <IoIosArrowForward className="text-custom-blue" />
+                  </span>
+                </Tooltip>
+              </div>
+              <div className="ml-2 text-xl sm:text-md md:text-md border-2 rounded-md p-2">
+                <Tooltip title="Filter" enterDelay={300} leaveDelay={100} arrow>
+                  <span
+                    onClick={candidateData.length === 0 ? null : toggleMenu}
+                    style={{
+                      opacity: candidateData.length === 0 ? 0.2 : 1,
+                      pointerEvents: candidateData.length === 0 ? "none" : "auto",
+                    }}
+                  >
+                    <FaFilter className="text-custom-blue" />
+                  </span>
+                </Tooltip>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="fixed left-0 right-0 mx-auto z-10 sm:top-48 md:top-56 lg:top-56 xl:top-56 2xl:top-56">
         {tableVisible && (
           <div>
             {viewMode === "list" ? (
-              <div className="flex">
+              <div className="sm:hidden md:hidden lg:flex xl:flex 2xl:flex">
                 <div
                   className="flex-grow"
                   style={{ marginRight: isMenuOpen ? "290px" : "0" }}
                 >
-                  <div className="relative">
-                    <div className="overflow-y-auto min-h-80 max-h-96">
+                  <div className="relative h-[calc(100vh-200px)] flex flex-col">
+                    <div className="flex-grow overflow-y-auto pb-4">
                       <table className="text-left w-full border-collapse border-gray-300 mb-14">
-                        <thead className="bg-gray-300 sticky top-0 z-10 text-xs">
+                        <thead className="bg-custom-bg text-custom-blue sticky top-0 z-10 text-xs">
                           <tr>
                             <th scope="col" className="py-3 px-6">Candidate Name</th>
                             <th scope="col" className="py-3 px-6">Email</th>
@@ -681,7 +807,7 @@ const Candidate = () => {
                           ) : (
                             currentFilteredRows.map((candidate) => (
                               <tr key={candidate._id} className="bg-white border-b cursor-pointer text-xs">
-                                <td className="py-2 px-6 text-blue-400">
+                                <td className="py-2 px-6 text-custom-blue">
                                   <div
                                     className="flex items-center gap-3"
                                     onClick={() => handleCandidateClick(candidate)}
@@ -697,7 +823,6 @@ const Candidate = () => {
                                         <img src={genderlessImage} alt="Other Avatar" className="w-7 h-7 rounded" />
                                       )
                                     )}
-
                                     {candidate.LastName}
                                   </div>
                                 </td>
@@ -719,13 +844,17 @@ const Candidate = () => {
                                   {actionViewMore === candidate._id && (
                                     <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
                                       <div className="space-y-1">
-                                        <p
-                                          className="hover:bg-gray-200 p-1 rounded pl-3"
-                                          onClick={() => handleCandidateClick(candidate)}
-                                        >
-                                          View
-                                        </p>
-                                        <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(candidate)}>Edit</p>
+                                        {objectPermissions.View && (
+                                          <p
+                                            className="hover:bg-gray-200 p-1 rounded pl-3"
+                                            onClick={() => handleCandidateClick(candidate)}
+                                          >
+                                            View
+                                          </p>
+                                        )}
+                                        {objectPermissions.Edit && (
+                                          <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(candidate)}>Edit</p>
+                                        )}
                                         <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handlePopupClick(candidate.LastName)}>
                                           Schedule
                                         </p>
@@ -745,13 +874,11 @@ const Candidate = () => {
               </div>
             ) : (
               // kanban view
-              <div className="mx-3">
-                <div className="flex">
-                  <div
-                    className="flex-grow"
-                    style={{ marginRight: isMenuOpen ? "290px" : "0" }}
-                  >
-                    <div className="overflow-y-auto min-h-80 max-h-96">
+              <div className="flex">
+                <div className="flex-grow"
+                  style={{ marginRight: isMenuOpen ? "290px" : "0" }}>
+                  <div className="flex-grow h-[calc(100vh-200px)] overflow-y-auto pb-10 right-0 sm:mt-10 md:mt-10">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-4 px-4">
                       {loading ? (
                         <div className="py-10 text-center">
                           <div className="wrapper12">
@@ -771,71 +898,73 @@ const Candidate = () => {
                             <p onClick={toggleSidebar} className="mt-3 cursor-pointer text-white bg-blue-400 px-4 py-1 rounded-md">Add Candidate</p>
                           </div>
                         </div>
+                      ) : currentFilteredRows.length === 0 ? (
+                        <div className="col-span-3 py-10 text-center">
+                          <p className="text-lg font-normal">No data found.</p>
+                        </div>
                       ) : (
-                        <div className="grid grid-cols-3 gap-4 p-4">
-                          {currentFilteredRows.length === 0 ? (
-                            <div className="col-span-3 py-10 text-center">
-                              <p className="text-lg font-normal">No data found.</p>
+                        currentFilteredRows.map((candidate) => (
+                          <div key={candidate._id} className="bg-white border border-custom-blue shadow-md p-2 rounded">
+                            <div className="relative">
+                              <div className="float-right">
+                                <button onClick={() => toggleAction(candidate._id)}>
+                                  <IoMdMore className="text-3xl mt-1" />
+                                </button>
+                                {actionViewMore === candidate._id && (
+                                  <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
+                                    <div className="space-y-1">
+                                      {objectPermissions.View && (
+                                        <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleCandidateClick(candidate)}>View</p>
+                                      )}
+                                      {objectPermissions.Edit && (
+                                        <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(candidate)}>Edit</p>
+                                      )}
+                                      <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handlePopupClick(candidate.LastName)}>Schedule</p>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          ) : (
-                            currentFilteredRows.map((candidate) => (
-                              <div key={candidate._id} className="bg-white border border-orange-500 p-2 rounded">
-                                <div className="relative">
-                                  <div className="float-right">
-                                    <button onClick={() => toggleAction(candidate._id)}>
-                                      <IoMdMore className="text-3xl mt-1" />
-                                    </button>
-                                    {actionViewMore === candidate._id && (
-                                      <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
-                                        <div className="space-y-1">
-                                          <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleCandidateClick(candidate)}>View</p>
-                                          <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(candidate)}>Edit</p>
-                                          <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handlePopupClick(candidate.LastName)}>Schedule</p>
-                                        </div>
-                                      </div>
-                                    )}
-                                  </div>
+                            <div className="flex">
+                              <div className="w-16 h-14 mt-3 ml-1 mr-3 overflow-hidden cursor-pointer rounded">
+                                {candidate.imageUrl ? (
+                                  <img src={candidate.imageUrl} alt="Candidate" className="w-full h-full rounded" />
+                                ) : (
+                                  candidate.Gender === "Male" ? (
+                                    <img src={maleImage} alt="Male Avatar" className="w-full h-full rounded" />
+                                  ) : candidate.Gender === "Female" ? (
+                                    <img src={femaleImage} alt="Female Avatar" className="w-full h-full rounded" />
+                                  ) : (
+                                    <img src={genderlessImage} alt="Other Avatar" className="w-full h-full rounded" />
+                                  )
+                                )}
+                              </div>
+                              <div className="flex flex-col">
+                                <div className="text-custom-blue text-lg cursor-pointer break-words" onClick={() => handleCandidateClick(candidate)}>
+                                  {candidate.LastName}
                                 </div>
-                                <div className="flex">
-                                  <div className="w-16 h-14 mt-3 ml-1 mr-3 overflow-hidden cursor-pointer rounded">
-                                    {candidate.imageUrl ? (
-                                      <img src={candidate.imageUrl} alt="Candidate" className="w-full h-full rounded" />
-                                    ) : (
-                                      candidate.Gender === "Male" ? (
-                                        <img src={maleImage} alt="Male Avatar" className="w-full h-full rounded" />
-                                      ) : candidate.Gender === "Female" ? (
-                                        <img src={femaleImage} alt="Female Avatar" className="w-full h-full rounded" />
-                                      ) : (
-                                        <img src={genderlessImage} alt="Other Avatar" className="w-full h-full rounded" />
-                                      )
-                                    )}
-                                  </div>
-                                  <div className="flex flex-col">
-                                    <div className="text-blue-400 text-lg cursor-pointer break-words" onClick={() => handleCandidateClick(candidate)}>
-                                      {candidate.LastName}
-                                    </div>
-                                    <div className="text-xs grid grid-cols-2 gap-1 items-start">
-                                      <div className="text-gray-400">Email</div>
-                                      <div>{candidate.Email}</div>
-                                      <div className="text-gray-400">Phone</div>
-                                      <div>{candidate.Phone}</div>
-                                      <div className="text-gray-400">Higher Qualification</div>
-                                      <div>{candidate.HigherQualification}</div>
-                                      <div className="text-gray-400">Current Experience</div>
-                                      <div>{candidate.CurrentExperience}</div>
-                                      <div className="text-gray-400">Skills/Technology</div>
-                                      <div>{candidate.skills.map((skillEntry, index) => (
-                                        <div key={index}>
-                                          {skillEntry.skill}{index < candidate.skills.length - 1 && ', '}
-                                        </div>
-                                      ))}</div>
-                                    </div>
+                                <div className="text-xs grid grid-cols-2 gap-2 items-start">
+                                  <div className="text-gray-400">Email</div>
+                                  <div className="break-words">{candidate.Email}</div>
+                                  <div className="text-gray-400">Phone</div>
+                                  <div className="break-words">{candidate.Phone}</div>
+                                  <div className="text-gray-400">Higher Qualification</div>
+                                  <div className="break-words">{candidate.HigherQualification}</div>
+                                  <div className="text-gray-400">Current Experience</div>
+                                  <div className="break-words">{candidate.CurrentExperience}</div>
+                                  <div className="text-gray-400">Skills/Technology</div>
+                                  <div className="break-words">
+                                    {candidate.skills.map((skillEntry, index) => (
+                                      <div key={index}>
+                                        {skillEntry.skill}{index < candidate.skills.length - 1 && ', '}
+                                      </div>
+                                    ))}
                                   </div>
                                 </div>
                               </div>
-                            ))
-                          )}
-                        </div>
+                            </div>
+                          </div>
+                        ))
                       )}
                     </div>
                   </div>
@@ -852,11 +981,11 @@ const Candidate = () => {
           <div
             className={"fixed inset-0 bg-black bg-opacity-15 z-50"}
           >
-            <div className="fixed inset-y-0 right-0 z-50 w-1/2 bg-white shadow-lg transition-transform duration-5000 transform">
+            <div className="fixed inset-y-0 right-0 z-50 sm:w-full md:w-3/4 lg:w-1/2 xl:w-1/2 2xl:w-1/2 bg-white shadow-lg transition-transform duration-5000 transform">
               <Sidebar
                 onClose={closeSidebar}
                 onOutsideClick={handleOutsideClick}
-                ref={sidebarRef}
+                sharingPermissions={sharingPermissions}
               />
             </div>
           </div>
@@ -866,7 +995,7 @@ const Candidate = () => {
         <CandidateProfileDetails candidate={selectedCandidate} onCloseprofile={handleCloseProfile} />
       )}
       {selectedcandidate && (
-        <Editcandidate onClose={handleclose} candidate1={selectedcandidate} />
+        <Editcandidate onClose={handleclose} candidate1={selectedcandidate} sharingPermissions={sharingPermissions} />
       )}
       {showPopup && (
         <Savenextpopup onClosepopup={onClosepopup} lastName={popupLastName} />

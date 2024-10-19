@@ -17,11 +17,11 @@ const formatDateTime = () => {
 
 const InterviewSchema = new mongoose.Schema({
   Candidate: String,
+  CandidateId: String,
   Position: String,
   ScheduleType: String,
   rounds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ScheduleRounds' }],
   CreatedDate: { type: String, default: formatDateTime },
-  CreatedBy: String,
   ModifiedDate: Date,
   ModifiedBy: String,
   Category: String,
@@ -29,11 +29,16 @@ const InterviewSchema = new mongoose.Schema({
   Interviewstype: String,
   createdAt: { type: Date, default: Date.now },
   candidateImageUrl: String,
+  CreatedById: String,
+  LastModifiedById: String,
+  OwnerId: String,
+  orgId: String,
 });
 
 const interviewHistorySchema = new mongoose.Schema({
   interviewId: { type: mongoose.Schema.Types.ObjectId, ref: 'Interview' },
   Candidate: String,
+  CandidateId: String,
   Position: String,
   ScheduleType: String,
   rounds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'ScheduleRounds' }],

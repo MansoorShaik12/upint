@@ -11,6 +11,8 @@ const AssessmentTest = () => {
   const [assessment, setAssessment] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const [sections, setSections] = useState([]);
+  const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
     const fetchAssessment = async () => {
@@ -20,6 +22,11 @@ const AssessmentTest = () => {
         try {
           const response = await axios.get(`${process.env.REACT_APP_API_URL}/assessment-details/${assessmentId}`);
           setAssessment(response.data);
+          // Fetch sections and questions
+          const sectionsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/assessment/${assessmentId}/sections`);
+          setSections(sectionsResponse.data);
+          const questionsResponse = await axios.get(`${process.env.REACT_APP_API_URL}/assessment/${assessmentId}/questions`);
+          setQuestions(questionsResponse.data);
         } catch (error) {
           console.error("Error fetching assessment:", error);
           setError("Failed to load assessment. Please try again.");

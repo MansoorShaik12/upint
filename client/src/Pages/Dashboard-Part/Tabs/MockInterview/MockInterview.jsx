@@ -24,6 +24,7 @@ import axios from "axios";
 import { MdKeyboardArrowUp } from "react-icons/md";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { CgInfo } from "react-icons/cg";
+import { fetchFilterData, handleWebSocket } from '../../../../utils/dataUtils.js';
 
 const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
   const [isStatusDropdownOpen, setStatusDropdownOpen] = useState(false);
@@ -384,24 +385,24 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
   );
 };
 
-const MockInterview = () => {
+const MockInterview = ({sharingPermissions,objectPermissions}) => {
   useEffect(() => {
     document.title = "mockinterview Tab";
   }, []);
   const [notification, setNotification] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isSchedulePopupVisible, setIsSchedulePopupVisible] = useState(false);
   const sidebarRef = useRef(null);
-
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
+    setIsSchedulePopupVisible(!isSchedulePopupVisible);
   };
 
   const closeSidebar = () => {
-    setSidebarOpen(false);
+    setIsSchedulePopupVisible(false);
   };
 
   const handleOutsideClick = useCallback((event) => {
-    if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
+        if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
       closeSidebar();
     }
   }, []);
@@ -453,48 +454,34 @@ const MockInterview = () => {
   const [mockinterviewData, setmockinterviewData] = useState([]);
   console.log("mockinterviewData", mockinterviewData)
 
+
+
+  const fetchInterviewData = async () => {
+    setLoading(true);
+    try {
+      const filteredInterviews = await fetchFilterData('mockinterview', sharingPermissions);
+      setmockinterviewData(filteredInterviews);
+    } catch (error) {
+      console.error("Error fetching InterviewData:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
+    const ws = handleWebSocket(
+      `${process.env.REACT_APP_WS_URL}`,
+      'mockinterview',
+      setmockinterviewData,
+      setNotification
+    );
 
-    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
-
-    ws.onopen = () => {
-      console.log('WebSocket connection opened');
-    };
-
-    ws.onmessage = (event) => {
-      const { type, data } = JSON.parse(event.data);
-      if (type === "interview") {
-        setmockinterviewData(data);
-        setNotification("A new MockInterview has been successfully created!");
-
-        setTimeout(() => {
-          setNotification("");
-        }, 3000);
-      }
-    };
-
-    ws.onclose = () => {
-      console.log('WebSocket connection closed');
-    };
-
-    const fetchmockinterviewData = async () => {
-      try {
-        setLoading(true);
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/mockinterview`);
-        setmockinterviewData(response.data);
-      } catch (error) {
-        console.error("Error fetching mockinterview data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchmockinterviewData();
+    fetchInterviewData();
 
     return () => {
       ws.close();
     };
-
-  }, []);
+  }, [sharingPermissions]);
 
 
   const FilteredData = () => {
@@ -639,7 +626,7 @@ const MockInterview = () => {
 
   return (
     <>
-      <div className="fixed top-24 left-0 right-0 z-40">
+      {/* <div className="fixed top-24 left-0 right-0 z-40">
         <div className="flex justify-between mt-5">
           <div>
             <span className="p-3 w-fit text-lg font-semibold">Mock Interviews</span>
@@ -689,12 +676,62 @@ const MockInterview = () => {
             )}
           </div>
           
-          <Sidebar
-            isOpen={sidebarOpen}
-            onClose={closeSidebar}
-            onOutsideClick={handleOutsideClick}
-            ref={sidebarRef}
-          />
+        
+        </div>
+      </div> */}
+        <div className="fixed top-24 left-0 right-0 z-40">
+        {" "}
+        {/* Adjusted z-index */}
+        <div className="flex justify-between p-4">
+          <div>
+            <span className="p-3 w-fit text-lg font-semibold">
+              Mock Interviews
+            </span>
+          </div>
+
+          <div>
+            {notification && (
+              <div className="fixed top-24 left-1/2 transform -translate-x-1/2 bg-green-500 px-4 py-2 rounded shadow-lg z-50 transition-opacity duration-300">
+                {notification}
+              </div>
+            )}
+          </div>
+
+          <div
+            className="relative mr-6 z-50"
+            onClick={() => setinterviewDropdown(!interviewDropdown)}
+          >
+            {objectPermissions.Create && (
+            <span className="p-2 w-fit text-md font-semibold border shadow rounded-3xl">
+              Create a New Schedule
+            </span>
+            )}
+
+            {interviewDropdown && (
+              <div className="absolute mt-5 right-0 z-50 w-48 rounded-md shadow-lg bg-white ring-1 p-2 ring-black ring-opacity-5">
+                <div className="space-y-1">
+                  <p
+                    className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md"
+                    onClick={() => {
+                      setinterviewDropdown(false);
+                      toggleSidebar();
+                    }}
+                  >
+                    Schedule for Later
+                  </p>
+                  <p
+                    className="block px-4 py-1 hover:bg-gray-200 hover:text-gray-800 rounded-md"
+                    onClick={() => {
+                      setinterviewDropdown(false);
+                      toggleSidebar();
+                    }}
+                  >
+                    Instant Interview
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       {/* 2 */}
@@ -1122,8 +1159,13 @@ const MockInterview = () => {
           </div>
         )}
       </div>
-
-
+{isSchedulePopupVisible && 
+      <Sidebar
+            isOpen={sidebarOpen}
+            onClose={closeSidebar}
+            onOutsideClick={handleOutsideClick}
+          />
+        }
       {selectedMockInterview && (
         <MockProfileDetails mockinterview={selectedMockInterview} />
       )}

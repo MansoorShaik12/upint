@@ -19,11 +19,12 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { GiCancel } from "react-icons/gi";
 import { IoIosCopy } from "react-icons/io";
+import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
 
 const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) => {
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showUnsavedChangesPopup, setShowUnsavedChangesPopup] = useState(false);
-
+  const userId = localStorage.getItem("userId");
   const location = useLocation();
   const candidateData = location.state?.teams || candidate1;
   const [teams] = useState(candidateData);

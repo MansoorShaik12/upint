@@ -4,19 +4,14 @@ import { useEffect } from "react";
 import { MdOutlineCancel } from "react-icons/md";
 import EditUser from "./EditUser";
 
-
 // {f} //
 
-const UserProfileDetails = () => {
+const UserProfileDetails = ({Users, onCloseUsers}) => {
   useEffect(() => {
     document.title = "User Profile Details";
   }, []);
   const navigate = useNavigate();
   const location = useLocation();
-  const userData = location.state?.Users;
-  const [Users] = useState(userData);
-  console.log(Users)
-  const [user] = useState(userData);
 
   const [activeTab, setActiveTab] = useState("users");
   const handleNavigate = () => {
@@ -41,14 +36,6 @@ const UserProfileDetails = () => {
     }
   }, [selectedPosition]);
 
-  // const closeModalAndNavigate = () => {
-  //   navigate("/users");
-  // };
-  const closeModalAndNavigate = () => {
-    setShowMainContent(true);
-    setShowNewUserContent(false);
-    navigate("/users");
-  };
 
   const [showMainContent, setShowMainContent] = useState(true);
   const [showNewUserContent, setShowNewUserContent] = useState(false);
@@ -105,7 +92,7 @@ const UserProfileDetails = () => {
                 {/* Cancel icon */}
                 <button
                   className="shadow-lg rounded-full"
-                  onClick={closeModalAndNavigate}
+                  onClick={onCloseUsers}
                 >
                   <MdOutlineCancel className="text-2xl" />
                 </button>

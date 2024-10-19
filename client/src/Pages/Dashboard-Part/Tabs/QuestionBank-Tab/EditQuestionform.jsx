@@ -9,7 +9,8 @@ import { FaRegEdit } from "react-icons/fa";
 import { AiTwotoneDelete } from "react-icons/ai";
 import axios from 'axios';
 import { MdArrowDropDown } from "react-icons/md";
-
+import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
+import Cookies from 'js-cookie';
 const optionLabels = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
 
 const Interviewcq = ({ onClose, question }) => {
@@ -116,15 +117,16 @@ const Interviewcq = ({ onClose, question }) => {
   };
   const [skills, setSkills] = useState([]);
   useEffect(() => {
-    const fetchskillsData = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-        setSkills(response.data);
+        const skillsData = await fetchMasterData('skills');
+        setSkills(skillsData);
       } catch (error) {
-        console.error('Error fetching SkillsData:', error);
+        console.error('Error fetching master data:', error);
       }
     };
-    fetchskillsData();
+
+    fetchData();
   }, []);
 
   const [selectedDifficultyLevel, setSelectedDifficultyLevel] = useState(updatedCandidate.DifficultyLevel);

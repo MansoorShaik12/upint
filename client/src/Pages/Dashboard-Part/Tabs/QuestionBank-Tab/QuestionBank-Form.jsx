@@ -8,8 +8,10 @@ import { VscSave } from "react-icons/vsc";
 import { FaRegEdit } from "react-icons/fa";
 import { AiTwotoneDelete } from "react-icons/ai";
 import axios from 'axios';
-
+import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
 import { MdArrowDropDown } from "react-icons/md";
+import { validateQuestionBankData } from '../../../../utils/questionBankValidation.js';
+import Cookies from 'js-cookie';
 
 const optionLabels = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
 
@@ -49,30 +51,13 @@ const Interviewcq = ({ onClose, onOutsideClick }) => {
         setFormData({ ...formData, [name]: value });
         setErrors({ ...errors, [name]: errorMessage });
     };
-    const userId = localStorage.getItem("userId");
+    const userId = Cookies.get("userId");
+    const orgId = Cookies.get("organizationId");
     const handleSubmit = async (e, isSaveAndNext) => {
         e.preventDefault();
 
-        const requiredFields = {
-            DifficultyLevel: 'Difficulty Level is required',
-            QuestionType: 'Question Type is required',
-            Skill: 'Skill is required',
-            Score: 'Score is required',
-            Question: 'Question is required',
-            Answer: 'Answer is required',
-        };
-
-        let formIsValid = true;
-        const newErrors = { ...errors };
-
-        Object.entries(requiredFields).forEach(([field, message]) => {
-            if (!formData[field]) {
-                newErrors[field] = message;
-                formIsValid = false;
-            }
-        });
-
-        if (!formIsValid) {
+        const newErrors = validateQuestionBankData(formData, mcqOptions);
+        if (Object.keys(newErrors).length > 0) {
             setErrors(newErrors);
             return;
         }
@@ -84,8 +69,14 @@ const Interviewcq = ({ onClose, onOutsideClick }) => {
             Skill: selectedSkill,
             Score: formData.Score,
             Options: mcqOptions.map(option => option.option),
-            createdBy: userId
+            CreatedById: userId,
+            LastModifiedById: userId,
+            OwnerId: userId,
         };
+
+        if (orgId) {
+            questionData.orgId = orgId;
+        }
         try {
             const questionResponse = await axios.post(`${process.env.REACT_APP_API_URL}/newquestion`, questionData);
             console.log('Question created:', questionResponse.data);
@@ -142,17 +133,20 @@ const Interviewcq = ({ onClose, onOutsideClick }) => {
     };
 
     const [skills, setSkills] = useState([]);
+
+
     useEffect(() => {
-        const fetchskillsData = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-                setSkills(response.data);
-            } catch (error) {
-                console.error('Error fetching SkillsData:', error);
-            }
+        const fetchData = async () => {
+          try {
+            const skillsData = await fetchMasterData('skills');
+            setSkills(skillsData);
+          } catch (error) {
+            console.error('Error fetching master data:', error);
+          }
         };
-        fetchskillsData();
-    }, []);
+    
+        fetchData();
+      }, []);
 
     const toggleDropdownDifficultyLevel = () => {
         setShowDropdownDifficultyLevel(!showDropdownDifficultyLevel);

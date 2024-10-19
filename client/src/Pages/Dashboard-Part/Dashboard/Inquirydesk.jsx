@@ -22,6 +22,7 @@ import { CgInfo } from "react-icons/cg";
 
 const OffcanvasMenu = ({ isOpen }) => {
   const [isStatusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const [isTechDropdownOpen, setTechDropdownOpen] = useState(false);
   const [isExperienceDropdownOpen, setIsExperienceDropdownOpen] = useState(false);
   const [isStatusMainChecked, setStatusMainChecked] = useState(false);
   const [isTechMainChecked, setTechMainChecked] = useState(false);

@@ -22,7 +22,10 @@ const positionSchema = new mongoose.Schema({
     duration: String,
     teamMembers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'TeamMember' }]
   }],
-  CreatedBy:String,
+  CreatedById: String,
+  LastModifiedById: String,
+  OwnerId: String,
+  orgId: String,
 
 });
 

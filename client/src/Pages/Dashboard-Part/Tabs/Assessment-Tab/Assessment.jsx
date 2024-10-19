@@ -16,6 +16,7 @@ import { MdKeyboardArrowUp } from "react-icons/md";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import EditAssessment from "./EditAssessment.jsx";
 import { CgInfo } from "react-icons/cg";
+import { fetchFilterData, handleWebSocket } from '../../../../utils/dataUtils.js';
 
 import ShareAssessment from "./ShareAssessment.jsx";
 import AssessmentProfileDetails from "./Assessmentprofiledetails.jsx";
@@ -298,7 +299,9 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
 };
 
 
-const Assessment = () => {
+const Assessment = ({objectPermissions, sharingPermissions}) => {
+  const assessmentPermissions = sharingPermissions.assessment || {};
+  console.log(assessmentPermissions,"assessmentPermissions");
   useEffect(() => {
     document.title = "Assessment Tab";
   }, []);
@@ -336,7 +339,9 @@ const Assessment = () => {
   }, [sidebarOpen, handleOutsideClick]);
 
   const handleAssessmentClick = (assessment) => {
+    if (objectPermissions.View) {
     setShowAssessmentDetails(assessment)
+    }
     setActionViewMore(false);
   };
 
@@ -358,37 +363,22 @@ const Assessment = () => {
 
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState("");
-  const userId = localStorage.getItem("userId");
 
   useEffect(() => {
-    const ws = new WebSocket(`${process.env.REACT_APP_WS_URL}`);
-
-    ws.onopen = () => {
-    };
-
-    ws.onmessage = (event) => {
-      const { type, data } = JSON.parse(event.data);
-
-      if (type === 'assessment') {
-        setAssessmentData(data);
-        setNotification("A new assessment has been successfully created!");
-
-        setTimeout(() => {
-          setNotification("");
-        }, 3000);
-      }
-    };
-
-    ws.onclose = () => {
-    };
+    const ws = handleWebSocket(
+      `${process.env.REACT_APP_WS_URL}`,
+      'assessment',
+      setAssessmentData,
+      setNotification
+    );
 
     const fetchAssessmentData = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/assessment?createdBy=${userId}`);
-        setAssessmentData(response.data);
+        const filteredAssessments = await fetchFilterData('assessment', assessmentPermissions);
+        setAssessmentData(filteredAssessments);
       } catch (error) {
-        console.error("Error fetching Assessment data:", error);
+        console.error('Error fetching assessment data:', error);
       } finally {
         setLoading(false);
       }
@@ -398,7 +388,7 @@ const Assessment = () => {
     return () => {
       ws.close();
     };
-  }, [userId]);
+  }, [assessmentPermissions]);
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -516,11 +506,13 @@ const Assessment = () => {
               </div>
             )}
           </div>
+          {objectPermissions.Create && (
           <div onClick={toggleSidebar} className="mr-6">
             <span className="p-2 w-fit text-md font-semibold border shadow rounded-3xl">
               Add Assessments
             </span>
           </div>
+          )}
         </div>
       </div>
       <div className="fixed top-36 left-0 right-0">
@@ -706,6 +698,7 @@ const Assessment = () => {
                                           >
                                             Share
                                           </p>
+                                          {objectPermissions.View && (
                                           <p
                                             className="hover:bg-gray-200 p-1 rounded pl-3"
                                             onClick={() =>
@@ -714,14 +707,17 @@ const Assessment = () => {
                                           >
                                             View
                                           </p>
+                                          )}
+                                          {objectPermissions.Edit && (
                                           <p
                                             className="hover:bg-gray-200 p-1 rounded pl-3"
                                             onClick={() =>
                                               handleEditClick(assessment)
                                             }
-                                          >
+                                          > 
                                             Edit
                                           </p>
+                                          )}
                                         </div>
                                       </div>
                                     )}
@@ -835,6 +831,7 @@ const Assessment = () => {
                                             >
                                               Share
                                             </p>
+                                            {objectPermissions.View && (
                                             <p
                                               className="hover:bg-gray-200 p-1 rounded pl-3"
                                               onClick={() =>
@@ -843,6 +840,8 @@ const Assessment = () => {
                                             >
                                               View
                                             </p>
+                                            )}
+                                            {objectPermissions.Edit && (
                                             <p
                                               className="hover:bg-gray-200 p-1 rounded pl-3"
                                               onClick={() =>
@@ -851,6 +850,7 @@ const Assessment = () => {
                                             >
                                               Edit
                                             </p>
+                                            )}
                                           </div>
                                         </div>
                                       )}
@@ -876,6 +876,7 @@ const Assessment = () => {
           onClose={handleCloseEdit}
           assessmentId={selectedAssessment._id}
           candidate1={selectedAssessment}
+          sharingPermissions={sharingPermissions}
         />
       )}
       {isShareOpen && (
@@ -883,6 +884,7 @@ const Assessment = () => {
           isOpen={isShareOpen}
           onCloseshare={handleCloseShare}
           assessmentId={isShareOpen._id}
+          sharingPermissions={sharingPermissions.candidate}
         />
       )}
       {showAssessmentDetails && (
@@ -896,6 +898,7 @@ const Assessment = () => {
               <Sidebar
                 onClose={closeSidebar}
                 onOutsideClick={handleOutsideClick}
+                sharingPermissions={sharingPermissions}
                 ref={sidebarRef}
               />
             </div>

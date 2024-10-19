@@ -10,6 +10,21 @@ import { FaFilter } from "react-icons/fa";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import axios from "axios";
+import PopupDetails from "./Masterdataviewpage";
+import { fetchMasterData } from '../../../utils/fetchMasterData.js';
+
+ 
+
+// pages for each tab add click
+import SkillMasterAdd from './PlanMasterAdd';
+import TechnologyMasterAdd from './PlanMasterAdd';
+import RoleMasterAdd from './PlanMasterAdd';
+import IndustryMasterAdd from './PlanMasterAdd';
+import LocationMasterAdd from './PlanMasterAdd';
+import ProfileMasterAdd from './ProfileMasterAdd.jsx';
+import PlanMasterAdd from './PlanMasterAdd.jsx';
+import TaxMasterAdd from './TaxMasterAdd.jsx';
+
 
 const profileData = [
   {
@@ -23,76 +38,88 @@ const profileData = [
   // Add more dummy data as needed
 ];
 
+
+const taxData = [
+  {
+    TaxID: "0001",
+    TaxName:"Basic",
+    TaxRate:"2000",
+    TaxType:"",
+    ApplicationRegion:"Basic",
+    StartDate: "2023-01-09",
+    EndDate: "2023-01-10",
+   IsActive: "Admin",
+  },
+
+  // Add more dummy data as needed
+];
+
+
 const MasterData = () => {
+  const [searchInput, setSearchInput] = useState("");
+
+  const handleSearchChange = (event) => {
+    setSearchInput(event.target.value);
+  };
 
   const [skillData, setSkillData] = useState([]);
 
+
   useEffect(() => {
-    const fetchSkillsData = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-        console.log(response.data);
-        setSkillData(response.data);
+        const skillsData = await fetchMasterData('skills');
+        setSkillData(skillsData);
+
+        const technologyData = await fetchMasterData('technology');
+        setTechnologyData(technologyData);
+
+        const locationsData = await fetchMasterData('locations');
+        setLocations(locationsData);
+
+
+        const industriesData = await fetchMasterData('industries');
+        setIndustries(industriesData);
+
+        const rolesData = await fetchMasterData('roles');
+        setCurrentRole(rolesData);
+
+        // const taxData = await fetchMasterData('tax');
+        // setTaxData(taxData);
       } catch (error) {
-        console.error('Error fetching roles data:', error);
+        console.error('Error fetching master data:', error);
       }
     };
-    fetchSkillsData();
+
+    fetchData();
   }, []);
+
 
   const [technologyData, setTechnologyData] = useState([]);
-  useEffect(() => {
-    const fetchtechnologyData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/technology`);
-        setTechnologyData(response.data);
-      } catch (error) {
-        console.error('Error fetching roles data:', error);
-      }
-    };
-    fetchtechnologyData();
-  }, []);
+
 
   const [industryData, setIndustries] = useState([]);
-  useEffect(() => {
-    const fetchindustriesData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/industries`);
-        setIndustries(response.data);
-      } catch (error) {
-        console.error('Error fetching industries data:', error);
-      }
-    };
-    fetchindustriesData();
-  }, []);
 
   const [roleData, setCurrentRole] = useState([]);
 
-  useEffect(() => {
-    const fetchsetcurrentrolesData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/roles`);
-        setCurrentRole(response.data);
-      } catch (error) {
-        console.error('Error fetching roles data:', error);
-      }
-    };
-    fetchsetcurrentrolesData();
-  }, []);
 
   const [locationData, setLocations] = useState([]);;
 
-  useEffect(() => {
-    const fetchlocationsData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/locations`);
-        setLocations(response.data);
-      } catch (error) {
-        console.error('Error fetching locations data:', error);
-      }
-    };
-    fetchlocationsData();
-  }, []);
+
+  // Fetch tax data
+  // const [taxData, setTaxData] = useState([]);
+  // useEffect(() => {
+  //   const fetchTaxData = async () => {
+  //     try {
+  //       const response = await axios.get(`${process.env.REACT_APP_API_URL}/tax`); // Adjust the endpoint as necessary
+  //       setTaxData(response.data);
+  //     } catch (error) {
+  //       console.error('Error fetching tax data:', error);
+  //     }
+  //   };
+  //   fetchTaxData();
+  // }, []);
+
   const [isOpen, setIsOpen] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [selectedTab, setSelectedTab] = useState("SkillMaster");
@@ -100,6 +127,9 @@ const MasterData = () => {
   const dropdownRef = useRef(null);
   const [maincontent, setMaincontent] = useState(true);
   const [editcontent, setEditcontent] = useState(false);
+  const [planData, setPlanData] = useState([]);
+
+
 
   const closeModal = () => {
     setIsOpen(false);
@@ -107,6 +137,12 @@ const MasterData = () => {
     setMaincontent(true);
     setEditcontent(false);
     setOpenItemId(null);
+  };
+
+  const [actionViewMore, setActionViewMore] = useState({});
+
+  const toggleAction = (id) => {
+    setActionViewMore((prev) => (prev === id ? null : id));
   };
 
   const handleMoreClick = (itemId) => {
@@ -140,18 +176,19 @@ const MasterData = () => {
     setOpenItemId(null);
 
   };
-  const navigate = useNavigate();
-  const viewClick = (item) => {
-    navigate("/masterprofiledetails", { state: { userData: item } });
-
+  const handleClick = (item) => {
+    setSelectedData(item);
+    setIsOpen(true);
+    setActionViewMore(false);
   };
 
 
   const handleEditClick = (item) => {
-    setSelectedData(item);
-    setMaincontent(false);
-    setEditcontent(true);
+    // setSelectedData(item);
+    // setMaincontent(false);
+    // setEditcontent(true);
   };
+
   const oneditpage = () => {
     setEditcontent(true);
     setMaincontent(false);
@@ -179,10 +216,26 @@ const MasterData = () => {
       case "ProfileMaster":
         data = profileData;
         break;
+      case "PlanMaster":
+        data = planData;
+        break;
+
+        case "TaxMaster":
+          data = taxData;
+          break;
+       
 
       default:
         return <div>Select a tab to view content</div>;
     }
+
+    const filteredData = data.filter((item) => {
+      const searchTerm = searchInput.toLowerCase();
+      return Object.values(item).some((value) =>
+        String(value).toLowerCase().includes(searchTerm)
+      );
+    });
+
 
     const formatDate = (dateString) => {
       const date = new Date(dateString);
@@ -191,6 +244,12 @@ const MasterData = () => {
       }
       return date.toLocaleDateString();
     };
+
+    const viewClick = (item) => {
+      setSelectedData(item);
+      setIsOpen(true);
+    };  
+
 
     return (
       <div className="relative">
@@ -338,6 +397,57 @@ const MasterData = () => {
                     Action
                   </th>
                 </>
+              ) : selectedTab === "PlanMaster" ? (
+                <>
+                  <th scope="col" className="py-3 px-6">
+                    Plan Master ID
+                  </th>
+                  <th scope="col" className="py-3 px-6">
+                    Plan Master Name
+                  </th>
+                  <th scope="col" className="py-3 px-6">
+                    Created Date
+                  </th>
+                  <th scope="col" className="py-3 px-6">
+                    Created By
+                  </th>
+                  <th scope="col" className="py-3 px-6">
+                    Modified Date
+                  </th>
+                  <th scope="col" className="py-3 px-6">
+                    Modified by
+                  </th>
+                  <th scope="col" className="py-3 px-6">
+                    Action
+                  </th>
+                </>
+
+
+             
+              ) : selectedTab === "TaxMaster" ? (
+                <>
+                  <th scope="col" className="py-3 px-6">
+                    Tax ID
+                  </th>
+                  <th scope="col" className="py-3 px-6">
+                    Tax Name
+                  </th>
+                  <th scope="col" className="py-3 px-6">
+                   Tax Rate
+                  </th>
+                  <th scope="col" className="py-3 px-6">
+                   Tax Type
+                  </th>
+                  <th scope="col" className="py-3 px-6">
+                    Application Region
+                  </th>
+               
+                  <th scope="col" className="py-3 px-6">
+                    Action
+                  </th>
+                </>
+
+
               ) : (
                 <>
                   <th scope="col" className="py-3 px-6">
@@ -367,7 +477,8 @@ const MasterData = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200 overflow-y-scroll text-xs">
-            {data.map((item) => {
+          {filteredData.length > 0 ? (
+              filteredData.map((item) => {
 
               const createdDate = item.CreatedDate ? new Date(item.CreatedDate).toLocaleDateString() : 'N/A'; // Format date
               console.log('CreatedDate:', createdDate); // Log the createdDate value
@@ -380,13 +491,20 @@ const MasterData = () => {
                       <td className="px-6 py-2">{item.createdBy}</td>
                       <td className="px-6 py-2">{item.modifiedDate}</td>
                       <td className="px-6 py-2">{item.modifiedBy}</td>
-                      <td className="px-6 py-2">
-                        <button
-                          className="text-blue-500 hover:underline ml-2"
-                          onClick={() => viewClick(item)}
-                        >
-                          View
-                        </button>
+                      <td className='px-6 py-2' style={{ whiteSpace: 'normal' }}>
+                        <div>
+                          <button onClick={() => toggleAction(item._id)}>
+                            <MdMoreHoriz className="text-3xl" />
+                          </button>
+                          {actionViewMore === item._id && (
+                            <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
+                              <div className="space-y-1">
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleClick(item)}>View</p>
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(item)}>Edit</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </td>
                     </>
                   ) : selectedTab === "SkillMaster" ? (
@@ -397,13 +515,20 @@ const MasterData = () => {
                       <td className="px-6 py-2">{item.CreatedBy}</td>
                       <td className="px-6 py-2">{item.ModifiedDate}</td>
                       <td className="px-6 py-2">{item.ModifiedBy}</td>
-                      <td className="px-6 py-2">
-                        <button
-                          className="text-blue-500 hover:underline ml-2"
-                          onClick={() => viewClick(item)}
-                        >
-                          View
-                        </button>
+                      <td className='px-6 py-2' style={{ whiteSpace: 'normal' }}>
+                        <div>
+                          <button onClick={() => toggleAction(item._id)}>
+                            <MdMoreHoriz className="text-3xl" />
+                          </button>
+                          {actionViewMore === item._id && (
+                            <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
+                              <div className="space-y-1">
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleClick(item)}>View</p>
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(item)}>Edit</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </td>
                     </>
                   ) : selectedTab === "TechnologyMaster" ? (
@@ -414,13 +539,20 @@ const MasterData = () => {
                       <td className="px-6 py-2">{item.CreatedBy}</td>
                       <td className="px-6 py-2">{item.ModifiedDate}</td>
                       <td className="px-6 py-2">{item.ModifiedBy}</td>
-                      <td className="px-6 py-2">
-                        <button
-                          className="text-blue-500 hover:underline ml-2"
-                          onClick={() => viewClick(item)}
-                        >
-                          View
-                        </button>
+                      <td className='px-6 py-2' style={{ whiteSpace: 'normal' }}>
+                        <div>
+                          <button onClick={() => toggleAction(item._id)}>
+                            <MdMoreHoriz className="text-3xl" />
+                          </button>
+                          {actionViewMore === item._id && (
+                            <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
+                              <div className="space-y-1">
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleClick(item)}>View</p>
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(item)}>Edit</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </td>
                     </>
                   ) : selectedTab === "RoleMaster" ? (
@@ -431,13 +563,20 @@ const MasterData = () => {
                       <td className="px-6 py-2">{item.CreatedBy}</td>
                       <td className="px-6 py-2">{item.ModifiedDate}</td>
                       <td className="px-6 py-2">{item.ModifiedBy}</td>
-                      <td className="px-6 py-2">
-                        <button
-                          className="text-blue-500 hover:underline ml-2"
-                          onClick={() => viewClick(item)}
-                        >
-                          View
-                        </button>
+                      <td className='px-6 py-2' style={{ whiteSpace: 'normal' }}>
+                        <div>
+                          <button onClick={() => toggleAction(item._id)}>
+                            <MdMoreHoriz className="text-3xl" />
+                          </button>
+                          {actionViewMore === item._id && (
+                            <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
+                              <div className="space-y-1">
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleClick(item)}>View</p>
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(item)}>Edit</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </td>
                     </>
                   ) : selectedTab === "IndustryMaster" ? (
@@ -448,13 +587,20 @@ const MasterData = () => {
                       <td className="px-6 py-2">{item.CreatedBy}</td>
                       <td className="px-6 py-2">{item.ModifiedDate}</td>
                       <td className="px-6 py-2">{item.ModifiedBy}</td>
-                      <td className="px-6 py-2">
-                        <button
-                          className="text-blue-500 hover:underline ml-2"
-                          onClick={() => viewClick(item)}
-                        >
-                          View
-                        </button>
+                      <td className='px-6 py-2' style={{ whiteSpace: 'normal' }}>
+                        <div>
+                          <button onClick={() => toggleAction(item._id)}>
+                            <MdMoreHoriz className="text-3xl" />
+                          </button>
+                          {actionViewMore === item._id && (
+                            <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
+                              <div className="space-y-1">
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleClick(item)}>View</p>
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(item)}>Edit</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </td>
                     </>
                   ) : selectedTab === "LocationMaster" ? (
@@ -465,13 +611,67 @@ const MasterData = () => {
                       <td className="px-6 py-2">{item.CreatedBy}</td>
                       <td className="px-6 py-2">{item.ModifiedDate}</td>
                       <td className="px-6 py-2">{item.ModifiedBy}</td>
-                      <td className="px-6 py-2">
-                        <button
-                          className="text-blue-500 hover:underline ml-2"
-                          onClick={() => viewClick(item)}
-                        >
-                          View
-                        </button>
+                      <td className='px-6 py-2' style={{ whiteSpace: 'normal' }}>
+                        <div>
+                          <button onClick={() => toggleAction(item._id)}>
+                            <MdMoreHoriz className="text-3xl" />
+                          </button>
+                          {actionViewMore === item._id && (
+                            <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
+                              <div className="space-y-1">
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleClick(item)}>View</p>
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(item)}>Edit</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </>
+                  ) : selectedTab === "PlanMaster" ? (
+                    <>
+                      <td className="px-6 py-2">{item._id}</td>
+                      <td className="px-6 py-2">{item.PlanMasterName}</td>
+                      <td className="px-6 py-2">{new Date(item.CreatedDate).toLocaleDateString()}</td>
+                      <td className="px-6 py-2">{item.CreatedBy}</td>
+                      <td className="px-6 py-2">{item.ModifiedDate}</td>
+                      <td className="px-6 py-2">{item.ModifiedBy}</td>
+                      <td className='px-6 py-2' style={{ whiteSpace: 'normal' }}>
+                        <div>
+                          <button onClick={() => toggleAction(item._id)}>
+                            <MdMoreHoriz className="text-3xl" />
+                          </button>
+                          {actionViewMore === item._id && (
+                            <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
+                              <div className="space-y-1">
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleClick(item)}>View</p>
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(item)}>Edit</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </>
+                  ) : selectedTab === "TaxMaster" ? (
+                    <>
+                      <td className="px-6 py-2">{item.TaxID}</td>
+                      <td className="px-6 py-2">{item.TaxName}</td>
+                      <td className="px-6 py-2">{item.TaxRate}</td>
+                      <td className="px-6 py-2">{item.TaxType}</td>
+                      <td className="px-6 py-2">{item.ApplicationRegion}</td>
+                      <td className='px-6 py-2' style={{ whiteSpace: 'normal' }}>
+                        <div>
+                          <button onClick={() => toggleAction(item._id)}>
+                            <MdMoreHoriz className="text-3xl" />
+                          </button>
+                          {actionViewMore === item._id && (
+                            <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
+                              <div className="space-y-1">
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleClick(item)}>View</p>
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(item)}>Edit</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </td>
                     </>
                   ) : (
@@ -482,19 +682,33 @@ const MasterData = () => {
                       <td className="px-6 py-2">{item.CreatedBy}</td>
                       <td className="px-6 py-2">{item.ModifiedDate}</td>
                       <td className="px-6 py-2">{item.ModifiedBy}</td>
-                      <td className="px-6 py-2">
-                        <button
-                          className="text-blue-500 hover:underline ml-2"
-                          onClick={() => viewClick(item)}
-                        >
-                          View
-                        </button>
+                      <td className='px-6 py-2' style={{ whiteSpace: 'normal' }}>
+                        <div>
+                          <button onClick={() => toggleAction(item._id)}>
+                            <MdMoreHoriz className="text-3xl" />
+                          </button>
+                          {actionViewMore === item._id && (
+                            <div className="absolute z-10 w-36 rounded-md shadow-lg bg-white ring-1 p-4 ring-black ring-opacity-5 right-2 popup">
+                              <div className="space-y-1">
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleClick(item)}>View</p>
+                                <p className="hover:bg-gray-200 p-1 rounded pl-3" onClick={() => handleEditClick(item)}>Edit</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </td>
                     </>
                   )}
                 </tr>
               );
-            })}
+            })
+              ) : (
+              <tr>
+                <td colSpan="7" className="text-center py-4">
+                  No results found
+                </td>
+              </tr>
+            )}
           </tbody>
 
 
@@ -504,12 +718,47 @@ const MasterData = () => {
     );
   };
 
+  const [showAddPage, setShowAddPage] = useState(false);
+
+  const handleAddClick = () => {
+    setShowAddPage(true);
+  };
+
+  const closeAddPage = () => {
+    setShowAddPage(false);
+  };
+
+  const renderAddComponent = () => {
+    const addComponentProps = { closeAddPage, selectedTab };
+
+    switch (selectedTab) {
+      case "SkillMaster":
+        return <SkillMasterAdd {...addComponentProps} />;
+      case "TechnologyMaster":
+        return <TechnologyMasterAdd {...addComponentProps} />;
+      case "RoleMaster":
+        return <RoleMasterAdd {...addComponentProps} />;
+      case "IndustryMaster":
+        return <IndustryMasterAdd {...addComponentProps} />;
+      case "LocationMaster":
+        return <LocationMasterAdd {...addComponentProps} />;
+      case "ProfileMaster":
+        return <ProfileMasterAdd {...addComponentProps} />;
+      case "PlanMaster":
+        return <PlanMasterAdd {...addComponentProps} />;
+        case "TaxMaster":
+        return <TaxMasterAdd {...addComponentProps} />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
       <aside
         id="default-sidebar"
-        className="fixed top-20 left-0 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
+        className="fixed top-20 left-0 w-64 h-screen"
         aria-label="Sidebar"
       >
         <div className="h-full px-3 py-4 overflow-y-auto border border-gray-100">
@@ -585,26 +834,45 @@ const MasterData = () => {
                 ProfileMaster
               </NavLink>
             </li>
+            <li>
+              <NavLink
+                className={`flex items-center p-2 rounded-lg group ${selectedTab === "PlanMaster"
+                  ? " bg-gray-200"
+                  : "text-gray-900"
+                  }`}
+                onClick={() => setSelectedTab("PlanMaster")}
+              >
+                PlanMaster
+              </NavLink>
+            </li>
+            <li>
+              <NavLink
+                className={`flex items-center p-2 rounded-lg group ${selectedTab === "TaxMaster"
+                  ? " bg-gray-200"
+                  : "text-gray-900"
+                  }`}
+                onClick={() => setSelectedTab("TaxMaster")}
+              >
+                TaxMaster
+              </NavLink>
+            </li>
           </ul>
         </div>
       </aside>
       {/* Main Content */}
-      {maincontent && (
+      {maincontent && !showAddPage && (
         <div className="w-full ml-64">
-
-          {selectedTab === "ProfileMaster" ? (
-            <div className="flex justify-between mx-3">
-              <h2 className="text-2xl font-bold mb-4">{selectedTab}</h2>
-              <p>
-                <span className="p-2 px-5 w-fit text-xl font-semibold border shadow rounded-3xl">
-                  Add
-                </span>
-              </p>
-            </div>
-          ) : (
-            <h2 className="text-2xl font-bold -mb-10 ml-3">{selectedTab}</h2> // Show title for other tabs
-          )}
-
+          <div className="flex justify-between mx-3">
+            <h2 className="text-2xl font-bold mb-4">{selectedTab}</h2>
+            <p>
+              <span
+                className="p-2 px-5 w-fit text-xl font-semibold border shadow rounded-3xl cursor-pointer"
+                onClick={handleAddClick}
+              >
+                Add
+              </span>
+            </p>
+          </div>
           <div className="flex justify-end p-3">
 
             <div className="flex items-center -mt-2">
@@ -620,6 +888,8 @@ const MasterData = () => {
                     type="text"
                     placeholder="Search"
                     className="pl-10 pr-12"
+                    value={searchInput}
+                    onChange={handleSearchChange}
                   />
                 </div>
               </div>
@@ -656,6 +926,7 @@ const MasterData = () => {
           {renderContent()}
         </div>
       )}
+       {showAddPage && renderAddComponent()}
 
       {isOpen && (
         <>
@@ -730,6 +1001,13 @@ const MasterData = () => {
             </div>
           </div>
         </>
+      )}
+     {isOpen && (
+        <PopupDetails
+          selectedData={selectedData}
+          selectedTab={selectedTab}
+          closeModal={closeModal}
+        />
       )}
 
       {editcontent && (

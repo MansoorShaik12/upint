@@ -6,11 +6,12 @@ import { MdUpdate } from "react-icons/md";
 import { ImCancelCircle } from "react-icons/im";
 import axios from "axios";
 import { FaSearch } from "react-icons/fa";
-
+import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
+import Cookies from 'js-cookie';
 const Profile = () => {
   const [contactData, setContactData] = useState({});
   const [editMode, setEditMode] = useState(false);
-  const userId = localStorage.getItem("userId");
+  const userId = Cookies.get("userId");
 
   useEffect(() => {
     const fetchContactData = async () => {
@@ -108,21 +109,33 @@ const Profile = () => {
   });
   console.log(formData);
 
-  // industry
-
-  const [industries, setIndustries] = useState([]);
   useEffect(() => {
-    const fetchindustriesData = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/industries`);
-        setIndustries(response.data);
+        const skillsData = await fetchMasterData('skills');
+        setSkills(skillsData);
+
+        const technologyData = await fetchMasterData('technology');
+        setServices(technologyData);
+
+        const locationsData = await fetchMasterData('locations');
+        setLocations(locationsData);
+
+
+        const industriesData = await fetchMasterData('industries');
+        setIndustries(industriesData);
+
+        const rolesData = await fetchMasterData('roles');
+        setCurrentRole(rolesData);
       } catch (error) {
-        console.error("Error fetching industries data:", error);
+        console.error('Error fetching master data:', error);
       }
     };
-    fetchindustriesData();
+
+    fetchData();
   }, []);
 
+  const [industries, setIndustries] = useState([]);
   //for locations
   const [locations, setLocations] = useState([]);
   const [showDropdownLocation, setShowDropdownLocation] = useState(false);
@@ -136,17 +149,6 @@ const Profile = () => {
     }));
   };
 
-  useEffect(() => {
-    const fetchlocationsData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/locations`);
-        setLocations(response.data);
-      } catch (error) {
-        console.error("Error fetching locations data:", error);
-      }
-    };
-    fetchlocationsData();
-  }, []);
   const filteredLocations = locations.filter(
     (location) =>
       location.LocationName &&
@@ -204,18 +206,6 @@ const Profile = () => {
   };
 
   const [services, setServices] = useState([]);
-  console.log(services);
-  useEffect(() => {
-    const fetchtechnologyData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/technology`);
-        setServices(response.data);
-      } catch (error) {
-        console.error("Error fetching roles data:", error);
-      }
-    };
-    fetchtechnologyData();
-  }, []);
 
   const handleSelectCandidate = (technology) => {
     setInterview((prevInterview) => ({
@@ -242,17 +232,6 @@ const Profile = () => {
   //for skills
   const [skills, setSkills] = useState([]);
 
-  useEffect(() => {
-    const fetchSkillsData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-        setSkills(response.data);
-      } catch (error) {
-        console.error("Error fetching roles data:", error);
-      }
-    };
-    fetchSkillsData();
-  }, []);
 
   const toggleSkillsPopup = () => {
     setShowSkillsPopup(!showSkillsPopup);
@@ -336,17 +315,6 @@ const Profile = () => {
     setShowDropdownCurrentRole(!showDropdownCurrentRole);
   };
 
-  useEffect(() => {
-    const fetchsetcurrentrolesData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/roles`);
-        setCurrentRole(response.data);
-      } catch (error) {
-        console.error("Error fetching roles data:", error);
-      }
-    };
-    fetchsetcurrentrolesData();
-  }, []);
 
   const handleRoleSelect = (role) => {
     handleChange({ target: { name: "CurrentRole", value: role } });
@@ -370,7 +338,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="ml-64 overflow-y-scroll max-h-screen">
+    <div className="ml-64">
       <div>
         <div
           className="text-md float-end mr-20 mt-1 bg-blue-300 px-3 py-1 rounded cursor-pointer"

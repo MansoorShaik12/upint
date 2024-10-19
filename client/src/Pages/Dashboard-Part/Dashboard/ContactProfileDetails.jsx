@@ -1,21 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { MdOutlineCancel } from "react-icons/md";
+import Contact from "./Contact";
 import TimezoneSelect from "react-timezone-select";
 import DatePicker from "react-datepicker";
 import { FaMinus, FaPlus } from "react-icons/fa";
 import { GiCancel } from "react-icons/gi";
 import { IoIosCopy } from "react-icons/io";
 
-const ContactProfileDetails = () => {
+const ContactProfileDetails = ({contact, onCloseContact}) => {
   const location = useLocation();
   useEffect(() => {
     document.title = "ContactProfileDetails";
   }, []);
   const navigate = useNavigate();
-  const contactData = location.state?.Contacts;
-  const [contact] = useState(contactData);
-  console.log(contactData);
+  // const contactData = location.state?.Contacts;
+  // const [contact] = useState(contactData);
+  // console.log(contactData);
 
   const [activeTab, setActiveTab] = useState("Basic-Details");
 
@@ -328,7 +329,7 @@ const ContactProfileDetails = () => {
               </span>
               <button
                 className="shadow-lg rounded-full"
-                onClick={closeModalAndNavigate}
+                onClick={onCloseContact}
               >
                 <MdOutlineCancel className="text-2xl" />
               </button>

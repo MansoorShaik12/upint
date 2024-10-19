@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { IoIosPersonAdd } from "react-icons/io";
 import { GoOrganization } from "react-icons/go";
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import image1 from '../Dashboard-Part/Images/image1.png';
 import { useAuth0 } from "@auth0/auth0-react";
 
@@ -9,6 +9,8 @@ const Profile1 = () => {
   const [showCreateProfile, setShowCreateProfile] = useState(false);
   const [selectedTab, setSelectedTab] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { state } = location;
   const [isActive, setIsActive] = useState(false);
 
   // Handler to toggle the active state
@@ -25,14 +27,15 @@ const Profile1 = () => {
   };
 
   // linkedin auth0 start
-  const { loginWithRedirect, logout, user, isAuthenticated, isLoading } = useAuth0();
+  const { loginWithRedirect } = useAuth0();
 
-
-
-
-
-  console.log('user details are :-', user);
-  // linkedin auth0 end
+  const handleOrganizationClick = () => {
+    if (state?.from === "signup") {
+      navigate('/organization');
+    } else if (state?.from === "login") {
+      navigate('/admin');
+    }
+  };
 
   return (
     <div>
@@ -69,6 +72,7 @@ const Profile1 = () => {
             <div className='flex justify-center'>
               <button
                 type="button"
+                onClick={handleOrganizationClick}
                 className="flex justify-center text-lg w-80 items-center bg-white border rounded-2xl px-11 p-2 font-medium transition-colors duration-300 mb-2 focus:bg-f5f5f5"
               >
                 <p className='mr-5 text-3xl'>
@@ -85,9 +89,7 @@ const Profile1 = () => {
             {showCreateProfile && (
               <div className="flex justify-center">
                 <p
-                  // href={linkedinOAuthURL}
                   onClick={() => loginWithRedirect()}
-                  // onClick={() => loginWithRedirect({ redirect_uri: `${window.location.origin}/callback` })}
                   className="text-sm text-white w-auto items-center border bg-sky-400 rounded-full p-3 focus:text-black hover:text-gray-500"
                 >
                   Sign Up with LinkedIn

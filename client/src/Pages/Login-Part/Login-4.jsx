@@ -1,82 +1,145 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
-import { MdArrowDropDown } from "react-icons/md";
-import { TbCameraPlus } from "react-icons/tb";
-import { MdUpdate } from "react-icons/md";
+
+import React, { useState, useEffect, useRef } from "react";
+import { MdArrowDropDown, MdUpdate } from "react-icons/md";
 import { ImCancelCircle } from "react-icons/im";
 import { GiCancel } from "react-icons/gi";
 import { IoIosCopy } from "react-icons/io";
-import { FaPlus } from "react-icons/fa6";
-import { FaMinus } from "react-icons/fa6";
+import { FaPlus, FaMinus } from "react-icons/fa6";
+import { FaSearch } from 'react-icons/fa';
+import { TbCameraPlus } from "react-icons/tb";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import moment from 'moment-timezone';
-import { useNavigate } from "react-router-dom";
-import TimezoneSelect from 'react-timezone-select';
-import { ProfileContext } from '../../Context/ProfileContext.js';
-import { FaSearch } from 'react-icons/fa';
-import { useLocation } from 'react-router-dom';
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
-
+import TimezoneSelect from 'react-timezone-select';
+import Cookies from 'js-cookie';
+import { fetchMasterData } from '../../utils/fetchMasterData';
 const MultiStepForm = () => {
-
+    const { user } = useAuth0();
+    const popupRef = useRef(null);
+    const navigate = useNavigate();
+    const skillsPopupRef = useRef(null);
+    const location = useLocation();
+    const fileInputRef = useRef(null);
+    const isFreelancer = location.state?.isFreelancer;
 
     const [selectedTimezone, setSelectedTimezone] = useState({});
     const [selectedLocation, setSelectedLocation] = useState('');
     const [showDropdownLocation, setShowDropdownLocation] = useState(false);
     const [searchTermLocation, setSearchTermLocation] = useState('');
-
-    const { setProfileData } = useContext(ProfileContext);
-    const { user } = useAuth0();
-
-    console.log('this is user details', user);
-
-    // basicdetails1
     const [nameError, setNameError] = useState('');
     const [UserIdError, setUserIdError] = useState('');
     const [emailError, setEmailError] = useState('');
     const [phoneError, setPhoneError] = useState('');
     const [linkedinurlError, setLinkedinurlError] = useState('');
     const [genderError, setGenderError] = useState('');
-
-    // additional details
     const [currentroleError, setCurrentroleError] = useState('');
     const [industryError, setIndustryError] = useState('');
     const [experienceError, setExperienceError] = useState('');
     const [locationError, setLocationError] = useState('');
     const [introductionError, setIntroductionError] = useState('');
-
-    // basicdetails2
     const [technologyError, setTechnologyError] = useState('');
     const [skillError, setSkillError] = useState('');
     const [previousExperienceError, setPreviousExperienceError] = useState('');
     const [expertiseLevelError, setExpertiseLevelError] = useState('');
-
-    // availability
     const [timesError, setTimesError] = useState('');
     const [timeZoneError, setTimeZoneError] = useState('');
     const [preferredDurationError, setPreferredDurationError] = useState('');
-
     const [step, setStep] = useState(0);
-
     const [showPopup, setShowPopup] = useState(false);
+    const [errors, setErrors] = useState({});
+    const [selectedIndustry, setSelectedIndustry] = useState('');
+    const [showDropdownIndustry, setShowDropdownIndustry] = useState(false);
+    const [industries, setIndustries] = useState([]);
+    const [locations, setLocations] = useState([]);
+    const [selectedCurrentRole, setSelectedCurrentRole] = useState('');
+    const [showDropdownCurrentRole, setShowDropdownCurrentRole] = useState(false);
+    const [CurrentRole, setCurrentRole] = useState([]);
+    const [services, setServices] = useState([]);
+    const [selectedCandidates, setSelectedCandidates] = useState([]);
+    const [skills, setSkills] = useState([]);
+    const [selectedSkills, setSelectedSkills] = useState([])
+    const [showSkillsPopup, setShowSkillsPopup] = useState(false);
+    const [previousExperience, setPreviousExperience] = useState('');
+    const [expertiseLevel, setExpertiseLevel] = useState('');
+    const [selectedOption, setSelectedOption] = useState(null);
+    const [showPopup1, setShowPopup1] = useState(false);
+    const [selectedDay, setSelectedDay] = useState(null);
+    const [selectedDays, setSelectedDays] = useState([]);
+    const [charCount, setCharCount] = useState(0);
+    const [experienceYears, setExperienceYears] = useState('');
+    const [selectedGender, setSelectedGender] = useState('');
+    const [showDropdowngender, setShowDropdownGender] = useState(false);
+    const [searchTermCurrentRole, setSearchTermCurrentRole] = useState('');
+    const [searchTermIndustry, setSearchTermIndustry] = useState('');
+    const [searchTermTechnology, setSearchTermTechnology] = useState('');
+    const [searchTermSkills, setSearchTermSkills] = useState('');
+    const [file, setFile] = useState(null);
+    const [filePreview, setFilePreview] = useState(user.picture ? user.picture : null);
+    const genders = ['Male', 'Female', 'Prefer not to say', 'Others'];
+    const [times, setTimes] = useState({
+        Sunday: [{ startTime: null, endTime: null }],
+        Monday: [{ startTime: null, endTime: null }],
+        Tuesday: [{ startTime: null, endTime: null }],
+        Wednesday: [{ startTime: null, endTime: null }],
+        Thursday: [{ startTime: null, endTime: null }],
+        Friday: [{ startTime: null, endTime: null }],
+        Saturday: [{ startTime: null, endTime: null }]
+    });
 
+    const [formData, setFormData] = useState({
+        Name: "" || user.name,
+        Firstname: "",
+        UserId: "",
+        Email: user.email || "",
+        Phone: "",
+        LinkedinUrl: "",
+        CountryCode: "+91",
+        Gender: "",
+        Role: "Admin",
+        RoleId: "66efd7dea968b6eb0f11adfa",
+        Profile: "Admin",
+        ProfileId: "66f3ceebf4d8a896eeaa2f6b"
+    });
+
+    const [formData2, setFormData2] = useState({
+        CurrentRole: "",
+        industry: "",
+        Experience: "",
+        location: "",
+        Introduction: "",
+    });
+
+    const [formData3, setFormData3] = useState({
+        Technology: [],
+        Skill: [],
+        previousExperience: "",
+        expertiseLevel: "",
+        experienceYears: ""
+    });
+
+    const [formData4, setFormData4] = useState({
+        TimeZone: "",
+        PreferredDuration: "",
+        Availability: ""
+    });
 
     const handleNextStep = async () => {
         let hasError = false;
 
-        // Validate fields for ComponentOne
-        if (step === 0) {
+        const validateStep0 = () => {
             if (!formData.Name) {
                 setNameError('Last Name is required');
-                hasError = true; // Set to true on error
+                hasError = true;
             } else {
                 setNameError('');
             }
 
             if (!formData.UserId) {
                 setUserIdError('UserId is required');
-                hasError = true; // Set to true on error
+                hasError = true;
             } else {
                 setUserIdError('');
             }
@@ -90,155 +153,141 @@ const MultiStepForm = () => {
 
             if (!formData.Email) {
                 setEmailError('Email is required');
-                hasError = true; // Set to true on error
+                hasError = true;
             } else {
                 setEmailError('');
             }
 
             if (!formData.Phone) {
                 setPhoneError('Phonenumber is required');
-                hasError = true; // Set to true on error
+                hasError = true;
             } else {
                 setPhoneError('');
             }
 
             if (!formData.LinkedinUrl) {
                 setLinkedinurlError('LinkedIn URL is required');
-                hasError = true; // Set to true on error
+                hasError = true;
             } else {
                 setLinkedinurlError('');
             }
+        };
 
-            // Log the error state
-            console.log("Has Error:", hasError); // Debugging line
-            console.log("Form Data:", formData); // Log form data
-
-            if (hasError) return; // Prevent moving to next step if errors exist
-
-            setStep(1); // Move to ComponentTwo
-        }
-        if (step === 1) {
+        const validateStep1 = () => {
             if (!formData2.CurrentRole) {
                 setCurrentroleError('Current Role is required');
-                hasError = true // Set to true on error
+                hasError = true;
             } else {
                 setCurrentroleError('');
             }
 
             if (!selectedIndustry) {
                 setIndustryError('Industry is required');
-                hasError = true // Set to true on error
+                hasError = true;
             } else {
                 setIndustryError('');
             }
 
             if (!formData2.Experience) {
                 setExperienceError('Experience is required');
-                hasError = true // Set to true on error
+                hasError = true;
             } else {
                 setExperienceError('');
             }
 
             if (!selectedLocation) {
                 setLocationError('Location is required');
-                hasError = true // Set to true on error
+                hasError = true;
             } else {
                 setLocationError('');
             }
 
             if (!formData2.Introduction) {
                 setIntroductionError('Introduction is required');
-                hasError = true // Set to true on error
+                hasError = true;
             } else {
                 setIntroductionError('');
             }
+        };
 
-            if (hasError) return; // Prevent moving to next step if errors exist
-            setStep(1); // Move to ComponentTwo
-        }
-        if (step === 2) {
+        const validateStep2 = () => {
             if (!selectedCandidates.length) {
                 setTechnologyError('Technology is required');
-                hasError = true // Set to true on error
+                hasError = true;
             } else {
                 setTechnologyError('');
             }
 
             if (!selectedSkills.length) {
                 setSkillError('Skill is required');
-                hasError = true // Set to true on error
+                hasError = true;
             } else {
                 setSkillError('');
             }
 
             if (!previousExperience) {
                 setPreviousExperienceError('Previous Experience is required');
-                hasError = true // Set to true on error
+                hasError = true;
             } else {
                 setPreviousExperienceError('');
             }
 
             if (!expertiseLevel) {
                 setExpertiseLevelError('Expertise Level is required');
-                hasError = true // Set to true on error
+                hasError = true;
             } else {
                 setExpertiseLevelError('');
             }
+        };
 
-            if (hasError) return; // Prevent moving to next step if errors exist
-            setStep(3); // Move to ComponentThree
-        }
-
-
-        // Validate fields for ComponentThree
-        if (step === 3) {
+        const validateStep3 = () => {
             const hasValidTimeSlot = Object.values(times).some(dayTimes =>
                 dayTimes.some(timeSlot => timeSlot.startTime && timeSlot.endTime)
             );
 
             if (!hasValidTimeSlot) {
                 setTimesError('At least one valid time slot is required');
-                hasError = true // Set to true on error
+                hasError = true;
             } else {
                 setTimesError('');
             }
 
             if (!formData4.TimeZone) {
                 setTimeZoneError('Time Zone is required');
-                hasError = true // Set to true on error
+                hasError = true;
             } else {
                 setTimeZoneError('');
             }
 
             if (!selectedOption) {
                 setPreferredDurationError('Preferred Interview Duration is required');
-                hasError = true // Set to true on error
+                hasError = true;
             } else {
                 setPreferredDurationError('');
             }
+        };
 
-            if (hasError) return; // Prevent saving if errors exist
-            setStep(3)
+        // Run validations based on the current step
+        if (step === 0) validateStep0();
+        if (step === 1) validateStep1();
+        if (step === 2) validateStep2();
+        if (step === 3) validateStep3();
 
-        }
+        if (hasError) return;
 
-        else {
-
+        // Proceed to next step if no errors
+        if (step < 3) {
             setStep(step + 1);
-        }
-
-    };
-
-
-    const handlePrevStep = () => {
-        if (step > 0) {
-            setStep(step - 1);
+        } else {
+            // Final step logic
+            setStep(3);
         }
     };
+
     const navigateToHome = async () => {
         let hasError = false;
 
-        // Validate fields for the final step (Availability)
+        // Validate Step 3 inputs
         if (step === 3) {
             const hasValidTimeSlot = Object.values(times).some(dayTimes =>
                 dayTimes.some(timeSlot => timeSlot.startTime && timeSlot.endTime)
@@ -265,90 +314,26 @@ const MultiStepForm = () => {
                 setPreferredDurationError('');
             }
 
-            if (hasError) return; // Prevent saving if errors exist
+            // Exit if there are errors
+            if (hasError) return;
         }
+        // Clear organizationId from local storage
+        localStorage.removeItem('organizationId');
 
-        // Save data to the database
+        // Submit and navigate if no errors
         try {
-            const response = await handleSubmit(); // Ensure handleSubmit is defined and returns a response
-            navigate('/home', { state: { data: response.data } }); // Navigate to home page after successful save
-        }
-        catch (error) {
+            const response = await handleSubmit();
+            navigate('/home', { state: { data: response.data } });
+        } catch (error) {
             console.error("Error saving data:", error);
         }
     };
-    const [errors, setErrors] = useState({});
 
-    const handleComponentThreeData = (data) => {
-        setFormData({ ...formData, componentThreeData: data });
-    };
-
-    const handleComponentFourData = (data) => {
-        setFormData({ ...formData, componentFourData: data });
-    };
-
-    const [shouldSubmit, setShouldSubmit] = useState(false);
-
-    //for industry used master data
-    const [selectedIndustry, setSelectedIndustry] = useState('');
-    const [showDropdownIndustry, setShowDropdownIndustry] = useState(false);
-    const toggleDropdownIndustry = () => {
-        setShowDropdownIndustry(!showDropdownIndustry);
-    };
-
-    const [industries, setIndustries] = useState([]);
-    useEffect(() => {
-        const fetchindustriesData = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/industries`);
-                setIndustries(response.data);
-            } catch (error) {
-                console.error('Error fetching industries data:', error);
-            }
-        };
-        fetchindustriesData();
-    }, []);
-
-    //for location used master data 
-
-    const toggleDropdownLocation = () => {
-        setShowDropdownLocation(!showDropdownLocation);
-    };
-    const [locations, setLocations] = useState([]);;
-
-    useEffect(() => {
-        const fetchlocationsData = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/locations`);
-                setLocations(response.data);
-            } catch (error) {
-                console.error('Error fetching locations data:', error);
-            }
-        };
-        fetchlocationsData();
-    }, []);
-
-    // currentroles  fetching from master table
-
-    const [selectedCurrentRole, setSelectedCurrentRole] = useState('');
-    const [showDropdownCurrentRole, setShowDropdownCurrentRole] = useState(false);
-    const [CurrentRole, setCurrentRole] = useState([]);
 
     const toggleCurrentRole = () => {
         setShowDropdownCurrentRole(!showDropdownCurrentRole);
     };
 
-    useEffect(() => {
-        const fetchsetcurrentrolesData = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/roles`);
-                setCurrentRole(response.data);
-            } catch (error) {
-                console.error('Error fetching roles data:', error);
-            }
-        };
-        fetchsetcurrentrolesData();
-    }, []);
 
     const handleRoleSelect = (role) => {
         setSelectedCurrentRole(role);
@@ -357,66 +342,56 @@ const MultiStepForm = () => {
         setCurrentroleError('');
     };
 
-    //technology fetching from master data 
-    const [services, setServices] = useState([]);
-    console.log(services)
+
     useEffect(() => {
-        const fetchtechnologyData = async () => {
+        const fetchData = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/technology`);
-                setServices(response.data);
+                const skillsData = await fetchMasterData('skills');
+                setSkills(skillsData);
+
+                const technologyData = await fetchMasterData('technology');
+                setServices(technologyData);
+                const rolesData = await fetchMasterData('roles');
+                setCurrentRole(rolesData);
+
+                const locationsData = await fetchMasterData('locations');
+                setLocations(locationsData);
+
+                const industriesData = await fetchMasterData('industries');
+                setIndustries(industriesData);
             } catch (error) {
-                console.error('Error fetching roles data:', error);
+                console.error('Error fetching master data:', error);
             }
         };
-        fetchtechnologyData();
+
+        fetchData();
     }, []);
-
-
-    const [selectedCandidates, setSelectedCandidates] = useState([]);
-
-    const popupRef = useRef(null);
-
 
     const handleRemoveCandidate = (index) => {
         setSelectedCandidates(selectedCandidates.filter((_, i) => i !== index));
     };
+
     const clearRemoveCandidate = () => {
         setSelectedCandidates([]);
     };
+
     const handleClickOutside = (event) => {
         if (popupRef.current && !popupRef.current.contains(event.target)) {
             setShowPopup(false);
         }
     };
+
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
+
     const togglePopup = () => {
         setShowPopup((prev) => !prev);
     };
 
-    const [skills, setSkills] = useState([]);
-    console.log(skills)
-
-    useEffect(() => {
-        const fetchSkillsData = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-                setSkills(response.data);
-            } catch (error) {
-                console.error('Error fetching roles data:', error);
-            }
-        };
-        fetchSkillsData();
-    }, []);
-
-    const [selectedSkills, setSelectedSkills] = useState([])
-    const [showSkillsPopup, setShowSkillsPopup] = useState(false);
-    const skillsPopupRef = useRef(null);
 
     const handleRemoveSkill = (index) => {
         setSelectedSkills(selectedSkills.filter((_, i) => i !== index));
@@ -443,39 +418,9 @@ const MultiStepForm = () => {
         setShowSkillsPopup((prev) => !prev);
     };
 
-
-
-    const [previousExperience, setPreviousExperience] = useState('');
-
-    const [expertiseLevel, setExpertiseLevel] = useState('');
-
-    const [selectedOption, setSelectedOption] = useState(null);
-
-    const navigate = useNavigate();
-
-    const [times, setTimes] = useState({
-        Sunday: [{ startTime: null, endTime: null }],
-        Monday: [{ startTime: null, endTime: null }],
-        Tuesday: [{ startTime: null, endTime: null }],
-        Wednesday: [{ startTime: null, endTime: null }],
-        Thursday: [{ startTime: null, endTime: null }],
-        Friday: [{ startTime: null, endTime: null }],
-        Saturday: [{ startTime: null, endTime: null }]
-    });
-
-    const [showPopup1, setShowPopup1] = useState(false);
-    const [selectedDay, setSelectedDay] = useState(null);
-    const [selectedDays, setSelectedDays] = useState([]);
-    const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
-
     const handleCopy = (event, day) => {
         setSelectedDay(day);
         setSelectedDays([day]);
-        const buttonRect = event.target.getBoundingClientRect();
-        setPopupPosition({
-            top: buttonRect.bottom + window.scrollY,
-            left: buttonRect.left + window.scrollX
-        });
         setShowPopup1(true);
     };
 
@@ -515,119 +460,69 @@ const MultiStepForm = () => {
         });
     };
 
-
-    const [formData, setFormData] = useState({
-        Name: "" || user.name,
-        Firstname: "",
-        UserId: "",
-        Email: user.email || "",
-        Phone: "",
-        LinkedinUrl: "",
-        // ImageData: "",
-        CountryCode: "+91",
-        Gender: ""
-    });
-
-    console.log(formData)
-    const [formData2, setFormData2] = useState({
-        CurrentRole: "",
-        industry: "",
-        Experience: "",
-        location: "",
-        Introduction: "",
-    });
-    console.log(formData2)
-
-    const [formData3, setFormData3] = useState({
-        Technology: [],
-        Skill: [],
-        previousExperience: "",
-        expertiseLevel: "",
-        experienceYears: ""
-    });
-
-    console.log(formData3)
-
-    const [formData4, setFormData4] = useState({
-        TimeZone: "",
-        PreferredDuration: "",
-        Availability: ""
-    });
-
-    console.log("formData4", formData4)
-
-    const [charCount, setCharCount] = useState(0);
-
     const handleChange = async (e) => {
         const { name, value } = e.target;
+        const formDataMap = {
+            CurrentRole: setFormData2,
+            Experience: setFormData2,
+            Introduction: setFormData2,
+            TimeZone: setFormData4
+        };
 
-        if (['CurrentRole', 'Experience', 'Introduction'].includes(name)) {
-            setFormData2({ ...formData2, [name]: value });
-        } else if (name === 'TimeZone') {
-            setFormData4({ ...formData4, [name]: value });
-            setTimeZoneError('');
+        // Update form data
+        if (formDataMap[name]) {
+            formDataMap[name](prevState => ({ ...prevState, [name]: value }));
         } else {
-            setFormData({ ...formData, [name]: value });
+            setFormData(prevState => ({ ...prevState, [name]: value }));
         }
 
-        if (name === 'Name' && value) {
-            setNameError('');
+        // Clear errors
+        const errorMap = {
+            Name: setNameError,
+            UserId: setUserIdError,
+            Gender: setGenderError,
+            Email: setEmailError,
+            Phone: setPhoneError,
+            LinkedinUrl: setLinkedinurlError,
+            CurrentRole: setCurrentroleError,
+            Experience: setExperienceError,
+            Introduction: setIntroductionError,
+            TimeZone: setTimeZoneError
+        };
+
+        if (errorMap[name] && value) {
+            errorMap[name]('');
         }
-        if (name === 'UserId' && value) {
-            setUserIdError('');
-        }
-        if (name === 'Gender' && value) {
-            setGenderError('');
-        }
-        if (name === 'Email' && value) {
-            setEmailError('');
-        }
-        if (name === 'Phone' && value) {
-            setPhoneError('');
-        }
-        if (name === 'LinkedinUrl' && value) {
-            setLinkedinurlError('');
-        }
-        if (name === 'CurrentRole' && value) {
-            setCurrentroleError('');
-        }
-        if (name === 'Experience' && value) {
-            setExperienceError('');
-        }
-        if (name === 'Introduction' && value) {
-            setIntroductionError('');
+
+        // Set character count for Introduction
+        if (name === 'Introduction') {
             setCharCount(value.length);
         }
 
-        // Check for User ID availability
-        if (name === "UserId") {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/check-userid/${value}`);
-                if (response.data.exists) {
-                    setUserIdError('That User ID is already taken. Please choose another.');
-                } else {
-                    setUserIdError('');
+        // Check if UserId or Email is unique
+        const asyncValidationMap = {
+            UserId: async () => {
+                try {
+                    const response = await axios.get(`${process.env.REACT_APP_API_URL}/check-userid/${value}`);
+                    setUserIdError(response.data.exists ? 'That User ID is already taken. Please choose another.' : '');
+                } catch (error) {
+                    console.error('Error checking User ID:', error);
                 }
-            } catch (error) {
-                console.error('Error checking User ID:', error);
+            },
+            Email: async () => {
+                try {
+                    const response = await axios.get(`${process.env.REACT_APP_API_URL}/check-email/${value}`);
+                    setEmailError(response.data.exists ? 'That email is already in use. Please choose another.' : '');
+                } catch (error) {
+                    console.error('Error checking Email:', error);
+                }
             }
-        }
+        };
 
-        // Check for Email availability
-        if (name === "Email") {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/check-email/${value}`);
-                if (response.data.exists) {
-                    setEmailError('That email is already in use. Please choose another.');
-                } else {
-                    setEmailError('');
-                }
-            } catch (error) {
-                console.error('Error checking Email:', error);
-            }
+        if (asyncValidationMap[name]) {
+            asyncValidationMap[name]();
         }
     };
-
 
     const handleIndustrySelect = (industry) => {
         setSelectedIndustry(industry.IndustryName);
@@ -639,7 +534,6 @@ const MultiStepForm = () => {
         setIndustryError('');
     };
 
-
     const handleSelectCandidate = (service) => {
         if (!selectedCandidates.includes(service)) {
             setSelectedCandidates((prev) => [...prev, service]);
@@ -650,7 +544,6 @@ const MultiStepForm = () => {
         }
         setShowPopup(false);
         setTechnologyError('');
-
     };
 
     const handleSelectSkill = (skill) => {
@@ -665,13 +558,10 @@ const MultiStepForm = () => {
         setSkillError('');
     };
 
-
     const handleRadioChange = (e) => {
         const value = e.target.value;
         setPreviousExperience(value);
         setPreviousExperienceError('');
-
-        // Update formData3 with the new value
         setFormData3((prev) => ({
             ...prev,
             previousExperience: value,
@@ -682,24 +572,18 @@ const MultiStepForm = () => {
         const value = e.target.value;
         setExpertiseLevel(value);
         setExpertiseLevelError('');
-
-        // Update formData3 with the new value
         setFormData3((prev) => ({
             ...prev,
             expertiseLevel: value,
         }));
     };
-    const [experienceYears, setExperienceYears] = useState(''); // New state for years of experience
-    console.log("experienceYears", experienceYears)
 
     const handleChangeExperienceYears = (e) => {
         const value = e.target.value;
-        setExperienceYears(value); // Update state
-
-        // Update formData3 with the new value
+        setExperienceYears(value);
         setFormData3((prev) => ({
             ...prev,
-            experienceYears: value, // Ensure this line is present
+            experienceYears: value,
         }));
     };
 
@@ -708,143 +592,99 @@ const MultiStepForm = () => {
         setPreferredDurationError('');
     };
 
-
-
     const handleSubmit = async (e) => {
         e.preventDefault();
-        let hasError = false
-        if (!formData.Name) {
-            setNameError('Last Name is required');
-            hasError = true
-        }
+        let hasError = false;
 
-        if (hasError) return; // Prevent submission if errors exist
+        // Validation function
+        const validateField = (field, errorSetter, errorMsg) => {
+            if (!field) {
+                errorSetter(errorMsg);
+                hasError = true;
+            } else {
+                errorSetter('');
+            }
+        };
 
+        // Validate Step 0
+        validateField(formData.Name, setNameError, 'Last Name is required');
+        validateField(formData.UserId, setUserIdError, 'UserId is required');
+        validateField(selectedGender, setGenderError, 'Gender is required');
+        validateField(formData.Email, setEmailError, 'Email is required');
+        validateField(formData.Phone, setPhoneError, 'Phonenumber is required');
+        validateField(formData.LinkedinUrl, setLinkedinurlError, 'LinkedIn URL is required');
+
+        // Validate Step 1
+        validateField(formData2.CurrentRole, setCurrentroleError, 'Current Role is required');
+        validateField(selectedIndustry, setIndustryError, 'Industry is required');
+        validateField(formData2.Experience, setExperienceError, 'Experience is required');
+        validateField(selectedLocation, setLocationError, 'Location is required');
+        validateField(formData2.Introduction, setIntroductionError, 'Introduction is required');
+
+        // Validate Step 2
+        validateField(selectedCandidates.length, setTechnologyError, 'Technology is required');
+        validateField(selectedSkills.length, setSkillError, 'Skill is required');
+        validateField(previousExperience, setPreviousExperienceError, 'Previous Experience is required');
+        validateField(expertiseLevel, setExpertiseLevelError, 'Expertise Level is required');
+
+        // Validate Step 3
+        const hasValidTimeSlot = Object.values(times).some(dayTimes =>
+            dayTimes.some(slot => slot.startTime && slot.endTime)
+        );
+        validateField(hasValidTimeSlot, setTimesError, 'At least one valid time slot is required');
+        validateField(formData4.TimeZone, setTimeZoneError, 'Time Zone is required');
+        validateField(selectedOption, setPreferredDurationError, 'Preferred Interview Duration is required');
+
+        if (hasError) return;
+
+        // Prepare data for submission
         const userData = {
             Name: formData.Name,
             sub: user.sub,
-            Firstname: formData.Firstname,
-            CountryCode: formData.CountryCode,
-            UserId: formData.UserId,
-            Email: formData.Email,
-            Phone: formData.Phone,
-            LinkedinUrl: formData.LinkedinUrl,
+            ...formData,
             Gender: selectedGender,
             isFreelancer: 'yes',
             CreatedBy: 'Admin'
         };
 
-        console.log('Submitting form with userData:', userData);
-
         const contactData = {
-            ...formData,
-            ...formData2,
-            ...formData3,
+            ...formData, ...formData2, ...formData3,
             Gender: selectedGender,
             industry: selectedIndustry,
             location: selectedLocation,
             CurrentRole: selectedCurrentRole,
-            Technology: selectedCandidates.map(candidate => candidate.TechnologyMasterName),
-            Skill: selectedSkills.map(skill => skill.SkillName),
+            Technology: selectedCandidates.map(c => c.TechnologyMasterName),
+            Skill: selectedSkills.map(s => s.SkillName),
             TimeZone: selectedTimezone.value,
             PreferredDuration: selectedOption,
-            isFreelancer: 'yes'
+
         };
-
-        console.log('Submitting form with data:', contactData);
-
 
         const availabilityData = Object.keys(times).map(day => ({
             day,
-            timeSlots: times[day].filter(slot => slot.startTime && slot.endTime).map(slot => ({
-                ...slot,
-                day // Ensure the day field is included in each time slot
-            }))
+            timeSlots: times[day].filter(slot => slot.startTime && slot.endTime)
+                .map(slot => ({ startTime: slot.startTime, endTime: slot.endTime }))
         })).filter(dayData => dayData.timeSlots.length > 0);
-
-        console.log('Submitting form with availabilityData:', availabilityData);
 
         try {
             const userResponse = await axios.post(`${process.env.REACT_APP_API_URL}/users`, userData);
-            console.log('User saved successfully:', userResponse.data);
+            const contactResponse = await axios.post(`${process.env.REACT_APP_API_URL}/contacts`, { ...contactData, user: userResponse.data._id });
 
-            contactData.user = userResponse.data._id;
-            const contactResponse = await axios.post(`${process.env.REACT_APP_API_URL}/contacts`, contactData);
-            console.log('Contact saved successfully:', contactResponse.data);
-
-            const availabilityIds = [];
-
-            for (const availability of availabilityData) {
-                availability.contact = contactResponse.data._id;
-                const availabilityResponse = await axios.post(`${process.env.REACT_APP_API_URL}/loginavailability`, availability);
-                console.log('Availability saved successfully:', availabilityResponse.data);
-                availabilityIds.push(availabilityResponse.data._id);
-            }
-
-            // Update contact with availability IDs
-            await axios.put(`${process.env.REACT_APP_API_URL}/contacts/${contactResponse.data._id}`, { availability: availabilityIds });
-
-            localStorage.setItem('userId', userResponse.data._id);
+            localStorage.setItem('contactId', contactResponse.data._id);
+            // localStorage.setItem('userId', userResponse.data._id);
+            Cookies.set('userId', userResponse.data._id, { expires: 7 });
             localStorage.setItem('sub', user.sub);
 
-            if (file || user.picture) {
-                const imageData = new FormData();
-                if (file) {
-                    imageData.append("image", file);
-                } else {
-                    imageData.append("imageUrl", user.picture);
-                }
-                imageData.append("type", "user");
-                imageData.append("id", userResponse.data._id);
-
-                try {
-                    await axios.post(`${process.env.REACT_APP_API_URL}/upload`, imageData, {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                    });
-                } catch (error) {
-                    console.error("Error uploading image:", error);
-                    return;
-                }
-
-                // Upload image for contact
-                imageData.set("type", "contact");
-                imageData.set("id", contactResponse.data._id);
-
-                try {
-                    await axios.post(`${process.env.REACT_APP_API_URL}/upload`, imageData, {
-                        headers: {
-                            "Content-Type": "multipart/form-data",
-                        },
-                    });
-                } catch (error) {
-                    console.error("Error uploading image for contact:", error);
-                    return;
-                }
-            }
+            await axios.post(`${process.env.REACT_APP_API_URL}/interviewavailability`, {
+                contact: contactResponse.data._id,
+                days: availabilityData
+            });
 
             navigate('/home', { state: { data: userResponse.data } });
-
         } catch (error) {
-            console.error('Error saving contact or user:', error);
-            // Handle the error appropriately
-            if (error.response) {
-                console.error('Server responded with status:', error.response.status);
-                console.error('Response data:', error.response.data);
-            } else if (error.request) {
-                console.error('No response received:', error.request);
-            } else {
-                console.error('Error setting up request:', error.message);
-            }
+            console.error("Error saving data:", error);
         }
     };
-
-    //gender
-    const [selectedGender, setSelectedGender] = useState('');
-    console.log("selectedGender", selectedGender)
-    const [showDropdowngender, setShowDropdownGender] = useState(false);
-    const genders = ['Male', 'Female', 'Prefer not to say', 'Others'];
 
     const toggleDropdowngender = () => {
         setShowDropdownGender(!showDropdowngender);
@@ -859,56 +699,27 @@ const MultiStepForm = () => {
         }));
         setGenderError('')
     }
-    const location = useLocation();
-    const isFreelancer = location.state?.isFreelancer;
-    console.log('Is Freelancer:', isFreelancer); // Debugging line
-
-
-    const [images, setImages] = useState([]);
-
-    // const [charCount, setCharCount] = useState(0);
 
     const handleCountryCodeChange = (e) => {
         setFormData({ ...formData, CountryCode: e.target.value });
     };
+
     const handlePhoneInput = (e) => {
         const value = e.target.value;
         if (value.length <= 10) {
             handleChange(e);
         }
     };
-    const [searchTermCurrentRole, setSearchTermCurrentRole] = useState('');
-    const [searchTermIndustry, setSearchTermIndustry] = useState('');
 
     const filteredCurrentRoles = CurrentRole.filter(role =>
         role.RoleName.toLowerCase().includes(searchTermCurrentRole.toLowerCase())
     );
 
-    const filteredIndustries = industries.filter(industry =>
-        industry.IndustryName.toLowerCase().includes(searchTermIndustry.toLowerCase())
-    );
-
-    const filteredLocations = locations.filter(location =>
-        location.LocationName && location.LocationName.toLowerCase().includes(searchTermLocation.toLowerCase())
-    );
-    const [searchTermTechnology, setSearchTermTechnology] = useState('');
-    const [searchTermSkills, setSearchTermSkills] = useState('');
-
-
-
-    // image code
-    const [file, setFile] = useState(null);
-    const [filePreview, setFilePreview] = useState(user.picture ? user.picture : null);
-    const [showImagePopup, setShowImagePopup] = useState(false);
-    const [isImageUploaded, setIsImageUploaded] = useState(false);
-    const fileInputRef = useRef(null);
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (selectedFile) {
             setFile(selectedFile);
             setFilePreview(URL.createObjectURL(selectedFile));
-            setIsImageUploaded(true);
-
         }
     };
 
@@ -923,17 +734,6 @@ const MultiStepForm = () => {
         setFilePreview(null);
     };
 
-    const handleContinue = (e) => {
-        e.preventDefault();
-        setShowImagePopup(false);
-        handleSubmit(e, false);
-    };
-
-
-
-
-
-
     const handleLocationSelect = (location) => {
         setSelectedLocation(location.LocationName);
         setFormData2((prevState) => ({
@@ -942,8 +742,6 @@ const MultiStepForm = () => {
         }));
         setShowDropdownLocation(false);
         setLocationError('');
-
-        // Set timezone based on location data from the backend
         const timezone = location.TimeZone || moment.tz.guess();
         setSelectedTimezone({ value: timezone, label: timezone });
         setFormData4((prevState) => ({
@@ -975,11 +773,20 @@ const MultiStepForm = () => {
         }
     }, [selectedLocation, locations]);
 
+    const handlePrevStep = () => {
+        if (step === 0) {
+            navigate('/profile3');
+        } else {
+            setStep(step - 1);
+        }
+    };
+
     return (
         <>
             <div className="border-b p-4">
                 <p className="font-bold text-xl">LOGO</p>
             </div>
+
             <div className="flex justify-center gap-3 mt-10">
                 <div className={`rounded h-2 w-24 border ${step === 0 ? 'bg-blue-500' : step > 0 ? 'bg-green-500' : 'bg-gray-400'}`}></div>
                 <div className={`rounded h-2 w-24 border ${step === 1 ? 'bg-blue-500' : step > 1 ? 'bg-green-500' : 'bg-gray-400'}`}></div>
@@ -1104,8 +911,7 @@ const MultiStepForm = () => {
                                         <select
                                             name="CountryCode"
                                             id="CountryCode"
-                                            // value={formData.CountryCode}
-                                            value={formData.CountryCode || "+91"} // Set default value to +91
+                                            value={formData.CountryCode || "+91"}
 
                                             onChange={handleCountryCodeChange}
                                             className="border-b focus:outline-none mb-5 w-20"
@@ -1198,7 +1004,14 @@ const MultiStepForm = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="col-span-2 flex justify-end mb-4">
+                        <div className="col-span-2 flex justify-between mb-4">
+                            <button
+                                onClick={handlePrevStep}
+                                className="w-40 h-10 p-2 rounded-lg text-md bg-gray-300 hover:bg-gray-400"
+                                type="button"
+                            >
+                                Prev
+                            </button>
                             <button
                                 onClick={handleNextStep}
                                 className="w-40 h-10 p-2 rounded-lg text-md bg-gray-300 hover:bg-gray-400"
@@ -1210,7 +1023,7 @@ const MultiStepForm = () => {
                     </div>
                 )}
                 {step === 1 && (
-                    <div className="mx-10 mt-7 grid grid-cols-1 gap-8"> {/* Changed to single column layout */}
+                    <div className="mx-10 mt-7 grid grid-cols-1 gap-8">
                         <div className="text-2xl font-bold mb-8">Additional Details:</div>
 
                         {/* Current Role */}
@@ -1429,7 +1242,7 @@ const MultiStepForm = () => {
 
 
                 {step === 2 && (
-                    <div className="mx-10 mt-7 grid grid-cols-1 gap-2"> {/* Changed to single column layout */}
+                    <div className="mx-10 mt-7 grid grid-cols-1 gap-2">
                         <div className="text-2xl font-bold mb-5 mt-10 ml-5">
                             Interview Details:
                         </div>
@@ -1444,7 +1257,7 @@ const MultiStepForm = () => {
                                 >
                                     {selectedCandidates.map((candidate, index) => (
                                         <div key={index} className="bg-slate-200 rounded px-2 m-1 py-1 inline-block mr-2 text-sm">
-                                            {candidate.TechnologyMasterName} {/* Ensure you access the correct property */}
+                                            {candidate.TechnologyMasterName}
                                             <button type="button" onClick={() => handleRemoveCandidate(index)} className="ml-2 bg-gray-300 rounded px-2">x</button>
                                         </div>
                                     ))}
@@ -1474,8 +1287,8 @@ const MultiStepForm = () => {
                                                 service.TechnologyMasterName.toLowerCase().includes(searchTermTechnology.toLowerCase())
                                             ).map((service) => (
                                                 <div
-                                                    key={service._id} // Ensure this is unique
-                                                    onClick={() => handleSelectCandidate(service)} // Ensure you have a function to handle selection
+                                                    key={service._id}
+                                                    onClick={() => handleSelectCandidate(service)}
                                                     className="cursor-pointer hover:bg-gray-200 p-2"
                                                 >
                                                     {service.TechnologyMasterName}
@@ -1504,7 +1317,7 @@ const MultiStepForm = () => {
 
                                     {selectedSkills.map((skill, index) => (
                                         <div key={index} className="bg-slate-200 rounded px-2 py-1 m-1 inline-block mr-2 text-sm">
-                                            {skill.SkillName} {/* Access the correct property */}
+                                            {skill.SkillName}
                                             <button type="button" onClick={() => handleRemoveSkill(index)} className="ml-2 bg-gray-300 rounded px-2">x</button>
                                         </div>
                                     ))}
@@ -1535,8 +1348,8 @@ const MultiStepForm = () => {
                                                 skill.SkillName.toLowerCase().includes(searchTermSkills.toLowerCase())
                                             ).map((skill) => (
                                                 <div
-                                                    key={skill._id} // Ensure this is unique
-                                                    onClick={() => handleSelectSkill(skill)} // Ensure you have a function to handle selection
+                                                    key={skill._id}
+                                                    onClick={() => handleSelectSkill(skill)}
                                                     className="cursor-pointer hover:bg-gray-200 p-2"
                                                 >
                                                     {skill.SkillName}
@@ -1821,25 +1634,25 @@ const MultiStepForm = () => {
                             <div className="mt-10">
                                 {/* Time Zone */}
                                 <div className="flex mb-7 mt-4 overflow-visible">
-                <div>
-                    <label
-                        htmlFor="TimeZone"
-                        className="block text-sm font-medium leading-6 text-gray-900 w-20"
-                    >
-                        Time Zone <span className="text-red-500">*</span>
-                    </label>
-                </div>
-                <div className="flex-grow w-full overflow-visible -mt-1">
-                    <div className="w-full overflow-visible">
-                        <TimezoneSelect
-                            value={selectedTimezone}
-                            onChange={handleTimezoneChange}
-                            className="TimezonePicker ml-5"
-                        />
-                        {timeZoneError && <p className="text-red-500 text-sm ml-5 mt-2">{timeZoneError}</p>}
-                    </div>
-                </div>
-            </div>
+                                    <div>
+                                        <label
+                                            htmlFor="TimeZone"
+                                            className="block text-sm font-medium leading-6 text-gray-900 w-20"
+                                        >
+                                            Time Zone <span className="text-red-500">*</span>
+                                        </label>
+                                    </div>
+                                    <div className="flex-grow w-full overflow-visible -mt-1">
+                                        <div className="w-full overflow-visible">
+                                            <TimezoneSelect
+                                                value={selectedTimezone}
+                                                onChange={handleTimezoneChange}
+                                                className="TimezonePicker ml-5"
+                                            />
+                                            {timeZoneError && <p className="text-red-500 text-sm ml-5 mt-2">{timeZoneError}</p>}
+                                        </div>
+                                    </div>
+                                </div>
 
                                 {/* preferred interview */}
                                 <div>

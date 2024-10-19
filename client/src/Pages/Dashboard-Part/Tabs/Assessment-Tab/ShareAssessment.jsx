@@ -6,13 +6,14 @@ import axios from "axios";
 import AddCandidateForm from "../Candidate-Tab/CreateCandidate";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-phone-input-2/lib/style.css";
-
+import { fetchFilterData, handleWebSocket } from '../../../../utils/dataUtils.js';
 const ShareAssessment = ({
   isOpen,
   onCloseshare,
   onOutsideClick,
   AssessmentTitle,
   assessmentId,
+  sharingPermissions
 }) => {
   const [formData, setFormData] = useState({
     AssessmentTitle: "",
@@ -61,34 +62,37 @@ const ShareAssessment = ({
 
   const userId = localStorage.getItem("userId");
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const fetchCandidateData = async () => {
+      setLoading(true);
       try {
-
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate?createdBy=${userId}`);
-        if (Array.isArray(response.data)) {
-          const candidatesWithImages = response.data.map((candidate) => {
-            if (candidate.ImageData && candidate.ImageData.filename) {
-              const imageUrl = `${process.env.REACT_APP_API_URL}/${candidate.ImageData.path.replace(/\\/g, '/')}`;
-              return { ...candidate, imageUrl };
-            }
-            return candidate;
-          });
-          setCandidateData(candidatesWithImages);
-        } else {
-          console.error('Expected an array but got:', response.data);
-        }
+        const filteredCandidates = await fetchFilterData('candidate', sharingPermissions);
+        const candidatesWithImages = filteredCandidates.map((candidate) => {
+          if (candidate.ImageData && candidate.ImageData.filename) {
+            const imageUrl = `${process.env.REACT_APP_API_URL}/${candidate.ImageData.path.replace(/\\/g, '/')}`;
+            return { ...candidate, imageUrl };
+          }
+          return candidate;
+        });
+        setCandidateData(candidatesWithImages);
       } catch (error) {
         console.error('Error fetching candidate data:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchCandidateData();
-  }, [userId]);
+  }, [sharingPermissions]);
 
-  const [InterviewQuestion] = useState([]);
+  const [InterviewQuestion, setInterviewQuestion] = useState([]);
 
-  const [selectedIcons2] = useState([]);
+  const [selectedIcons, setSelectedIcons] = useState([]);
+  const [selectedIcons2, setSelectedIcons2] = useState([]);
+  const [position] = useState("");
+
 
   const [showMainContent, setShowMainContent] = useState(true);
   const [showNewCandidateContent, setShowNewCandidateContent] = useState(false);
@@ -174,7 +178,7 @@ const ShareAssessment = ({
 
 
   if (!isOpen) return null;
-  const shareLink = `${process.env.REACT_APP_API_URL}/assessment/${assessmentId}/share`;
+  const shareLink = `http://localhost:3002/assessmenttest?assessmentId=${assessmentId}`;
 
 
   const handleShareClick = async () => {

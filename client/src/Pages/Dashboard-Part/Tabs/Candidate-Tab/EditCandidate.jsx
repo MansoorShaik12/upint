@@ -18,6 +18,9 @@ import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
 import { IoCloudUploadOutline } from "react-icons/io5";
 import { IoIosAddCircle } from "react-icons/io";
 import { FaTimes } from "react-icons/fa";
+import { fetchFilterData } from '../../../../utils/dataUtils.js';
+import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
+import { validateEmail, validatePhoneNumber, validateCandidateForm } from '../../../../utils/CandidateValidation';
 
 const UploadCard = ({ handleUploadClick, handleFileChange, handleClose }) => {
   const cardRef = useRef(null);
@@ -61,7 +64,7 @@ const UploadCard = ({ handleUploadClick, handleFileChange, handleClose }) => {
   );
 };
 
-const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) => {
+const CreateCandidate = ({ onClose, handleOutsideClick, candidate1,sharingPermissions}) => {
   const [showDropdown, setShowDropdown] = useState(false);
   const location = useLocation();
   const candidateData = location.state?.candidate || candidate1;
@@ -70,7 +73,8 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showUnsavedChangesPopup, setShowUnsavedChangesPopup] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-
+  const userId = localStorage.getItem("userId");
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     FirstName: "",
     LastName: "",
@@ -91,16 +95,6 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
 
   const [errors, setErrors] = useState({ Phone: '', Email: '', Position: '' });
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@gmail\.com$/;
-    return emailRegex.test(email);
-  };
-
-  const validatePhone = (phone) => {
-    const phoneRegex = /^[6-9]\d{9}$/;
-    return phoneRegex.test(phone);
-  };
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -114,7 +108,7 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
     } else if (name === 'Phone') {
       if (!value) {
         errorMessage = 'Phone number is required';
-      } else if (!validatePhone(value)) {
+      } else if (!validatePhoneNumber(value)) {
         errorMessage = 'Invalid phone number';
       }
     }
@@ -128,6 +122,26 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
       handleChange(e);
     }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const skillsData = await fetchMasterData('skills');
+        setSkills(skillsData);
+        setFilteredSkills(skillsData);
+
+        const qualificationData = await fetchMasterData('qualification');
+        setQualification(qualificationData);
+
+        const collegeData = await fetchMasterData('universitycollege');
+        setCollege(collegeData);
+      } catch (error) {
+        console.error('Error fetching master data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const [selectedQualification, setSelectedQualification] = useState(updatedCandidate.HigherQualification);
   const [selectedGender, setSelectedGender] = useState(updatedCandidate.Gender);
@@ -171,32 +185,7 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
   const handleSubmit = async (_id, e) => {
     e.preventDefault();
 
-    const requiredFields = {
-      LastName: "Last Name is required",
-      Email: "Email is required",
-      Phone: "Phone Number is required",
-      CurrentExperience: "Current Experience is required",
-      Position: "Position is required",
-    };
-    let formIsValid = true;
-    const newErrors = { ...errors };
-
-    Object.entries(requiredFields).forEach(([field, message]) => {
-      if (!formData[field] && !selectedPosition) {
-        newErrors[field] = message;
-        formIsValid = false;
-      }
-    });
-
-    if (!formIsValid) {
-      setErrors(newErrors);
-      return;
-    }
-
-    if (entries.length === 0) {
-      newErrors.skills = "At least one skill is required";
-      formIsValid = false;
-    }
+    const { formIsValid, newErrors } = validateCandidateForm(formData, entries, selectedPosition, errors);
     setErrors(newErrors);
 
     if (!formIsValid) {
@@ -309,18 +298,6 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
     }
   }, [updatedCandidate]);
 
-  useEffect(() => {
-    const fetchSkillsData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-        setSkills(response.data);
-        setFilteredSkills(response.data);
-      } catch (error) {
-        console.error('Error fetching skills data:', error);
-      }
-    };
-    fetchSkillsData();
-  }, []);
 
   const [startDate, setStartDate] = useState(new Date(updatedCandidate.Date_Of_Birth));
   const years = range(1990, getYear(new Date()) + 1, 1);
@@ -391,31 +368,11 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
 
 
   const [qualification, setQualification] = useState([]);
-  useEffect(() => {
-    const fetchQualificationData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/qualification`);
-        setQualification(response.data);
-      } catch (error) {
-        console.error('Error fetching Qualification data:', error);
-      }
-    };
-    fetchQualificationData();
-  }, []);
+
 
   const [college, setCollege] = useState([]);
 
-  useEffect(() => {
-    const fetchCollegeData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/universitycollege`);
-        setCollege(response.data);
-      } catch (error) {
-        console.error('Error fetching CollegeData:', error);
-      }
-    };
-    fetchCollegeData();
-  }, []);
+
 
 
   const [sidebarOpen1, setSidebarOpen1] = useState(false);
@@ -511,7 +468,7 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
     setSelectedExp(entry.experience);
     setSelectedLevel(entry.expertise);
     setEditingIndex(index);
-    setIsModalOpen(true); // Open the modal
+    setIsModalOpen(true);
   };
 
   const handleDelete = (index) => {
@@ -530,18 +487,6 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
   const cancelDelete = () => {
     setDeleteIndex(null);
   };
-
-  useEffect(() => {
-    const fetchSkillsData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-        setSkills(response.data);
-      } catch (error) {
-        console.error("Error fetching SkillsData:", error);
-      }
-    };
-    fetchSkillsData();
-  }, []);
 
 
   // const handleFileChange = (e) => {
@@ -645,18 +590,21 @@ const CreateCandidate = ({ isOpen, onClose, handleOutsideClick, candidate1 }) =>
 
 
   useEffect(() => {
+
     const fetchSkillsData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/position`);
-        console.log("Position data:", response.data);
-        setSkillsData(response.data);
-      } catch (error) {
-        console.error("Error fetching position data:", error);
-      }
+        setLoading(true);
+        try {
+            const filteredPositions = await fetchFilterData('position', sharingPermissions);
+            setSkillsData(filteredPositions);
+        } catch (error) {
+            console.error('Error fetching position data:', error);
+        } finally {
+            setLoading(false);
+        }
     };
 
     fetchSkillsData();
-  }, []);
+}, [sharingPermissions]);
 
 
   const handleCountryCodeChange = (e) => {

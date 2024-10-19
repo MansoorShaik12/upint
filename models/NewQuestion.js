@@ -143,6 +143,8 @@ const newQuestionSchema = new mongoose.Schema({
     createdBy: String,
     ModifiedDate: Date,
     ModifiedBy: String,
+    orgId: String,
+    OwnerId: String,
 });
 
 newQuestionSchema.pre('save', function (next) {

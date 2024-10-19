@@ -14,8 +14,14 @@ import AddQuestion1 from "../Assessment-Tab/AddQuestion1.jsx";
 import AddSection1 from "./AddSection1.jsx";
 import Editassesmentquestion from "./EditAssessmentquestion.jsx";
 import AddPositionForm from "../Interviews/Addpositionform.jsx";
+import { fetchFilterData } from "../../../../utils/dataUtils.js";
+import { validateAssessmentData } from '../../../../utils/assessmentValidation.js';
+import Cookies from 'js-cookie';
 
-const NewAssessment = forwardRef(({ onClose }, ref) => {
+
+const NewAssessment = forwardRef(({ onClose,sharingPermissions }) => {
+  const organizationId = Cookies.get("organizationId");
+  const positionPermissions = sharingPermissions.position || {};
   const [activeTab, setActiveTab] = useState("Basicdetails");
   const [position, setPosition] = useState("");
   const [startDate, setStartDate] = useState(null);
@@ -57,6 +63,8 @@ const NewAssessment = forwardRef(({ onClose }, ref) => {
   const [isBulkDelete, setIsBulkDelete] = useState(false);
   const sidebarRefForSection = useRef(null);
   const popupRef = useRef(null);
+  const [loading, setLoading] = useState(true);
+
   const [formData, setFormData] = useState({
     AssessmentTitle: '',
     AssessmentType: '',
@@ -125,38 +133,8 @@ const NewAssessment = forwardRef(({ onClose }, ref) => {
   const handleCombinedSubmit = (e, path = null) => {
     e.preventDefault();
 
-    const requiredFields = {
-      AssessmentTitle: 'Assessment Title is required',
-      AssessmentType: 'Assessment Type is required',
-      Duration: 'Duration is required',
-      DifficultyLevel: 'Difficulty Level is required',
-      NumberOfQuestions: 'Number Of Questions is required',
-      Position: 'Position is required',
-      ExpiryDate: 'Expiry Date is required',
-    };
-
-    let formIsValid = true;
-    const newErrors = {};
-
-    Object.entries(requiredFields).forEach(([field, message]) => {
-      if (!formData[field] || (Array.isArray(formData[field]) && formData[field].length === 0)) {
-        newErrors[field] = message;
-        formIsValid = false;
-      }
-    });
-
-    if (!selectedPosition) {
-      newErrors.Position = 'Position is required';
-      formIsValid = false;
-    }
-
-    if (selectedAssessmentType.length === 0) {
-      newErrors.AssessmentType = 'Assessment Type is required';
-      formIsValid = false;
-    }
-
-
-    if (!formIsValid) {
+    const newErrors = validateAssessmentData(formData);
+    if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
@@ -193,9 +171,15 @@ const NewAssessment = forwardRef(({ onClose }, ref) => {
             ProgrammingDetails: question.ProgrammingDetails || null
           }))
         })),
-        CreatedBy: userId,
+        CreatedById: userId,
+        LastModifiedById: userId,
+        OwnerId: userId,
         CreatedDate: new Date()
       };
+    
+      if (organizationId) {
+        assessmentData.orgId = organizationId;
+    }
 
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/assessment`, assessmentData);
       console.log(response.data);
@@ -406,7 +390,7 @@ const NewAssessment = forwardRef(({ onClose }, ref) => {
     setShowNewPositionContent(false);
   };
 
-  const userId = localStorage.getItem("userId");
+  const userId = Cookies.get("userId");
 
 
   const toggleSidebarAddQuestion = (SectionName) => {
@@ -441,18 +425,24 @@ const NewAssessment = forwardRef(({ onClose }, ref) => {
     setCurrentSectionName(question.SectionName);
   };
 
-  useEffect(() => {
-    const fetchPositionsData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/position?CreatedBy=${userId}`);
-        setPositions(response.data);
-      } catch (error) {
-        console.error("Error fetching position data:", error);
-      }
-    };
 
-    fetchPositionsData();
-  }, [userId]);
+
+useEffect(() => {
+  const fetchSkillsData = async () => {
+      setLoading(true);
+      try {
+          const filteredPositions = await fetchFilterData('position', positionPermissions);
+          setPositions(filteredPositions);
+      } catch (error) {
+          console.error('Error fetching position data:', error);
+      } finally {
+          setLoading(false);
+      }
+  };
+
+  fetchSkillsData();
+
+}, [positionPermissions]);
 
   const toggleDropdownPosition = (e) => {
     e.stopPropagation();

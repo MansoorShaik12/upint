@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-phone-input-2/lib/style.css";
 
-const NewInterviewRequest = forwardRef(({ isOpen, onClose, onOutsideClick }, ref) => {
+const NewInterviewRequest = forwardRef(({onClose, onOutsideClick }, ref) => {
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [skillsData, setSkillsData] = useState(() => {
     const storedSkillsData = localStorage.getItem("skillsData");
+
     return storedSkillsData ? JSON.parse(storedSkillsData) : [];
   });
 
@@ -281,13 +282,11 @@ const NewInterviewRequest = forwardRef(({ isOpen, onClose, onOutsideClick }, ref
   return (
     <div
     ref={ref}
-      className={`fixed inset-0 bg-black bg-opacity-15 z-50 ${
-        isOpen ? "visible" : "invisible"
-      }`}
+      className="fixed inset-0 bg-black bg-opacity-15 z-50"
     >
       <div
         style={{ width: "40%" }}
-        className="fixed inset-y-0 right-0 z-50 bg-white shadow-lg transition-transform duration-5000 transform ${isOpen ? 'translate-x-0' : 'translate-x-full'}"
+        className="fixed inset-y-0 right-0 z-50 bg-white shadow-lg transition-transform duration-5000 transform"
       >
         {/* Header */}
         <div className="fixed top-0 w-full bg-white border-b z-50">

@@ -13,9 +13,13 @@ import "react-datepicker/dist/react-datepicker.css";
 import { GiCancel } from "react-icons/gi";
 import { IoIosCopy } from "react-icons/io";
 import TimezoneSelect from 'react-timezone-select';
+import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
+import { validateFormData, validateAvailability } from '../../../../utils/teamValidation.js';
+import Cookies from 'js-cookie';
 
 const CreateTeams = forwardRef(({ onClose, onOutsideClick }, ref) => {
-  const userId = localStorage.getItem("userId");
+  // const userId = localStorage.getItem("userId");
+  const userId = Cookies.get("userId");
     const [selectedTimezone1, setSelectedTimezone1] = useState({});
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false);
@@ -39,11 +43,6 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick }, ref) => {
   });
   const [errors, setErrors] = useState({});
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
   const validatePhone = (phone) => {
     const phoneRegex = /^[6-9]\d{9}$/;
     return phoneRegex.test(phone);
@@ -58,42 +57,43 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick }, ref) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    let errorMessage = "";
-
-    if (name === "FirstName" && !value) {
-      errorMessage = "First Name is required";
-    }
-
-    if (name === 'TimeZone') {
-      setTimeZoneError('');
-    }
-
-    if (name === "Email") {
-      if (!value) {
-        errorMessage = "Email is required";
-      } else if (!validateEmail(value)) {
-        errorMessage = "Invalid email address";
-      }
-    } else if (name === "Phone") {
-      if (!value) {
-        errorMessage = "Phone number is required";
-      } else if (!validatePhone(value)) {
-        errorMessage = "Invalid phone number";
-      }
-    } else if (name === "CurrentRole" || name === "Location" || name === "TimeZone") {
-      if (!value) {
-        errorMessage = `${name} is required`;
-      }
-    }
-
     setFormData({ ...formData, [name]: value });
-    setErrors({ ...errors, [name]: errorMessage });
 
+    const newErrors = validateFormData({ ...formData, [name]: value }, entries);
+
+    if (name === "Phone" && validatePhone(value)) {
+      delete newErrors.Phone;
+    }
+
+    setErrors(newErrors);
     setUnsavedChanges(true);
   };
+
   const [isImageUploaded, setIsImageUploaded] = useState(false);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const skillsData = await fetchMasterData('skills');
+        setSkills(skillsData);
 
+        const technologyData = await fetchMasterData('technology');
+        setTechnology(technologyData);
+
+        const locationsData = await fetchMasterData('locations');
+        setLocations(locationsData);
+
+        const companiesData = await fetchMasterData('company');
+        setCompanies(companiesData);
+      } catch (error) {
+        console.error('Error fetching master data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const [skills, setSkills] = useState([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -113,43 +113,16 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick }, ref) => {
     fetchData();
   }, [userId]);
 
-
   const handleNext = (e) => {
     e.preventDefault();
 
-    const requiredFields = {
-      LastName: "Last Name is required",
-      Email: "Email is required",
-      Phone: "Phone Number is required",
-      Technology: "Technology is required",
-      Location: "Location is required",
-      CurrentRole: "Current Role is required",
-    };
-
-    let formIsValid = true;
-    const newErrors = { ...errors };
-
-    // Check if at least one skill is added
-    if (entries.length === 0) {
-      newErrors.skills = "At least one skill is required";
-      formIsValid = false;
-    }
-
-    Object.entries(requiredFields).forEach(([field, message]) => {
-      if (!formData[field]) {
-        newErrors[field] = message;
-        formIsValid = false;
-      }
-    });
-
-    if (!formIsValid) {
+    const newErrors = validateFormData(formData, entries);
+    if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
 
     setCurrentPage("availability");
-
-
   };
 
   const handleBack = () => {
@@ -198,23 +171,7 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick }, ref) => {
     setPreferredDurationError("");
     setAvailabilityError("");
 
-    const newErrors = {};
-
-    const hasTimeSlots = Object.values(times).some(daySlots =>
-      daySlots.some(slot => slot.startTime && slot.endTime)
-    );
-
-    if (!hasTimeSlots) {
-      newErrors.availability = "At least one time slot must be selected.";
-    }
-
-    if (!formData.TimeZone) {
-      newErrors.timeZone = "Time Zone is required.";
-    }
-
-    if (!selectedOption) {
-      newErrors.preferredDuration = "Preferred Interview Duration is required.";
-    }
+    const newErrors = validateAvailability(times, formData, selectedOption);
 
     if (Object.keys(newErrors).length > 0) {
       setAvailabilityError(newErrors.availability);
@@ -243,8 +200,15 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick }, ref) => {
       })),
       PreferredDuration: selectedOption,
       TimeZone: formData.TimeZone,
-      CreatedBy:userId,
+      CreatedById: userId,
+      LastModifiedById: userId,
+      OwnerId: userId,
     };
+
+    const orgId = Cookies.get("organizationId");
+    if (orgId) {
+      teamData.orgId = orgId;
+    }
 
     const availabilityArray = [];
     Object.entries(times).forEach(([day, slots]) => {
@@ -353,17 +317,7 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick }, ref) => {
   const [showDropdownLocation, setShowDropdownLocation] = useState(false);
 
   // Fetch locations data
-  useEffect(() => {
-    const fetchLocationsData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/locations`);
-        setLocations(response.data);
-      } catch (error) {
-        console.error('Error fetching locations data:', error);
-      }
-    };
-    fetchLocationsData();
-  }, []);
+
 
 
   // Filter locations based on search term
@@ -394,36 +348,36 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick }, ref) => {
 
 
   // technology purpose
-  const technologies = [
-    "Artificial Intelligence (AI)",
-    "Machine Learning (ML)",
-    "Data Science",
-    "Big Data Analytics",
-    "Cloud Computing",
-    "Blockchain",
-    "Cybersecurity",
-    "Internet of Things (IoT)",
-    "Augmented Reality (AR)",
-    "Virtual Reality (VR)",
-    "DevOps",
-    "Full Stack Development",
-    "Mobile App Development",
-    "Robotic Process Automation (RPA)",
-    "Digital Marketing",
-    "UI/UX Design",
-    "Software Testing",
-    "Edge Computing",
-    "5G Technology",
-    "Quantum Computing"
-  ];
+  // const technologies = [
+  //   "Artificial Intelligence (AI)",
+  //   "Machine Learning (ML)",
+  //   "Data Science",
+  //   "Big Data Analytics",
+  //   "Cloud Computing",
+  //   "Blockchain",
+  //   "Cybersecurity",
+  //   "Internet of Things (IoT)",
+  //   "Augmented Reality (AR)",
+  //   "Virtual Reality (VR)",
+  //   "DevOps",
+  //   "Full Stack Development",
+  //   "Mobile App Development",
+  //   "Robotic Process Automation (RPA)",
+  //   "Digital Marketing",
+  //   "UI/UX Design",
+  //   "Software Testing",
+  //   "Edge Computing",
+  //   "5G Technology",
+  //   "Quantum Computing"
+  // ];
 
 
 
   const handleTechnologySelect = (technology) => {
-    setSelectedTechnology(technology);
+    setSelectedTechnology(technology.TechnologyMasterName);
     setFormData((prevFormData) => ({
       ...prevFormData,
-      Technology: technology,
+      Technology: technology.TechnologyMasterName,
     }));
     setShowDropdownTechnology(false);
     setErrors((prevErrors) => ({
@@ -447,21 +401,15 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick }, ref) => {
       CompanyName: company.CompanyName,
     }));
     setShowDropdownCompany(false);
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      CompanyName: "",
+    }));
     setUnsavedChanges(true);
   };
 
   const [companies, setCompanies] = useState([]);
-  useEffect(() => {
-    const fetchCompaniesData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/company`);
-        setCompanies(response.data);
-      } catch (error) {
-        console.error("Error fetching Companies data:", error);
-      }
-    };
-    fetchCompaniesData();
-  }, []);
+
 
   const [selectedTechnology, setSelectedTechnology] = useState("");
   const [showDropdownTechnology, setShowDropdownTechnology] = useState(false);
@@ -470,31 +418,8 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick }, ref) => {
     setShowDropdownTechnology(!showDropdownTechnology);
   };
 
-  const [technology, setTechnology] = useState([]);
-  useEffect(() => {
-    const fetchtechnologyData = async () => {
-      try {
-          const response = await axios.get(`${process.env.REACT_APP_API_URL}/technology`);
-        setTechnology(response.data);
-      } catch (error) {
-        console.error("Error fetching technology data:", error);
-      }
-    };
-    fetchtechnologyData();
-  }, []);
-
-  const [skills, setSkills] = useState([]);
-  useEffect(() => {
-    const fetchskillsData = async () => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-        setSkills(response.data);
-      } catch (error) {
-        console.error("Error fetching SkillsData:", error);
-      }
-    };
-    fetchskillsData();
-  }, []);
+  const [technologies, setTechnology] = useState([]);
+ 
 
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -926,11 +851,17 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick }, ref) => {
                     <div className="relative">
                       <input
                         type="text"
-                        className="border-b focus:outline-none mb-5 w-full border-gray-300 focus:border-black"
+                        className={`border-b focus:outline-none mb-5 w-full ${errors.CompanyName
+                          ? "border-red-500"
+                          : "border-gray-300 focus:border-black"
+                          }`}
                         value={selectedCompany}
                         onClick={toggleDropdownCompany}
                         readOnly
                       />
+                      {errors.CompanyName && (
+                        <p className="text-red-500 text-sm">{errors.CompanyName}</p>
+                      )}
                       <div
                         className="absolute right-0 top-0"
                         onClick={toggleDropdownCompany}
@@ -996,7 +927,7 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick }, ref) => {
                             className="py-2 px-4 cursor-pointer hover:bg-gray-100"
                             onClick={() => handleTechnologySelect(technology)}
                           >
-                            {technology}
+                            {technology.TechnologyMasterName}
                           </div>
                         ))}
                       </div>
@@ -1409,10 +1340,10 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick }, ref) => {
                   <div className="flex-grow w-full overflow-visible -mt-1">
                     <div className="w-full overflow-visible">
                     <TimezoneSelect
-                    value={selectedTimezone.value || selectedTimezone1.value}
-                    onChange={handleTimezoneChange}
-                    className="TimezonePicker ml-5"
-                  />
+        value={selectedTimezone?.value || selectedTimezone1?.value || ''}
+        onChange={handleTimezoneChange}
+        className="TimezonePicker ml-5"
+      />
                       {timeZoneError && <p className="text-red-500 text-sm ml-5 mt-2">{timeZoneError}</p>}
                     </div>
                   </div>

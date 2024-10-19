@@ -6,6 +6,8 @@ import axios from "axios";
 import { useLocation } from "react-router-dom";
 import PopupComponent from "../Interviews/OutsourceOption";
 import { FaSearch } from 'react-icons/fa';
+import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
+import Cookies from 'js-cookie';
 
 const MockSchedulelater = ({ isOpen, onClose, candidate1 }) => {
     const location = useLocation();
@@ -18,6 +20,7 @@ const MockSchedulelater = ({ isOpen, onClose, candidate1 }) => {
         TeamMember: "",
         Duration: "",
     });
+    const userId = Cookies.get("userId");
     const [errors, setErrors] = useState("");
     const [textareaValue, setTextareaValue] = useState(updatedCandidate.Description);
     // const [selectedSkill, setSelectedSkill] = useState(updatedCandidate.Skills);
@@ -95,53 +98,6 @@ const MockSchedulelater = ({ isOpen, onClose, candidate1 }) => {
         }
     };
     
-    
-
-    // const handleSubmit = async (_id, e) => {
-    //     e.preventDefault();
-    //     const requiredFields = {
-    //         Title: 'Title is required',
-    //         DateTime: 'Date Time is required',
-    //         Description: 'Description is required',
-    //         Skills: 'Skills is required',
-    //     };
-    //     let formIsValid = true;
-    //     const newErrors = { ...errors };
-
-    //     Object.entries(requiredFields).forEach(([field, message]) => {
-    //         if (!formData[field]) {
-    //             newErrors[field] = message;
-    //             formIsValid = false;
-    //         }
-    //     });
-
-    //     if (!formIsValid) {
-    //         setErrors(newErrors);
-    //         return;
-    //     }
-    //     try {
-    //         const response = await axios.put(`http://localhost:5000/updateMockInterview`, {
-    //             _id: _id,
-    //             ...formData,
-    //             Skills: selectedSkill,
-    //             DateTime: confirmedDateTime,
-    //             Duration: duration,
-    //             Status: "ReSchedule",
-    //         });
-    //         console.log('Interview updated:', response.data);
-    //         setFormData({
-    //             Title: "",
-    //             Skills: "",
-    //             DateTime: "",
-    //             Duration: duration,
-    //             Status: "",
-    //         });
-    //         onClose();
-    //     } catch (error) {
-    //         console.error('Error creating interview or posting notification:', error);
-    //     }
-    // };
-
     const handleChangedescription = (event) => {
         const value = event.target.value;
         if (value.length <= 250) {
@@ -152,7 +108,6 @@ const MockSchedulelater = ({ isOpen, onClose, candidate1 }) => {
             setErrors({ ...errors, Description: '' });
         }
     };
-
  
     const [selectedSkill, setSelectedSkill] = useState("");
     const [showDropdownSkills, setShowDropdownSkills] = useState(false);
@@ -160,16 +115,17 @@ const MockSchedulelater = ({ isOpen, onClose, candidate1 }) => {
     const [searchTermSkills, setSearchTermSkills] = useState('');
 
     useEffect(() => {
-        const fetchSkillsData = async () => {
-            try {
-                const response = await axios.get(`${process.env.REACT_APP_API_URL}/skills`);
-                setSkills(response.data);
-            } catch (error) {
-                console.error('Error fetching skills data:', error);
-            }
+        const fetchData = async () => {
+          try {
+            const skillsData = await fetchMasterData('skills');
+            setSkills(skillsData);
+          } catch (error) {
+            console.error('Error fetching master data:', error);
+          }
         };
-        fetchSkillsData();
-    }, []);
+    
+        fetchData();
+      }, []);
 
     const toggleDropdownSkills = () => {
         setShowDropdownSkills(!showDropdownSkills);

@@ -26,7 +26,11 @@ const MockInterviewSchema = new mongoose.Schema({
     ModifiedBy: String,
     Category: String,
     Description:String,
-    Status: String
+    Status: String,
+    CreatedById: String,
+    LastModifiedById: String,
+    OwnerId: String,
+    orgId: String,
   });
   const MockInterviewHistorySchema = new mongoose.Schema({
     MockInterviewId: { type: mongoose.Schema.Types.ObjectId, ref: 'MockInterview', required: true },
