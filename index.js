@@ -22,7 +22,7 @@ const bodyParser = require('body-parser');
 const LoginAdditionalDetails = require('./models/LoginAdditionalDetails.js');
 const InterviewAvailability = require('./models/InterviewAvailability.js');
 const LinkedInDetails = require('./models/LinkedInDetails');
-const { Contacts, ContactHistory } = require('./models/Contacts.js')
+// const { Contacts, ContactHistory } = require('./models/Contacts.js')
 const { Users, UserHistory } = require("./models/Users.js")
 const nodemailer = require('nodemailer');
 const multer = require('multer');
@@ -2920,7 +2920,7 @@ const addInitialPlansData = async () => {
 
 // my work to add in ashraf's code ( MANSOOR )
 
-const ConnectedApp = require('./models/connectedapp');
+// const ConnectedApp = require('./models/connectedapp');
 const generateRandomString = require('./utils/generateRandomString.js');
 const { handleRequest: handleCandidateRequest, getCandidatesByRef, updateCandidateByRef } = require('./utils/candidateApiHelper.js');
 const { handleRequest: handlePositionRequest, getPositionByRef, updatePositionByRef } = require('./utils/positionApiHelper.js');
