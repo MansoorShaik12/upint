@@ -11,7 +11,9 @@
     "server": "nodemon index.js",
     "client": "npm start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "heroku-postbuild": "export NODE_OPTIONS=--max_old_space_size=8192 && npm install --prefix client && npm run build --prefix client"
+    "build:client": "npm run build --prefix client",
+    "start:prod": "npm run build:client && node index.js",
+    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
   },
   "dependencies": {
     "axios": "^1.7.2",
