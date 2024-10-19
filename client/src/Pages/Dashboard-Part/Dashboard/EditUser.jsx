@@ -116,17 +116,17 @@ const handleSubmit = async (e) => {
     }));
   };
 
-  const [errors, setErrors] = useState({ Phone: "", Email: "" });
+  const [errors] = useState({ Phone: "", Email: "" });
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@gmail\.com$/;
-    return emailRegex.test(email);
-  };
+  // const validateEmail = (email) => {
+  //   const emailRegex = /^[^\s@]+@gmail\.com$/;
+  //   return emailRegex.test(email);
+  // };
 
-  const validatePhone = (phone) => {
-    const phoneRegex = /^[6-9]\d{9}$/; // Indian phone number validation (starts with 6-9 and has 10 digits)
-    return phoneRegex.test(phone);
-  };
+  // const validatePhone = (phone) => {
+  //   const phoneRegex = /^[6-9]\d{9}$/; // Indian phone number validation (starts with 6-9 and has 10 digits)
+  //   return phoneRegex.test(phone);
+  // };
 
 
   const handleChange = (e) => {
@@ -157,7 +157,7 @@ const handleSubmit = async (e) => {
 
   const [selectedCurrentRole, setSelectedCurrentRole] = useState("");
   const [showDropdownCurrentRole, setShowDropdownCurrentRole] = useState(false);
-  const [currentroleError, setCurrentroleError] = useState("");
+  const [currentroleError] = useState("");
   const [CurrentRole, setCurrentRole] = useState([]);
   const [searchTermCurrentRole, setSearchTermCurrentRole] = useState("");
   const filteredCurrentRoles = CurrentRole.filter((role) =>

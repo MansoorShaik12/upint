@@ -6,7 +6,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getYear } from "date-fns";
 import range from "lodash/range";
-import ImageUploading from 'react-images-uploading';
+// import ImageUploading from 'react-images-uploading';
 import { TbCameraPlus } from "react-icons/tb";
 import { MdUpdate } from "react-icons/md";
 import { ImCancelCircle } from "react-icons/im";
@@ -15,54 +15,54 @@ import "react-phone-input-2/lib/style.css";
 // import Sidebar1 from '../Interviews/Schedulenow';
 import axios from 'axios';
 import { FaPlus, FaEdit, FaTrash } from 'react-icons/fa';
-import { IoCloudUploadOutline } from "react-icons/io5";
+// import { IoCloudUploadOutline } from "react-icons/io5";
 import { IoIosAddCircle } from "react-icons/io";
 import { FaTimes } from "react-icons/fa";
 import { fetchFilterData } from '../../../../utils/dataUtils.js';
 import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
 import { validateEmail, validatePhoneNumber, validateCandidateForm } from '../../../../utils/CandidateValidation';
 
-const UploadCard = ({ handleUploadClick, handleFileChange, handleClose }) => {
-  const cardRef = useRef(null);
+// const UploadCard = ({ handleUploadClick, handleFileChange, handleClose }) => {
+//   const cardRef = useRef(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (cardRef.current && !cardRef.current.contains(event.target)) {
-        handleClose();
-      }
-    };
+//   useEffect(() => {
+//     const handleClickOutside = (event) => {
+//       if (cardRef.current && !cardRef.current.contains(event.target)) {
+//         handleClose();
+//       }
+//     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [cardRef, handleClose]);
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => {
+//       document.removeEventListener("mousedown", handleClickOutside);
+//     };
+//   }, [cardRef, handleClose]);
 
-  return (
-    <div
-      ref={cardRef}
-      className="absolute z-10 bg-white p-2 rounded shadow-lg w-full "
-    >
-      <div className="flex flex-col items-center">
-        <div className="mr-44 mt-3">
-          <IoCloudUploadOutline />
-        </div>
-        <button
-          className="px-4 py-2 text-black rounded -mt-7"
-          onClick={handleUploadClick}
-        >
-          Upload from this device
-        </button>
-        <input
-          type="file"
-          id="fileInput"
-          style={{ display: "none" }}
-          onChange={handleFileChange}
-        />
-      </div>
-    </div>
-  );
-};
+//   return (
+//     <div
+//       ref={cardRef}
+//       className="absolute z-10 bg-white p-2 rounded shadow-lg w-full "
+//     >
+//       <div className="flex flex-col items-center">
+//         <div className="mr-44 mt-3">
+//           <IoCloudUploadOutline />
+//         </div>
+//         <button
+//           className="px-4 py-2 text-black rounded -mt-7"
+//           onClick={handleUploadClick}
+//         >
+//           Upload from this device
+//         </button>
+//         <input
+//           type="file"
+//           id="fileInput"
+//           style={{ display: "none" }}
+//           onChange={handleFileChange}
+//         />
+//       </div>
+//     </div>
+//   );
+// };
 
 const CreateCandidate = ({ onClose, handleOutsideClick, candidate1,sharingPermissions}) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -73,8 +73,8 @@ const CreateCandidate = ({ onClose, handleOutsideClick, candidate1,sharingPermis
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showUnsavedChangesPopup, setShowUnsavedChangesPopup] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const userId = localStorage.getItem("userId");
-  const [loading, setLoading] = useState(true);
+  // const userId = localStorage.getItem("userId");
+  // const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     FirstName: "",
     LastName: "",
@@ -330,9 +330,9 @@ const CreateCandidate = ({ onClose, handleOutsideClick, candidate1,sharingPermis
     setHasUnsavedChanges(true);
   };
 
-  const handleInputFocus = () => {
-    setShowDropdown(!showDropdown);
-  };
+  // const handleInputFocus = () => {
+  //   setShowDropdown(!showDropdown);
+  // };
 
   const [showDropdownCollege, setShowDropdownCollege] = useState(false);
 
@@ -494,18 +494,18 @@ const CreateCandidate = ({ onClose, handleOutsideClick, candidate1,sharingPermis
   //   setFormData({ ...formData, Resume: e.target.files[0].name });
   // };
 
-  const [showCard, setShowCard] = useState(false);
-  const handleInputClick = () => {
-    setShowCard(true);
-  };
+  // const [showCard, setShowCard] = useState(false);
+  // const handleInputClick = () => {
+  //   setShowCard(true);
+  // };
 
-  const handleUploadClick = () => {
-    document.getElementById("fileInput").click();
-  };
+  // const handleUploadClick = () => {
+  //   document.getElementById("fileInput").click();
+  // };
 
-  const handleClose = () => {
-    setShowCard(false);
-  };
+  // const handleClose = () => {
+  //   setShowCard(false);
+  // };
 
 
 
@@ -513,10 +513,10 @@ const CreateCandidate = ({ onClose, handleOutsideClick, candidate1,sharingPermis
   const [skillsData, setSkillsData] = useState([]);
   const positionRef = useRef(null);
   const [value, setValue] = useState("");
-  const [showMainContent, setShowMainContent] = useState(true);
+  // const [showMainContent, setShowMainContent] = useState(true);
   const [filteredPositions, setFilteredPositions] = useState([]);
   const [positions, setPositions] = useState([]);
-  const [showNewPositionContent, setShowNewPositionContent] = useState(false);
+  // const [showNewPositionContent, setShowNewPositionContent] = useState(false);
 
 
   const [selectedPosition, setSelectedPosition] = useState(updatedCandidate.Position);
@@ -553,8 +553,8 @@ const CreateCandidate = ({ onClose, handleOutsideClick, candidate1,sharingPermis
   };
 
   const handleAddNewPositionClick = () => {
-    setShowMainContent(false);
-    setShowNewPositionContent(true);
+    // setShowMainContent(false);
+    // setShowNewPositionContent(true);
 
     if (value.trim() !== "") {
       const newPosition = { _id: positions.length + 1, title: value };
@@ -592,14 +592,14 @@ const CreateCandidate = ({ onClose, handleOutsideClick, candidate1,sharingPermis
   useEffect(() => {
 
     const fetchSkillsData = async () => {
-        setLoading(true);
+        // setLoading(true);
         try {
             const filteredPositions = await fetchFilterData('position', sharingPermissions);
             setSkillsData(filteredPositions);
         } catch (error) {
             console.error('Error fetching position data:', error);
         } finally {
-            setLoading(false);
+            // setLoading(false);
         }
     };
 
@@ -611,11 +611,11 @@ const CreateCandidate = ({ onClose, handleOutsideClick, candidate1,sharingPermis
     setFormData({ ...formData, CountryCode: e.target.value });
   };
 
-  const handleclose = () => {
-    setShowMainContent(true);
+  // const handleclose = () => {
+  //   setShowMainContent(true);
 
-    setShowNewPositionContent(false);
-  };
+  //   setShowNewPositionContent(false);
+  // };
 
 
   const handleCancel = () => {

@@ -6,7 +6,7 @@ import axios from "axios";
 import AddCandidateForm from "../Candidate-Tab/CreateCandidate";
 import "react-datepicker/dist/react-datepicker.css";
 import "react-phone-input-2/lib/style.css";
-import { fetchFilterData, handleWebSocket } from '../../../../utils/dataUtils.js';
+import { fetchFilterData } from '../../../../utils/dataUtils.js';
 const ShareAssessment = ({
   isOpen,
   onCloseshare,
@@ -60,13 +60,13 @@ const ShareAssessment = ({
   };
 
 
-  const userId = localStorage.getItem("userId");
+  // const userId = localStorage.getItem("userId");
 
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchCandidateData = async () => {
-      setLoading(true);
+      // setLoading(true);
       try {
         const filteredCandidates = await fetchFilterData('candidate', sharingPermissions);
         const candidatesWithImages = filteredCandidates.map((candidate) => {
@@ -80,18 +80,18 @@ const ShareAssessment = ({
       } catch (error) {
         console.error('Error fetching candidate data:', error);
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     };
 
     fetchCandidateData();
   }, [sharingPermissions]);
 
-  const [InterviewQuestion, setInterviewQuestion] = useState([]);
+  const [InterviewQuestion] = useState([]);
 
-  const [selectedIcons, setSelectedIcons] = useState([]);
-  const [selectedIcons2, setSelectedIcons2] = useState([]);
-  const [position] = useState("");
+  // const [selectedIcons, setSelectedIcons] = useState([]);
+  const [selectedIcons2] = useState([]);
+  // const [position] = useState("");
 
 
   const [showMainContent, setShowMainContent] = useState(true);

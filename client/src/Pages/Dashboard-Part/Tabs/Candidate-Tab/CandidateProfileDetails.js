@@ -10,7 +10,7 @@ import { IoArrowBack } from "react-icons/io5";
 import axios from "axios";
 import { format } from 'date-fns';
 import EditCandidateForm from "./EditCandidate";
-import { TbFoldersOff } from "react-icons/tb";
+// import { TbFoldersOff } from "react-icons/tb";
 
 const CandidateDetails = ({ candidate, onCloseprofile }) => {
   useEffect(() => {
@@ -53,11 +53,11 @@ const CandidateDetails = ({ candidate, onCloseprofile }) => {
     setIsArrowUp(!isArrowUp);
   };
 
-  const [isArrowUp1, setIsArrowUp1] = useState(false);
+  // const [isArrowUp1, setIsArrowUp1] = useState(false);
 
-  const toggleArrow1 = () => {
-    setIsArrowUp1(!isArrowUp1);
-  };
+  // const toggleArrow1 = () => {
+  //   setIsArrowUp1(!isArrowUp1);
+  // };
   const currentRows = [
     {
       id: 1,
