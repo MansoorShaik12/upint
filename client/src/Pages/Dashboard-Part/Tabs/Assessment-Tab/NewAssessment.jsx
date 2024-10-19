@@ -63,7 +63,7 @@ const NewAssessment = forwardRef(({ onClose,sharingPermissions }) => {
   const [isBulkDelete, setIsBulkDelete] = useState(false);
   const sidebarRefForSection = useRef(null);
   const popupRef = useRef(null);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
   const [formData, setFormData] = useState({
     AssessmentTitle: '',
@@ -429,14 +429,14 @@ const NewAssessment = forwardRef(({ onClose,sharingPermissions }) => {
 
 useEffect(() => {
   const fetchSkillsData = async () => {
-      setLoading(true);
+      // setLoading(true);
       try {
           const filteredPositions = await fetchFilterData('position', positionPermissions);
           setPositions(filteredPositions);
       } catch (error) {
           console.error('Error fetching position data:', error);
       } finally {
-          setLoading(false);
+          // setLoading(false);
       }
   };
 

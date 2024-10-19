@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from "react";
 import { TbCameraPlus } from "react-icons/tb";
 import { MdUpdate, MdArrowDropDown } from "react-icons/md";
 import { ImCancelCircle } from "react-icons/im";
-import ImageUploading from "react-images-uploading";
+// import ImageUploading from "react-images-uploading";
 import "react-phone-input-2/lib/style.css";
 import "react-datepicker/dist/react-datepicker.css";
-import { FaSearch } from "react-icons/fa";
+// import { FaSearch } from "react-icons/fa";
 import axios from "axios";
 import bcrypt from 'bcryptjs';
-import TimezoneSelect from 'react-timezone-select';
+// import TimezoneSelect from 'react-timezone-select';
 import Cookies from 'js-cookie';
 const UserForm = ({ isOpen, onClose }) => {
   const organizationId = Cookies.get("organizationId");
@@ -115,22 +115,22 @@ const UserForm = ({ isOpen, onClose }) => {
 
   const [selectedLanguage, setSelectedLanguage] = useState("");
 
-  const handleLanguageChange = (event) => {
-    setSelectedLanguage(event.target.value);
-  };
+  // const handleLanguageChange = (event) => {
+  //   setSelectedLanguage(event.target.value);
+  // };
 
   // role
   const [selectedCurrentRole, setSelectedCurrentRole] = useState("");
   const [selectedCurrentRoleId, setSelectedCurrentRoleId] = useState("");
-  const [showDropdownCurrentRole, setShowDropdownCurrentRole] = useState(false);
+  // const [showDropdownCurrentRole, setShowDropdownCurrentRole] = useState(false);
   const [CurrentRole, setCurrentRole] = useState([]);
-  const [searchTermCurrentRole, setSearchTermCurrentRole] = useState("");
+  const [searchTermCurrentRole] = useState("");
   const filteredCurrentRoles = CurrentRole.filter((role) =>
     role.roleName ? role.roleName.toLowerCase().includes(searchTermCurrentRole.toLowerCase()) : false
   );
-  const toggleCurrentRole = () => {
-    setShowDropdownCurrentRole(!showDropdownCurrentRole);
-  };
+  // const toggleCurrentRole = () => {
+  //   setShowDropdownCurrentRole(!showDropdownCurrentRole);
+  // };
 
   useEffect(() => {
     const fetchsetcurrentrolesData = async () => {
@@ -146,7 +146,7 @@ const UserForm = ({ isOpen, onClose }) => {
 
   const [selectedProfile, setSelectedProfile] = useState("");
   const [selectedProfileId, setSelectedProfileId] = useState("");
-  const [profileError, setProfileError] = useState("");
+  // const [profileError, setProfileError] = useState("");
   const [showDropdownProfile, setShowDropdownProfile] = useState(false);
   const [Profiles, setProfiles] = useState([]);
   const [searchTermProfile, setSearchTermProfile] = useState("");

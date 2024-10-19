@@ -12,7 +12,7 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 import "react-datepicker/dist/react-datepicker.css";
 import "react-phone-input-2/lib/style.css";
 import axios from "axios";
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 
 
 const languages = [

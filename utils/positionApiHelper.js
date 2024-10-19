@@ -1,5 +1,5 @@
 const saveIntegrationLog = require('./integrationLogs');
-const ConnectedApp = require('../models/connectedapp.js');
+const ConnectedApp = require('../models/ConnectedApp.js');
 const Position = require('../models/position.js');
 const { validateForm, validatePositionForm } = require('./positionValidation');
 

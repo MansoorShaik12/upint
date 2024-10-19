@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect, forwardRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import "react-phone-input-2/lib/style.css";
 import { SlPencil } from "react-icons/sl";
-import { FiSave } from 'react-icons/fi';
+// import { FiSave } from 'react-icons/fi';
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
 import { IoIosArrowUp, IoIosArrowDown } from "react-icons/io";
@@ -15,14 +15,14 @@ import axios from "axios";
 import Editassesmentquestion from "./EditAssessmentquestion.jsx";
 import AddPositionForm from "../Interviews/Addpositionform.jsx";
 import { BsFillInfoCircleFill } from "react-icons/bs";
-import { useLocation } from "react-router-dom";
+// import { useLocation } from "react-router-dom";
 import AddQuestion1 from './AddQuestion1.jsx';
 import { fetchFilterData } from "../../../../utils/dataUtils.js";
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 const EditAssessment = forwardRef(({ onClose, assessmentId, candidate1, sharingPermissions }, ref) => {
-  const organizationId = Cookies.get("organizationId");
+  // const organizationId = Cookies.get("organizationId");
   const positionPermissions = sharingPermissions.position || {};
-  const [loading, setLoading] = useState(false);
+  // const [loading, setLoading] = useState(false);
   const updatedCandidate = candidate1;
   const [formData, setFormData] = useState({
     AssessmentTitle: updatedCandidate.AssessmentTitle || '',
@@ -84,14 +84,14 @@ const EditAssessment = forwardRef(({ onClose, assessmentId, candidate1, sharingP
 
   useEffect(() => {
     const fetchSkillsData = async () => {
-        setLoading(true);
+        // setLoading(true);
         try {
             const filteredPositions = await fetchFilterData('position', positionPermissions);
             setPositions(filteredPositions);
         } catch (error) {
             console.error('Error fetching position data:', error);
         } finally {
-            setLoading(false);
+            // setLoading(false);
         }
     };
   
@@ -217,7 +217,7 @@ const EditAssessment = forwardRef(({ onClose, assessmentId, candidate1, sharingP
 
 
   // const [selectedAssessmentType, setSelectedAssessmentType] = useState(candidate1.AssessmentType || []);
-  const [position, setPosition] = useState("");
+  const [position] = useState("");
   // const userId = localStorage.getItem("userId");
   // const location = useLocation();
 
@@ -458,9 +458,9 @@ const EditAssessment = forwardRef(({ onClose, assessmentId, candidate1, sharingP
     };
   }, [sidebarOpenForSection, handleOutsideClickForSection]);
 
-  const closeSidebarAddQuestion = () => {
+  const closeSidebarAddQuestion = useCallback(() => {
     setSidebarOpenAddQuestion(false);
-  };
+  }, []);
 
   const handleOutsideClickAddQuestion = useCallback((event) => {
     if (
@@ -569,7 +569,7 @@ const EditAssessment = forwardRef(({ onClose, assessmentId, candidate1, sharingP
         return "";
     }
   };
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  // const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
 
   const [showNewPositionContent, setShowNewPositionContent] = useState(false);
@@ -619,26 +619,26 @@ const EditAssessment = forwardRef(({ onClose, assessmentId, candidate1, sharingP
     fetchQuestions();
   }, []);
 
-  const handleDeleteConfirmation = () => {
-    setMatchingSection((prevSections) =>
-      prevSections.filter((section) => section !== sectionToDelete)
-    );
-    setQuestionsBySection((prevQuestions) => {
-      const { [sectionToDelete]: _, ...rest } = prevQuestions;
-      return rest;
-    });
-    setIsDeleteConfirmationOpen(false);
-  };
+  // const handleDeleteConfirmation = () => {
+  //   setMatchingSection((prevSections) =>
+  //     prevSections.filter((section) => section !== sectionToDelete)
+  //   );
+  //   setQuestionsBySection((prevQuestions) => {
+  //     const { [sectionToDelete]: _, ...rest } = prevQuestions;
+  //     return rest;
+  //   });
+  //   setIsDeleteConfirmationOpen(false);
+  // };
 
   const handleBackButtonClick = () => {
     setActiveTab('Basicdetails');
   };
 
 
-  const handleEditSectionName = (sectionName) => {
-    setSectionToDelete(sectionName);
-    setIsDeleteSectionConfirmationOpen(true);
-  };
+  // const handleEditSectionName = (sectionName) => {
+  //   setSectionToDelete(sectionName);
+  //   setIsDeleteSectionConfirmationOpen(true);
+  // };
 
   const handleDateChange = (date) => {
     setStartDate(date);

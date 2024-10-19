@@ -5,7 +5,7 @@ import { IoMdSearch } from "react-icons/io";
 import Tooltip from "@mui/material/Tooltip";
 import { MdMoreHoriz } from "react-icons/md";
 import UserProfileDetails from "./UserProfileDetails";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import Sidebar from "./UserForm";
 import Sidebar1 from "./EditUser";
 import { CgInfo } from "react-icons/cg";
@@ -78,18 +78,18 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     });
   };
 
-  const handleExperienceMainToggle = () => {
-    setIsExperienceMainChecked(!isExperienceMainChecked);
-    const newSelectedExperience = isExperienceMainChecked
-      ? []
-      : [...experienceOptions];
-    setSelectedExperienceOptions(newSelectedExperience);
-    onFilterChange({
-      status: selectedStatusOptions,
-      tech: selectedTechOptions,
-      experience: newSelectedExperience,
-    });
-  };
+  // const handleExperienceMainToggle = () => {
+  //   setIsExperienceMainChecked(!isExperienceMainChecked);
+  //   const newSelectedExperience = isExperienceMainChecked
+  //     ? []
+  //     : [...experienceOptions];
+  //   setSelectedExperienceOptions(newSelectedExperience);
+  //   onFilterChange({
+  //     status: selectedStatusOptions,
+  //     tech: selectedTechOptions,
+  //     experience: newSelectedExperience,
+  //   });
+  // };
 
   const handleStatusOptionToggle = (option) => {
     const selectedIndex = selectedStatusOptions.indexOf(option);
@@ -121,22 +121,22 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     });
   };
 
-  const handleExperienceOptionToggle = (option) => {
-    const selectedIndex = selectedExperienceOptions.indexOf(option);
-    const updatedOptions =
-      selectedIndex === -1
-        ? [...selectedExperienceOptions, option]
-        : selectedExperienceOptions.filter(
-            (_, index) => index !== selectedIndex
-          );
+  // const handleExperienceOptionToggle = (option) => {
+  //   const selectedIndex = selectedExperienceOptions.indexOf(option);
+  //   const updatedOptions =
+  //     selectedIndex === -1
+  //       ? [...selectedExperienceOptions, option]
+  //       : selectedExperienceOptions.filter(
+  //           (_, index) => index !== selectedIndex
+  //         );
 
-    setSelectedExperienceOptions(updatedOptions);
-    onFilterChange({
-      status: selectedStatusOptions,
-      tech: selectedTechOptions,
-      experience: updatedOptions,
-    });
-  };
+  //   setSelectedExperienceOptions(updatedOptions);
+  //   onFilterChange({
+  //     status: selectedStatusOptions,
+  //     tech: selectedTechOptions,
+  //     experience: updatedOptions,
+  //   });
+  // };
 
   const statusOptions = [
     "Bachelor of Arts (BA)",
@@ -159,19 +159,19 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     "Diploma in Business Administration",
   ];
 
-  const experienceOptions = [
-    "0-1 years",
-    "1-2 years",
-    "2-3 years",
-    "3-4 years",
-    "4-5 years",
-    "5-6 years",
-    "6-7 years",
-    "7-8 years",
-    "8-9 years",
-    "9-10 years",
-    "10+ years",
-  ];
+  // const experienceOptions = [
+  //   "0-1 years",
+  //   "1-2 years",
+  //   "2-3 years",
+  //   "3-4 years",
+  //   "4-5 years",
+  //   "5-6 years",
+  //   "6-7 years",
+  //   "7-8 years",
+  //   "8-9 years",
+  //   "9-10 years",
+  //   "10+ years",
+  // ];
 
   const techOptions = [
     "Python",
@@ -200,7 +200,7 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     "Biometric Authentication Technology",
   ];
 
-  const [isExperienceDropdownOpen, setExperienceDropdownOpen] = useState(false);
+  // const [isExperienceDropdownOpen, setExperienceDropdownOpen] = useState(false);
 
   const [minExperience, setMinExperience] = useState("");
   const [maxExperience, setMaxExperience] = useState("");
@@ -384,7 +384,7 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
 const Users = () => {
   const organizationId = Cookies.get("organizationId");
   console.log(organizationId);
-  const [notification, setNotification] = useState("");
+  const [notification] = useState("");
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState([]);
   useEffect(() => {
@@ -435,18 +435,18 @@ const Users = () => {
     console.log("Search query:", event.target.value);
   };
 
-  const [selectedFilters, setSelectedFilters] = useState({
-    status: [],
-    tech: [],
-    experience: [],
-  });
+  // const [selectedFilters, setSelectedFilters] = useState({
+  //   status: [],
+  //   tech: [],
+  //   experience: [],
+  // });
 
   const toggleAction = (id) => {
     setActionViewMore((prev) => (prev === id ? null : id));
   };
 
   const handleFilterChange = useCallback((filters) => {
-    setSelectedFilters(filters);
+    // setSelectedFilters(filters);
   }, []);
   const FilteredData = () => {
     if (!Array.isArray(userData)) return [];
@@ -493,22 +493,22 @@ const Users = () => {
     .reverse();
 
   const [isMenuOpen, setMenuOpen] = useState(false);
-  const [isPopupOpen, setPopupOpen] = useState(false);
+  // const [isPopupOpen, setPopupOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
   const toggleMenu = () => {
     setMenuOpen(!isMenuOpen);
   };
 
-  const openPopup = (users) => {
-    setSelectedUser(users);
-    setPopupOpen(true);
-  };
+  // const openPopup = (users) => {
+  //   setSelectedUser(users);
+  //   setPopupOpen(true);
+  // };
 
-  const closePopup = () => {
-    setPopupOpen(false);
-    setSelectedUser(null);
-  };
+  // const closePopup = () => {
+  //   setPopupOpen(false);
+  //   setSelectedUser(null);
+  // };
 
   useEffect(() => {
     document.title = "Users Tab";
@@ -531,9 +531,9 @@ const Users = () => {
     }
   }, []);
 
-  const toggleSidebar1 = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+  // const toggleSidebar1 = () => {
+  //   setSidebarOpen(!sidebarOpen);
+  // };
 
   const closeSidebar1 = () => {
     setSidebarOpen1(false);
@@ -559,16 +559,16 @@ const Users = () => {
     setViewMode("kanban");
   };
 
-  const [selectedCandidate, setSelectedCandidate] = useState(null);
+  // const [selectedCandidate, setSelectedCandidate] = useState(null);
 
   const handleCandidateClick = (users) => {
-    setSelectedCandidate(users);
+    // setSelectedCandidate(users);
 
     setActionViewMore(false);
   };
-  const handleCloseProfile = () => {
-    setSelectedCandidate(null);
-  };
+  // const handleCloseProfile = () => {
+  //   setSelectedCandidate(null);
+  // };
 
   return (
     <>
