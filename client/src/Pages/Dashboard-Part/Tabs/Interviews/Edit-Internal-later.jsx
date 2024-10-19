@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useLocation } from "react-router-dom";
 import { MdOutlineCancel, MdArrowDropDown } from "react-icons/md";
 import { IoIosAddCircle } from 'react-icons/io';
@@ -18,13 +18,13 @@ const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }
     const candidateRef = useRef(null);
     const [showDropdown, setShowDropdown] = useState(false);
     const [candidateData, setCandidateData] = useState([]);
-    const [showStartTimePicker, setShowStartTimePicker] = useState(false);
+    // const [showStartTimePicker, setShowStartTimePicker] = useState(false);
     const [rounds, setRounds] = useState(candidate1.rounds || []);
     const [selectedCandidate, setSelectedCandidate] = useState(candidate1.Candidate || '');
     const [selectedPosition, setSelectedPosition] = useState(candidate1.Position || '');
-    const [selectedTeamMembers, setSelectedTeamMembers] = useState(interviewers.map(name => ({ name })) || []);
+    // const [selectedTeamMembers, setSelectedTeamMembers] = useState(interviewers.map(name => ({ name })) || []);
     const [errors, setErrors] = useState({});
-    const [loading, setLoading] = useState(true);
+    // const [loading, setLoading] = useState(true);
 
     const [unsavedChanges, setUnsavedChanges] = useState(false); // Track unsaved changes
     const [showCloseConfirmation, setShowCloseConfirmation] = useState(false); // Show confirmation popup
@@ -34,7 +34,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }
     const userName = Cookies.get("userName");
     useEffect(() => {
         const fetchData = async () => {
-          setLoading(true);
+        //   setLoading(true);
           try {
             const [filteredCandidates, filteredTeams] = await fetchMultipleData([
               { endpoint: 'candidate', sharingPermissions: sharingPermissions.candidate },
@@ -45,7 +45,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }
           } catch (error) {
             console.error('Error fetching data:', error);
           } finally {
-            setLoading(false);
+            // setLoading(false);
           }
         };
         fetchData();
@@ -111,7 +111,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }
             newRounds[currentRoundIndex].status = 'Rescheduled'; // Set status to 'Rescheduled'
             setRounds(newRounds);
         }
-        setShowStartTimePicker(false);
+        // setShowStartTimePicker(false);
     };
     const handleConfirm = () => {
         const newRounds = [...rounds];
@@ -249,7 +249,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }
         }
     };
 
-    const [formData, setFormData] = useState({
+    const [formData] = useState({
         jobdescription: "",
     });
 
@@ -286,12 +286,12 @@ const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }
     // interviewer
     const [showDropdowninterview, setShowDropdowninterview] = useState(null);
     const [isTeamMemberSelected, setIsTeamMemberSelected] = useState(false);
-    const [showConfirmation, setShowConfirmation] = useState(false);
+    // const [showConfirmation, setShowConfirmation] = useState(false);
     const [showTeamMemberDropdown, setShowTeamMemberDropdown] = useState(false);
     const [showMainContent, setShowMainContent] = useState(true);
     const [showNewteamContent, setShowNewteamContent] = useState(false);
-    const [showOutsourcePopup, setShowOutsourcePopup] = useState(false);
-    const [interviewData, setInterviewData] = useState(null);
+    // const [showOutsourcePopup, setShowOutsourcePopup] = useState(false);
+    // const [interviewData, setInterviewData] = useState(null);
 
     const toggleDropdowninterview = (index) => {
         const currentPage = window.location.pathname;
@@ -299,7 +299,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }
         if (currentPage === "/internalinterview") {
             setShowDropdowninterview(prevIndex => prevIndex === index ? null : index);
         } else if (currentPage === "/outsourceinterview") {
-            setShowConfirmation(true);
+            // setShowConfirmation(true);
         }
     };
 
@@ -338,7 +338,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }
             setIsTeamMemberSelected(true);
             setShowDropdowninterview(null);
         } else if (interview === "Outsource Interviewer") {
-            setShowConfirmation(true);
+            // setShowConfirmation(true);
         }
 
         setRounds(newRounds);
@@ -386,17 +386,17 @@ const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }
         setShowNewteamContent(true);
     };
 
-    const handleAddInterviewClick = () => {
-        setShowPopup(true);
-        setShowConfirmation(false);
-        setShowOutsourcePopup(true);
-    };
+    // const handleAddInterviewClick = () => {
+    //     setShowPopup(true);
+    //     setShowConfirmation(false);
+    //     setShowOutsourcePopup(true);
+    // };
 
     useEffect(() => {
         const fetchInterviewData = async () => {
             try {
                 const response = await axios.get(`${process.env.REACT_APP_API_URL}/interview/${candidate1._id}`);
-                setInterviewData(response.data);
+                // setInterviewData(response.data);
                 setRounds(response.data.rounds); // Set rounds from fetched data
             } catch (error) {
                 console.error('Error fetching interview data:', error);
@@ -480,7 +480,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }
 
     const [showDeletePopup, setShowDeletePopup] = useState(false);
     const [roundToDelete, setRoundToDelete] = useState(null);
-    const [selectedRoundTitle, setSelectedRoundTitle] = useState('');
+    // const [selectedRoundTitle, setSelectedRoundTitle] = useState('');
 
     const handleDeleteRound = (index) => {
         setRoundToDelete(index);
@@ -540,7 +540,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }
 
     const [selectedRound, setSelectedRound] = useState("");
     const [customRoundName, setCustomRoundName] = useState("");
-    const [selectedMode, setSelectedMode] = useState("");
+    // const [selectedMode, setSelectedMode] = useState("");
 
     const handleRoundTitleChange = (index, title) => {
         const newRounds = [...rounds];
@@ -567,18 +567,18 @@ const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }
         setShowRoundDropdown(null); // Close the popup after selection
     };
 
-    const handleClickOutside = (event) => {
+    const handleClickOutside = useCallback((event) => {
         if (showRoundDropdown !== null && !event.target.closest('.round-dropdown')) {
             setShowRoundDropdown(null);
         }
-    };
+    }, [showRoundDropdown]);
 
     useEffect(() => {
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
-    }, [showRoundDropdown]);
+    }, [showRoundDropdown, handleClickOutside]);
 
     const [searchTerm, setSearchTerm] = useState(selectedCandidate);
 
@@ -982,7 +982,7 @@ const Schedulelater = ({ onClose, candidate1, interviewers, sharingPermissions }
                                                                     type="time"
                                                                     className="border p-2 w-full"
                                                                     onChange={handleStartTimeChange}
-                                                                    onFocus={() => setShowStartTimePicker(true)}
+                                                                    // onFocus={() => setShowStartTimePicker(true)}
                                                                 />
                                                             </div>
 

@@ -61,11 +61,11 @@ const PopUp = ({ onClose }) => {
   }, []);
 
   // skills table
-  const [rows, setRows] = useState([
-    { skill: "", experience: "", expertise: "" },
-    { skill: "", experience: "", expertise: "" },
-    { skill: "", experience: "", expertise: "" },
-  ]);
+  // const [rows, setRows] = useState([
+  //   { skill: "", experience: "", expertise: "" },
+  //   { skill: "", experience: "", expertise: "" },
+  //   { skill: "", experience: "", expertise: "" },
+  // ]);
 
   const [skills, setSkills] = useState([]);
   useEffect(() => {
@@ -80,60 +80,60 @@ const PopUp = ({ onClose }) => {
     fetchskillsData();
   }, []);
 
-  const [currentRow] = useState(0);
-  const [fieldsRequired, setFieldsRequired] = useState(true);
-  const updateRows = (newRows) => {
-    setRows(newRows);
-    localStorage.setItem("rows", JSON.stringify(newRows));
-  };
-  const handleSelectChange = (event, columnName) => {
-    const { textContent } = event.target.options[event.target.selectedIndex];
+  // const [currentRow] = useState(0);
+  // const [fieldsRequired, setFieldsRequired] = useState(true);
+  // const updateRows = (newRows) => {
+  //   setRows(newRows);
+  //   localStorage.setItem("rows", JSON.stringify(newRows));
+  // };
+  // const handleSelectChange = (event, columnName) => {
+  //   const { textContent } = event.target.options[event.target.selectedIndex];
 
-    const emptyRowIndex = rows.findIndex(
-      (row) => row.skill === "" || row.experience === "" || row.expertise === ""
-    );
-    if (emptyRowIndex === -1) {
-      alert(" Please create a new row to add more data.");
-      return;
-    }
+  //   const emptyRowIndex = rows.findIndex(
+  //     (row) => row.skill === "" || row.experience === "" || row.expertise === ""
+  //   );
+  //   if (emptyRowIndex === -1) {
+  //     alert(" Please create a new row to add more data.");
+  //     return;
+  //   }
 
-    if (rows.length > 1) {
-      setFieldsRequired(false);
-    } else {
-      setFieldsRequired(true);
-    }
+  //   if (rows.length > 1) {
+  //     setFieldsRequired(false);
+  //   } else {
+  //     setFieldsRequired(true);
+  //   }
 
-    const updatedRows = [...rows];
-    updatedRows[currentRow][columnName] = textContent;
+  //   const updatedRows = [...rows];
+  //   updatedRows[currentRow][columnName] = textContent;
 
-    setRows(updatedRows);
-    event.target.value = "";
+  //   setRows(updatedRows);
+  //   event.target.value = "";
 
-    const updatedFormData = { ...formData };
-    if (!updatedFormData.skills) {
-      updatedFormData.skills = [];
-    }
-    if (!updatedFormData.skills[currentRow]) {
-      updatedFormData.skills[currentRow] = {};
-    }
-    updatedFormData.skills[currentRow][columnName] = textContent;
-    setFormData(updatedFormData);
-    updateRows(updatedRows);
-  };
+  //   const updatedFormData = { ...formData };
+  //   if (!updatedFormData.skills) {
+  //     updatedFormData.skills = [];
+  //   }
+  //   if (!updatedFormData.skills[currentRow]) {
+  //     updatedFormData.skills[currentRow] = {};
+  //   }
+  //   updatedFormData.skills[currentRow][columnName] = textContent;
+  //   setFormData(updatedFormData);
+  //   updateRows(updatedRows);
+  // };
 
-  const addRow = () => {
-    setRows((prevRows) => [
-      ...prevRows,
-      { skill: "", experience: "", expertise: "" },
-    ]);
-  };
+  // const addRow = () => {
+  //   setRows((prevRows) => [
+  //     ...prevRows,
+  //     { skill: "", experience: "", expertise: "" },
+  //   ]);
+  // };
 
   const [additionalNotesValue, setAdditionalNotesValue] = useState("");
 
-  const handleChangedescription = (event) => {
-    event.target.style.height = "auto";
-    event.target.style.height = event.target.scrollHeight + "px";
-  };
+  // const handleChangedescription = (event) => {
+  //   event.target.style.height = "auto";
+  //   event.target.style.height = event.target.scrollHeight + "px";
+  // };
   const handleAdditionalNotesChange = (event) => {
     setAdditionalNotesValue(event.target.value);
     event.target.style.height = "auto";
@@ -203,7 +203,7 @@ const PopUp = ({ onClose }) => {
   const [allSelectedSkills, setAllSelectedSkills] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
 
-  const skillOptions = ["JavaScript", "React", "Node.js", "CSS", "HTML"];
+  // const skillOptions = ["JavaScript", "React", "Node.js", "CSS", "HTML"];
   const experienceOptions = [
     "0-1 Years",
     "1-2 years",
@@ -287,7 +287,7 @@ const PopUp = ({ onClose }) => {
   };
 
   const [jobdescriptionValue, setJobDescriptionValue] = useState("");
-  const [description, setdescription] = useState("");
+  // const [description, setdescription] = useState("");
   const [errors, setErrors] = useState("");
 
 
