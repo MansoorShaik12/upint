@@ -29,13 +29,12 @@ const NewInterviewViewPage = () => {
 };
 
 const OffcanvasMenu = ({ isOpen }) => {
-  const [isStatusChecked, setStatusChecked] = useState(false);
+  // const [isStatusChecked, setStatusChecked] = useState(false);
   const [isStatusDropdownOpen, setStatusDropdownOpen] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState([]);
-  const [isTechDropdownOpen, setTechDropdownOpen] = useState(false);
-  const [selectedTechOptions, setSelectedTechOptions] = useState([]);
-  const [isExperienceDropdownOpen, setIsExperienceDropdownOpen] =
-    useState(false);
+  // const [isTechDropdownOpen, setTechDropdownOpen] = useState(false);
+  // const [selectedTechOptions, setSelectedTechOptions] = useState([]);
+  // const [isExperienceDropdownOpen, setIsExperienceDropdownOpen] = useState(false);
 
   const handleStatusToggle = () => {
     setStatusDropdownOpen(!isStatusDropdownOpen);
@@ -49,24 +48,24 @@ const OffcanvasMenu = ({ isOpen }) => {
     }
   };
 
-  const handleTechToggle = () => {
-    setTechDropdownOpen(!isTechDropdownOpen);
-  };
+  // const handleTechToggle = () => {
+  //   setTechDropdownOpen(!isTechDropdownOpen);
+  // };
 
-  const handleTechSelect = (option) => {
-    if (selectedTechOptions.includes(option)) {
-      setSelectedTechOptions(
-        selectedTechOptions.filter((item) => item !== option)
-      );
-    } else {
-      setSelectedTechOptions([...selectedTechOptions, option]);
-    }
-  };
+  // const handleTechSelect = (option) => {
+  //   if (selectedTechOptions.includes(option)) {
+  //     setSelectedTechOptions(
+  //       selectedTechOptions.filter((item) => item !== option)
+  //     );
+  //   } else {
+  //     setSelectedTechOptions([...selectedTechOptions, option]);
+  //   }
+  // };
 
   // Define the handleExperienceToggle function
-  const handleExperienceToggle = () => {
-    setIsExperienceDropdownOpen(!isExperienceDropdownOpen);
-  };
+  // const handleExperienceToggle = () => {
+  //   setIsExperienceDropdownOpen(!isExperienceDropdownOpen);
+  // };
 
   return (
     <div
@@ -125,7 +124,7 @@ const OffcanvasMenu = ({ isOpen }) => {
 };
 const Viewpage1 = () => {
   const Navigate = useNavigate();
-  
+
   // const handleShowCandidates = () => {
   // 	Navigate("/createCandidate");
   // };
@@ -156,7 +155,7 @@ const Viewpage1 = () => {
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
-  }, [sidebarOpen]);
+  }, [sidebarOpen, handleOutsideClick]);
 
   return (
     <div className="flex justify-between mt-5">
