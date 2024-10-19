@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import "../../../../index.css";
 import "../styles/tabs.scss";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 import { FaList } from "react-icons/fa6";
@@ -471,7 +471,7 @@ const Internal = ({ objectPermissions, sharingPermissions }) => {
     };
   }, []);
   const [selectedCandidate, setSelectedCandidate] = useState(null);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
 
   // const [searchQuery, setSearchQuery] = useState("");
@@ -562,52 +562,52 @@ const Internal = ({ objectPermissions, sharingPermissions }) => {
     setMenuOpen(!isMenuOpen);
   };
 
-  const [cancelledInterviews, setCancelledInterviews] = useState({});
-  const [canceledInterviews, setCanceledInterviews] = useState({});
+  // const [cancelledInterviews, setCancelledInterviews] = useState({});
+  // const [canceledInterviews, setCanceledInterviews] = useState({});
 
-  const handleCancelInterview = (interviewId) => {
-    setCancelledInterviews((prevState) => ({
-      ...prevState,
-      [interviewId]: true,
-    }));
-    setActionViewMore((prevState) => ({
-      ...prevState,
-      [interviewId]: false,
-    }));
-  };
+  // const handleCancelInterview = (interviewId) => {
+  //   setCancelledInterviews((prevState) => ({
+  //     ...prevState,
+  //     [interviewId]: true,
+  //   }));
+  //   setActionViewMore((prevState) => ({
+  //     ...prevState,
+  //     [interviewId]: false,
+  //   }));
+  // };
 
-  const handleCancelClick = (id) => {
-    setCanceledInterviews((prevState) => ({
-      ...prevState,
-      [id]: true,
-    }));
-    setActionViewMore((prevState) => ({
-      ...prevState,
-      [id]: false,
-    }));
-  };
+  // const handleCancelClick = (id) => {
+  //   setCanceledInterviews((prevState) => ({
+  //     ...prevState,
+  //     [id]: true,
+  //   }));
+  //   setActionViewMore((prevState) => ({
+  //     ...prevState,
+  //     [id]: false,
+  //   }));
+  // };
 
-  const handleclose = () => {
-    setShowEditLater(null);
-    setActionViewMore(false);
-  };
+  // const handleclose = () => {
+  //   setShowEditLater(null);
+  //   setActionViewMore(false);
+  // };
 
-  const buttonRef = useRef(null);
+  // const buttonRef = useRef(null);
 
-  const handleClick = async () => {
-    try {
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/interview/reschedule`,
-        {
-          id: showEditLater._id,
-        }
-      );
-      console.log("Updated interview:", response.data);
-      setActionViewMore(false);
-    } catch (error) {
-      console.error("Error updating interview status from me :", error);
-    }
-  };
+  // const handleClick = async () => {
+  //   try {
+  //     const response = await axios.put(
+  //       `${process.env.REACT_APP_API_URL}/interview/reschedule`,
+  //       {
+  //         id: showEditLater._id,
+  //       }
+  //     );
+  //     console.log("Updated interview:", response.data);
+  //     setActionViewMore(false);
+  //   } catch (error) {
+  //     console.error("Error updating interview status from me :", error);
+  //   }
+  // };
 
   //popup
   const [showPopup, setShowPopup] = useState(false);
@@ -679,14 +679,14 @@ const Internal = ({ objectPermissions, sharingPermissions }) => {
     .slice(startIndex, endIndex)
     .reverse();
 
-  const [selectedFilters, setSelectedFilters] = useState({
-    status: [],
-    tech: [],
-    experience: [],
-  });
+  // const [selectedFilters, setSelectedFilters] = useState({
+  //   status: [],
+  //   tech: [],
+  //   experience: [],
+  // });
 
   const handleFilterChange = useCallback((filters) => {
-    setSelectedFilters(filters);
+    // setSelectedFilters(filters);
   }, []);
   const [triggerCancel, setTriggerCancel] = useState(false);
 

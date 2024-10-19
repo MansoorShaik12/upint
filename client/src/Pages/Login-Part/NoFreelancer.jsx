@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { MdArrowDropDown } from "react-icons/md";
 import { TbCameraPlus } from "react-icons/tb";
 import { MdUpdate } from "react-icons/md";
 import { ImCancelCircle } from "react-icons/im";
 import axios from "axios";
 import { FaSearch } from 'react-icons/fa';
-import ImageUploading from 'react-images-uploading';
+// import ImageUploading from 'react-images-uploading';
 import { useNavigate } from 'react-router-dom';
 import { useAuth0 } from "@auth0/auth0-react";
-import Cookies from 'js-cookie';
+// import Cookies from 'js-cookie';
 import { fetchMasterData } from '../../utils/fetchMasterData';
 
 export default function NoFreelancer() {
-    const { user, isAuthenticated, isLoading } = useAuth0();
+    const { user } = useAuth0();
 
     // States for basic details
     const [formData, setFormData] = useState({
@@ -49,7 +49,7 @@ export default function NoFreelancer() {
     const [showDropdowngender, setShowDropdownGender] = useState(false);
     const genders = ['Male', 'Female', 'Prefer not to say', 'Others'];
 
-    const [images, setImages] = useState([]);
+    // const [images, setImages] = useState([]);
     const [step, setStep] = useState(0);
 
     const [charCount, setCharCount] = useState(0);
@@ -509,15 +509,15 @@ export default function NoFreelancer() {
 // image code
 const [file, setFile] = useState(null);
 const [filePreview, setFilePreview] = useState(user.picture ? user.picture : null);
-const [showImagePopup, setShowImagePopup] = useState(false);
-const [isImageUploaded, setIsImageUploaded] = useState(false);
+// const [showImagePopup, setShowImagePopup] = useState(false);
+// const [isImageUploaded, setIsImageUploaded] = useState(false);
 const fileInputRef = useRef(null);
 const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
         setFile(selectedFile);
         setFilePreview(URL.createObjectURL(selectedFile));
-        setIsImageUploaded(true);
+        // setIsImageUploaded(true);
 
     }
 };
@@ -533,11 +533,11 @@ const handleDeleteImage = () => {
     setFilePreview(null);
 };
 
-const handleContinue = (e) => {
-    e.preventDefault();
-    setShowImagePopup(false);
-    handleSubmit(e, false);
-};
+// const handleContinue = (e) => {
+//     e.preventDefault();
+//     // setShowImagePopup(false);
+//     handleSubmit(e, false);
+// };
 
 useEffect(() => {
     const fetchData = async () => {

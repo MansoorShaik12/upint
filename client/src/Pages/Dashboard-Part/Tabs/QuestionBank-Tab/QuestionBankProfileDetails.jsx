@@ -16,7 +16,7 @@ import Cookies from 'js-cookie';
 const InterviewDetails = ({ questionProfile, onCloseprofile,sharingPermissions }) => {
 
   const userId = Cookies.get("userId");
-  const orgId = Cookies.get("organizationId");
+  // const orgId = Cookies.get("organizationId");
 
   const [suggestedQuestions, setSuggestedQuestions] = useState([]);
   const [setMyQuestions] = useState([]);
@@ -71,7 +71,7 @@ const InterviewDetails = ({ questionProfile, onCloseprofile,sharingPermissions }
 
     fetchSuggestedQuestions();
     fetchMyQuestions(); // Fetch My Questions
-  }, [questionProfile.SkillName, userId]);
+  }, [questionProfile.SkillName, userId, sharingPermissions]);
 
   const handleStarClick = async (questionId) => {
     const isFavorite = favoriteQuestions.includes(questionId);

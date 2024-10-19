@@ -1,8 +1,8 @@
-import React, { useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { FaRegEye } from "react-icons/fa";
-import { FiEdit } from "react-icons/fi";
-import { GrSchedulePlay } from "react-icons/gr";
+import React, { useState } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { FaRegEye } from "react-icons/fa";
+// import { FiEdit } from "react-icons/fi";
+// import { GrSchedulePlay } from "react-icons/gr";
 import { useEffect } from "react";
 import { MdOutlineCancel } from "react-icons/md";
 import { TbFoldersOff } from "react-icons/tb";
@@ -12,8 +12,8 @@ import { MdMoreHoriz } from "react-icons/md";
 import { MdOutlineImageNotSupported } from "react-icons/md";
 
 const PositionProfileDetails = ({ position, onCloseprofile }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  // const navigate = useNavigate();
+  // const location = useLocation();
   // const position = useMemo(() => location.state?.position || {}, [location.state?.position]);
 
   // useEffect(() => {
@@ -26,13 +26,13 @@ const PositionProfileDetails = ({ position, onCloseprofile }) => {
 
   const [activeTab, setActiveTab] = useState("position");
   const [searchQuery] = useState("");
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
   const [candidateData, setCandidateData] = useState([]);
 
   useEffect(() => {
     const fetchCandidateData = async () => {
-      setLoading(true);
+      // setLoading(true);
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/candidate`);
         if (Array.isArray(response.data)) {
@@ -50,7 +50,7 @@ const PositionProfileDetails = ({ position, onCloseprofile }) => {
       } catch (error) {
         console.error('Error fetching candidate data:', error);
       } finally {
-        setLoading(false);
+        // setLoading(false);
       }
     };
 
@@ -69,26 +69,26 @@ const PositionProfileDetails = ({ position, onCloseprofile }) => {
     );
   };
 
-  const currentFilteredRows = FilteredData();
+  // const currentFilteredRows = FilteredData();
 
-  const trFontstyle = {
-    fontSize: "13px",
-  };
-  const Navigate = useNavigate();
+  // const trFontstyle = {
+  //   fontSize: "13px",
+  // };
+  // const Navigate = useNavigate();
 
-  const scheduling = () => {
-    Navigate("/scheduletype_save");
-  };
+  // const scheduling = () => {
+  //   Navigate("/scheduletype_save");
+  // };
 
-  const [currentPage] = useState(0);
-  const rowsPerPage = 5;
+  // const [currentPage] = useState(0);
+  // const rowsPerPage = 5;
 
-  const startIndex = currentPage * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, candidateData.length);
-  const currentRows = currentFilteredRows.slice(startIndex, endIndex).reverse();
-  const closeModalAndNavigate = () => {
-    navigate("/position");
-  };
+  // const startIndex = currentPage * rowsPerPage;
+  // const endIndex = Math.min(startIndex + rowsPerPage, candidateData.length);
+  // const currentRows = currentFilteredRows.slice(startIndex, endIndex).reverse();
+  // const closeModalAndNavigate = () => {
+  //   navigate("/position");
+  // };
 
   const [showMainContent, setShowMainContent] = useState(true);
   const [showNewCandidateContent, setShowNewCandidateContent] = useState(false);

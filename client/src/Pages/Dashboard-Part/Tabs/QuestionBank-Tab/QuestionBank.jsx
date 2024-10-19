@@ -158,7 +158,7 @@ const QuestionBank = ({objectPermissions, sharingPermissions}) => {
         };
 
         ws.onmessage = (event) => {
-            const { type, data } = JSON.parse(event.data);
+            const { type } = JSON.parse(event.data);
             if (type === 'question') {
                 // setQuestionProfile(data);
                 setNotification("A new question has been successfully created!");
@@ -238,9 +238,9 @@ const QuestionBank = ({objectPermissions, sharingPermissions}) => {
         setSidebarOpen(!sidebarOpen);
     };
 
-    const closeSidebar = () => {
+    const closeSidebar = useCallback(() => {
         setSidebarOpen(false);
-    };
+    }, []);
 
     const handleOutsideClick = useCallback((event) => {
         if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {

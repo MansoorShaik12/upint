@@ -24,7 +24,7 @@ export const Organization = () => {
   const employeesOptions = ["Employees", "11-20"];
   const [objectsData, setObjectsData] = useState([]);
   const [tabsData, setTabsData] = useState([]);
-  const userId = localStorage.getItem('userId');
+  // const userId = localStorage.getItem('userId');
 
   const navigate = useNavigate();
 
