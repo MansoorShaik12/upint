@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const connectDB = require('./db.js');
 const bcrypt = require('bcrypt');
-const Candidate = require('./models/Candidate.js');
+const Candidate = require('./models/candidate.js');
 const Position = require('./models/Position.js');
 const Team = require('./models/Team.js');
 const Assessment = require('./models/Assessment.js');
