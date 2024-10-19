@@ -122,8 +122,8 @@ const App = () => {
     };
   }, []);
 
-  const [roomName, setRoomName] = useState('SampleRoom');
-  const [displayName, setDisplayName] = useState('John Doe');
+  const [roomName] = useState('SampleRoom');
+  const [displayName] = useState('John Doe');
   return (
     <React.Fragment>
       {shouldRenderNavbar && <Navbar />}

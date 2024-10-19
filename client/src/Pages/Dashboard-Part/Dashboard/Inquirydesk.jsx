@@ -22,7 +22,6 @@ import { CgInfo } from "react-icons/cg";
 
 const OffcanvasMenu = ({ isOpen }) => {
   const [isStatusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const [isTechDropdownOpen, setTechDropdownOpen] = useState(false);
   const [isExperienceDropdownOpen, setIsExperienceDropdownOpen] = useState(false);
   const [isStatusMainChecked, setStatusMainChecked] = useState(false);
   const [isTechMainChecked, setTechMainChecked] = useState(false);
@@ -466,19 +465,12 @@ const Inquirydesk = () => {
     setSelectedcandidate(candidate);
   };
 
-  const handleclose = () => {
-    setSelectedcandidate(null);
-    setActionViewMore(false);
-  };
   const [popupLastName, setPopupLastName] = useState("");
   const [showPopup, setShowPopup] = useState(false);
 
   const handlePopupClick = (lastName) => {
     setPopupLastName(lastName);
     setShowPopup(true);
-  };
-  const onClosepopup = () => {
-    setShowPopup(false);
   };
 
   return (

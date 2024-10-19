@@ -437,10 +437,6 @@ const Home = ({ sharingPermissions, objectPermissions }) => {
     setIsModalOpen(false);
   };
 
-  const closePopup = () => {
-    setIsPopupOpen(false);
-  };
-
   const [isPopupNotificationOpen, setIsPopupNotificationOpen] = useState(false);
 
   const handleMoreNotificationClick = () => {

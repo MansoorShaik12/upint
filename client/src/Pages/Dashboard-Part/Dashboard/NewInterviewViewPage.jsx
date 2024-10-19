@@ -2,16 +2,10 @@ import { useState, useRef, useEffect } from "react";
 import "../../../index.css";
 import "../Tabs/styles/tabs.scss";
 import { useNavigate } from "react-router-dom";
-
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
-import { FaList } from "react-icons/fa6";
-import { TbLayoutGridRemove } from "react-icons/tb";
-import { IoMdSearch, IoIosArrowDown } from "react-icons/io";
+import { IoMdSearch } from "react-icons/io";
 import Tooltip from "@mui/material/Tooltip";
-import { Menu } from "@headlessui/react";
-import { IoMdMore } from "react-icons/io";
-import { MdMoreHoriz } from "react-icons/md";
 import { FaFilter } from "react-icons/fa";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa";
@@ -131,6 +125,7 @@ const OffcanvasMenu = ({ isOpen }) => {
 };
 const Viewpage1 = () => {
   const Navigate = useNavigate();
+  
   // const handleShowCandidates = () => {
   // 	Navigate("/createCandidate");
   // };
