@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { MdOutlineCancel, MdOutlineImageNotSupported } from "react-icons/md";
-import { FaTimes } from "react-icons/fa";
+// import { useNavigate, useParams } from 'react-router-dom';
+import { MdOutlineCancel } from "react-icons/md";
+// import { FaTimes } from "react-icons/fa";
 import { IoMdArrowRoundBack } from "react-icons/io";
 import Editinternallater from "./Edit-Internal-later";
 import axios from 'axios';
@@ -10,17 +10,17 @@ import femaleImage from '../../../Dashboard-Part/Images/woman.png';
 import genderlessImage from '../../../Dashboard-Part/Images/transgender.png';
 
 const Internalprofiledetails = ({ candidate, onCloseprofile, triggerCancel, viewMode }) => {
-    const [isViewMode, setIsViewMode] = useState(false);
+    // const [isViewMode, setIsViewMode] = useState(false);
     const [showMainContent, setShowMainContent] = useState(true);
-    const [showNewCandidateContent, setShowNewCandidateContent] = useState(false);
-    const [showPopup, setShowPopup] = useState(false);
-    const [currentInterviewId, setCurrentInterviewId] = useState(candidate._id);
-    const [currentRoundIndex, setCurrentRoundIndex] = useState(null);
+    // const [showNewCandidateContent, setShowNewCandidateContent] = useState(false);
+    // const [showPopup, setShowPopup] = useState(false);
+    const [currentInterviewId] = useState(candidate._id);
+    // const [currentRoundIndex, setCurrentRoundIndex] = useState(null);
     const [showCheckboxes, setShowCheckboxes] = useState(false);
-    const [selectedRounds, setSelectedRounds] = useState([]);
+    // const [selectedRounds, setSelectedRounds] = useState([]);
     const [updatedCandidate, setUpdatedCandidate] = useState(candidate);
-    const navigate = useNavigate();
-    const { interviewId } = useParams();
+    // const navigate = useNavigate();
+    // const { interviewId } = useParams();
     const [showEditLater, setShowEditLater] = useState(false);
 
     useEffect(() => {
@@ -54,10 +54,10 @@ const Internalprofiledetails = ({ candidate, onCloseprofile, triggerCancel, view
         };
     }, [currentInterviewId]);
 
-    const handleViewMoreClick = () => {
-        setIsViewMode(true);
-        setShowCheckboxes(false);
-    };
+    // const handleViewMoreClick = () => {
+    //     setIsViewMode(true);
+    //     setShowCheckboxes(false);
+    // };
 
     const handleEditClick = (candidate) => {
         setShowEditLater({
@@ -69,53 +69,53 @@ const Internalprofiledetails = ({ candidate, onCloseprofile, triggerCancel, view
 
     const handleclose = () => {
         setShowMainContent(true);
-        setShowNewCandidateContent(false);
+        // setShowNewCandidateContent(false);
     };
 
     const handleUpdate = (roundIndex) => {
         console.log("handleUpdate called with roundIndex:", roundIndex);
-        setCurrentRoundIndex(roundIndex);
-        setShowPopup(true);
+        // setCurrentRoundIndex(roundIndex);
+        // setShowPopup(true);
     };
 
-    const handlePopupClose = () => {
-        setShowPopup(false);
-        setCurrentRoundIndex(null);
-    };
+    // const handlePopupClose = () => {
+    //     setShowPopup(false);
+    //     setCurrentRoundIndex(null);
+    // };
 
-    const handlePopupConfirm = async (e) => {
-        e.preventDefault();
-        try {
-            const updatedRounds = updatedCandidate.rounds.map((round, index) => {
-                if (index === currentRoundIndex) {
-                    return { ...round, status: 'ScheduleCancel' };
-                }
-                return round;
-            });
+    // const handlePopupConfirm = async (e) => {
+    //     e.preventDefault();
+    //     try {
+    //         const updatedRounds = updatedCandidate.rounds.map((round, index) => {
+    //             if (index === currentRoundIndex) {
+    //                 return { ...round, status: 'ScheduleCancel' };
+    //             }
+    //             return round;
+    //         });
 
-            const updatedCandidateData = { ...updatedCandidate, rounds: updatedRounds };
-            await axios.put(`${process.env.REACT_APP_API_URL}/updateinterview/${currentInterviewId}`, updatedCandidateData);
-            setShowPopup(false);
-            setCurrentRoundIndex(null);
-        } catch (error) {
-            console.error('Error updating round status:', error);
-        }
-        setShowCheckboxes(false);
-    };
+    //         const updatedCandidateData = { ...updatedCandidate, rounds: updatedRounds };
+    //         await axios.put(`${process.env.REACT_APP_API_URL}/updateinterview/${currentInterviewId}`, updatedCandidateData);
+    //         setShowPopup(false);
+    //         setCurrentRoundIndex(null);
+    //     } catch (error) {
+    //         console.error('Error updating round status:', error);
+    //     }
+    //     setShowCheckboxes(false);
+    // };
 
     const handleCancelClick = () => {
         setShowCheckboxes(true);
     };
 
-    const handleCheckboxChange = (index) => {
-        setSelectedRounds((prevSelectedRounds) => {
-            if (prevSelectedRounds.includes(index)) {
-                return prevSelectedRounds.filter((i) => i !== index);
-            } else {
-                return [...prevSelectedRounds, index];
-            }
-        });
-    };
+    // const handleCheckboxChange = (index) => {
+    //     setSelectedRounds((prevSelectedRounds) => {
+    //         if (prevSelectedRounds.includes(index)) {
+    //             return prevSelectedRounds.filter((i) => i !== index);
+    //         } else {
+    //             return [...prevSelectedRounds, index];
+    //         }
+    //     });
+    // };
 
     const handleBackClick = () => {
         setShowCheckboxes(false);

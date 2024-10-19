@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import "../../../../index.css";
 import "../styles/tabs.scss";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 import { FaList } from "react-icons/fa6";
@@ -22,7 +22,7 @@ import { GrPowerReset } from "react-icons/gr";
 import { FaTimes } from "react-icons/fa";
 import { CgInfo } from "react-icons/cg";
 import OutsourceInterview from "./Internalprofiledetails.js";
-import { MdOutlineImageNotSupported } from "react-icons/md";
+// import { MdOutlineImageNotSupported } from "react-icons/md";
 import { fetchFilterData, handleWebSocket } from '../../../../utils/dataUtils.js';
 import maleImage from '../../../Dashboard-Part/Images/man.png';
 import femaleImage from '../../../Dashboard-Part/Images/woman.png';
@@ -160,7 +160,7 @@ const Outsource = ({ objectPermissions, sharingPermissions }) => {
   useEffect(() => {
     document.title = "Internal interviews";
   }, []);
-  const userId = localStorage.getItem("userId");
+  // const userId = localStorage.getItem("userId");
 
 
   const [selectedInterview, setSelectedInterview] = useState(null);
@@ -196,7 +196,7 @@ const Outsource = ({ objectPermissions, sharingPermissions }) => {
   const [notification, setNotification] = useState("");
 
 
-  const fetchInterviewData = async () => {
+  const fetchInterviewData = useCallback(async () => {
     setLoading(true);
     try {
       const filteredInterviews = await fetchFilterData('interview', interviewPermissions);
@@ -232,7 +232,7 @@ const Outsource = ({ objectPermissions, sharingPermissions }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [interviewPermissions]);
 
   useEffect(() => {
     const ws = handleWebSocket(
@@ -247,7 +247,7 @@ const Outsource = ({ objectPermissions, sharingPermissions }) => {
     return () => {
       ws.close();
     };
-  }, [interviewPermissions]);
+  }, [interviewPermissions, fetchInterviewData]);
 
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -326,52 +326,52 @@ const Outsource = ({ objectPermissions, sharingPermissions }) => {
     setMenuOpen(!isMenuOpen);
   };
 
-  const [cancelledInterviews, setCancelledInterviews] = useState({});
-  const [canceledInterviews, setCanceledInterviews] = useState({});
+  // const [cancelledInterviews, setCancelledInterviews] = useState({});
+  // const [canceledInterviews, setCanceledInterviews] = useState({});
 
-  const handleCancelInterview = (interviewId) => {
-    setCancelledInterviews((prevState) => ({
-      ...prevState,
-      [interviewId]: true,
-    }));
-    setActionViewMore((prevState) => ({
-      ...prevState,
-      [interviewId]: false,
-    }));
-  };
+  // const handleCancelInterview = (interviewId) => {
+  //   setCancelledInterviews((prevState) => ({
+  //     ...prevState,
+  //     [interviewId]: true,
+  //   }));
+  //   setActionViewMore((prevState) => ({
+  //     ...prevState,
+  //     [interviewId]: false,
+  //   }));
+  // };
 
-  const handleCancelClick = (id) => {
-    setCanceledInterviews((prevState) => ({
-      ...prevState,
-      [id]: true,
-    }));
-    setActionViewMore((prevState) => ({
-      ...prevState,
-      [id]: false,
-    }));
-  };
+  // const handleCancelClick = (id) => {
+  //   setCanceledInterviews((prevState) => ({
+  //     ...prevState,
+  //     [id]: true,
+  //   }));
+  //   setActionViewMore((prevState) => ({
+  //     ...prevState,
+  //     [id]: false,
+  //   }));
+  // };
 
-  const handleclose = () => {
-    setSelectedInterview(null);
-    setActionViewMore(false);
-  };
+  // const handleclose = () => {
+  //   setSelectedInterview(null);
+  //   setActionViewMore(false);
+  // };
 
-  const buttonRef = useRef(null);
+  // const buttonRef = useRef(null);
 
-  const handleClick = async () => {
-    try {
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/interview/reschedule`,
-        {
-          id: selectedInterview._id,
-        }
-      );
-      console.log("Updated interview:", response.data);
-      setActionViewMore(false);
-    } catch (error) {
-      console.error("Error updating interview status from me :", error);
-    }
-  };
+  // const handleClick = async () => {
+  //   try {
+  //     const response = await axios.put(
+  //       `${process.env.REACT_APP_API_URL}/interview/reschedule`,
+  //       {
+  //         id: selectedInterview._id,
+  //       }
+  //     );
+  //     console.log("Updated interview:", response.data);
+  //     setActionViewMore(false);
+  //   } catch (error) {
+  //     console.error("Error updating interview status from me :", error);
+  //   }
+  // };
 
   //popup
   const [showPopup, setShowPopup] = useState(false);
@@ -439,14 +439,14 @@ const Outsource = ({ objectPermissions, sharingPermissions }) => {
     .slice(startIndex, endIndex)
     .reverse();
 
-  const [selectedFilters, setSelectedFilters] = useState({
-    status: [],
-    tech: [],
-    experience: [],
-  });
+  // const [selectedFilters, setSelectedFilters] = useState({
+  //   status: [],
+  //   tech: [],
+  //   experience: [],
+  // });
 
   const handleFilterChange = useCallback((filters) => {
-    setSelectedFilters(filters);
+    // setSelectedFilters(filters);
   }, []);
 
   const toggleInterviewDropdown = () => {
@@ -536,7 +536,7 @@ const Outsource = ({ objectPermissions, sharingPermissions }) => {
     return () => {
       ws.close();
     };
-  }, []);
+  }, [interviewPermissions, fetchInterviewData]);
 
   return (
     <>
