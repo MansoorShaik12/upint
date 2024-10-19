@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import axios from "axios";
 import Home from './Pages/Dashboard-Part/Dashboard/Home.jsx';
 import Navbar from './Components/Navbar/Navbar-Sidebar.jsx';
 import Assessment from "./Pages/Dashboard-Part/Tabs/Assessment-Tab/Assessment.jsx";
