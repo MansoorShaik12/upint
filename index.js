@@ -6,12 +6,12 @@ const Candidate = require('./models/candidate.js');
 const Position = require('./models/position.js');
 const Team = require('./models/team.js');
 const Assessment = require('./models/assessment.js');
-const HigherQualification = require('./models/HigherQualification.js');
-const University_CollegeName = require('./models/College.js')
-const Skills = require('./models/Skills.js');
-const Company = require('./models/Company.js');
-const Location = require('./models/Locations.js');
-const Industry = require('./models/Industries.js');
+const HigherQualification = require('./models/higherqualification.js');
+const University_CollegeName = require('./models/college.js')
+const Skills = require('./models/skills.js');
+const Company = require('./models/company.js');
+const Location = require('./models/locations.js');
+const Industry = require('./models/industries.js');
 const { Interview, InterviewHistory } = require('./models/interview.js');
 const ScheduleRounds = require('./models/ScheduleRounds');
 const { NewQuestion, QuestionOption } = require('./models/NewQuestion.js');
@@ -22,7 +22,7 @@ const bodyParser = require('body-parser');
 const LoginAdditionalDetails = require('./models/LoginAdditionalDetails.js');
 const InterviewAvailability = require('./models/InterviewAvailability.js');
 const LinkedInDetails = require('./models/LinkedInDetails');
-const { Contacts, ContactHistory } = require('./models/Contacts.js')
+const { Contacts, ContactHistory } = require('./models/contacts.js')
 const { Users, UserHistory } = require("./models/Users.js")
 const nodemailer = require('nodemailer');
 const multer = require('multer');
@@ -1164,7 +1164,7 @@ app.get('/interview/check', async (req, res) => {
 });
 // this code to get rounds data from interviews we use post in some cases to get data
 app.post('/fetch-rounds-from-view', async (req, res) => {
-  const { roundIds } = req.body; 
+  const { roundIds } = req.body;
   try {
     const rounds = await ScheduleRounds.find({ _id: { $in: roundIds } });
     res.json(rounds);
@@ -1345,7 +1345,7 @@ app.get('/mockinterview', async (req, res) => {
   }
 });
 
-app.post('/mockinterview', async (req, res) => { 
+app.post('/mockinterview', async (req, res) => {
   const { Title, Skills, DateTime, Interviewer, Duration, Description, Status, OwnerId, orgId } = req.body; // Ensure orgId is destructured
   const mockInterview = new MockInterview({
     Title,
@@ -1356,7 +1356,7 @@ app.post('/mockinterview', async (req, res) => {
     Description,
     Status,
     OwnerId,
-    orgId 
+    orgId
   });
   try {
     const newMockInterview = await mockInterview.save();
@@ -1753,18 +1753,18 @@ app.get('/getUsersByRoleId', async (req, res) => {
   const { organizationId, roleId } = req.query; // Extract organizationId and roleId from query parameters
 
   try {
-      // Build the query object
-      const query = { organizationId };
-      if (roleId) {
-          query.RoleId = { $in: Array.isArray(roleId) ? roleId : [roleId] }; // Ensure roleId is an array
-      }
+    // Build the query object
+    const query = { organizationId };
+    if (roleId) {
+      query.RoleId = { $in: Array.isArray(roleId) ? roleId : [roleId] }; // Ensure roleId is an array
+    }
 
-      // Fetch users based on the query
-      const users = await Users.find(query);
-      res.status(200).json(users);
+    // Fetch users based on the query
+    const users = await Users.find(query);
+    res.status(200).json(users);
   } catch (error) {
-      console.error('Error fetching users by organization and role:', error);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
+    console.error('Error fetching users by organization and role:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 });
 
@@ -1773,24 +1773,24 @@ app.get('/getUsersByRoleId', async (req, res) => {
 app.get('/api/users/organization/:organizationId', async (req, res) => {
   const { organizationId } = req.params;
   try {
-      const users = await Users.find({ organizationId });
-      res.status(200).json(users);
+    const users = await Users.find({ organizationId });
+    res.status(200).json(users);
   } catch (error) {
-      console.error('Error fetching users by organization:', error);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
+    console.error('Error fetching users by organization:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 });
 
 app.get('/api/rolesdata/:organizationId', async (req, res) => {
   const { organizationId } = req.params;
   try {
-      const roles = await Role.find({ organizationId }).populate('reportsToRoleId');
-      if (!roles || roles.length === 0) {
-          return res.status(404).json({ message: 'No roles found for this organization' });
-      }
-      res.status(200).json(roles);
+    const roles = await Role.find({ organizationId }).populate('reportsToRoleId');
+    if (!roles || roles.length === 0) {
+      return res.status(404).json({ message: 'No roles found for this organization' });
+    }
+    res.status(200).json(roles);
   } catch (error) {
-      res.status(500).json({ message: 'Error fetching roles', error: error.message });
+    res.status(500).json({ message: 'Error fetching roles', error: error.message });
   }
 });
 
@@ -2163,14 +2163,14 @@ app.post('/rolesdata', async (req, res) => {
 
 app.get('/rolesdata/:id', async (req, res) => {
   const { id } = req.params;
-  try { 
-      const role = await Role.findById(id);
-      if (!role) {
-          return res.status(404).json({ message: 'Role not found' });
-      }
-      res.status(200).json(role);
+  try {
+    const role = await Role.findById(id);
+    if (!role) {
+      return res.status(404).json({ message: 'Role not found' });
+    }
+    res.status(200).json(role);
   } catch (error) {
-      res.status(500).json({ message: 'Error fetching role', error: error.message });
+    res.status(500).json({ message: 'Error fetching role', error: error.message });
   }
 });
 
@@ -2641,25 +2641,25 @@ app.post('/api/sharing-rules', async (req, res) => {
   const { label, name, objectName, ruleType, recordsOwnedBy, recordsOwnedById, shareWith, shareWithId, access, description, orgId } = req.body;
 
   const newSharingRule = new SharingRule({
-      label,
-      name,
-      objectName,
-      ruleType,
-      recordsOwnedBy,
-      recordsOwnedById,
-      shareWith,
-      shareWithId,
-      access,
-      description,
-      orgId
+    label,
+    name,
+    objectName,
+    ruleType,
+    recordsOwnedBy,
+    recordsOwnedById,
+    shareWith,
+    shareWithId,
+    access,
+    description,
+    orgId
   });
 
   try {
-      const savedRule = await newSharingRule.save();
-      res.status(201).json(savedRule);
+    const savedRule = await newSharingRule.save();
+    res.status(201).json(savedRule);
   } catch (error) {
-      console.error('Error saving sharing rule:', error); // Log the error
-      res.status(500).json({ message: 'Error saving sharing rule', error: error.message });
+    console.error('Error saving sharing rule:', error); // Log the error
+    res.status(500).json({ message: 'Error saving sharing rule', error: error.message });
   }
 });
 
@@ -2669,14 +2669,14 @@ app.get('/api/from/sharing-rules', async (req, res) => {
   const { orgId } = req.query; // Get the organization ID from query parameters
 
   try {
-      // Query the database for sharing rules with the specified organization ID
-      const sharingRules = await SharingRule.find({ orgId });
+    // Query the database for sharing rules with the specified organization ID
+    const sharingRules = await SharingRule.find({ orgId });
 
-      // Return the sharing rules as a JSON response
-      res.status(200).json(sharingRules);
+    // Return the sharing rules as a JSON response
+    res.status(200).json(sharingRules);
   } catch (error) {
-      console.error('Error fetching sharing rules:', error);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
+    console.error('Error fetching sharing rules:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 });
 // this sharing rule fetch used in datautils function
@@ -2687,22 +2687,22 @@ app.get('/api/sharing-rules', async (req, res) => {
   const shareWithIdArray = Array.isArray(shareWithId) ? shareWithId : [shareWithId];
 
   try {
-      // Validate required parameters
-      if (!orgId || !objectName || !shareWithIdArray.length) {
-          return res.status(400).json({ message: 'Missing required query parameters' });
-      }
+    // Validate required parameters
+    if (!orgId || !objectName || !shareWithIdArray.length) {
+      return res.status(400).json({ message: 'Missing required query parameters' });
+    }
 
-      // Query the database for sharing rules
-      const sharingRules = await SharingRule.find({
-          orgId,
-          objectName,
-          shareWithId: { $in: shareWithIdArray }
-      });
+    // Query the database for sharing rules
+    const sharingRules = await SharingRule.find({
+      orgId,
+      objectName,
+      shareWithId: { $in: shareWithIdArray }
+    });
 
-      res.status(200).json(sharingRules);
+    res.status(200).json(sharingRules);
   } catch (error) {
-      console.error('Error fetching sharing rules:', error);
-      res.status(500).json({ message: 'Internal server error', error: error.message });
+    console.error('Error fetching sharing rules:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 });
 
@@ -2741,7 +2741,7 @@ app.get('/api/:model', async (req, res) => {
     } else if (OwnerId) {
       // Fetch data for the given OwnerId
       data = await DataModel.find({ OwnerId });
-      console.log("Fetched data:", data);  
+      console.log("Fetched data:", data);
     } else {
       return res.status(400).json({ message: 'orgId or OwnerId is required' });
     }
@@ -2758,7 +2758,7 @@ app.get('/api/:model', async (req, res) => {
 
 const modelMappingOrganization = {
   'users': Users,
-  'rolesdata': Role, 
+  'rolesdata': Role,
   'profiles': Profile,
   'sharing-rules': SharingRule,
   'sharing-settings': SharingSettings,
@@ -2920,12 +2920,12 @@ const addInitialPlansData = async () => {
 
 // my work to add in ashraf's code ( MANSOOR )
 
-const ConnectedApp = require('./models/ConnectedApp.js');
+const ConnectedApp = require('./models/connectedapp.js');
 const generateRandomString = require('./utils/generateRandomString.js');
 const { handleRequest: handleCandidateRequest, getCandidatesByRef, updateCandidateByRef } = require('./utils/candidateApiHelper.js');
 const { handleRequest: handlePositionRequest, getPositionByRef, updatePositionByRef } = require('./utils/positionApiHelper.js');
 const { getAccessToken, renewAccessToken } = require('./utils/accessTokenHelper.js');
- 
+
 // CONNECTED APPS
 // get all connected apps to ui
 app.get('/connected-apps', async (req, res) => {
