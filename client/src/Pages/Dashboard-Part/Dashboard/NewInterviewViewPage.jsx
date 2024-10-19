@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import "../../../index.css";
 import "../Tabs/styles/tabs.scss";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 import { IoMdSearch } from "react-icons/io";
@@ -9,7 +9,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { FaFilter } from "react-icons/fa";
 import { FaCaretDown, FaCaretUp } from "react-icons/fa";
 import { FaArrowRight } from "react-icons/fa";
-import Sidebar from "../Dashboard/NewInterviewRequest";
+// import Sidebar from "../Dashboard/NewInterviewRequest";
 import axios from "axios";
 const interviewData = [
   { title: "Salesforce Developer", date: "15/5/2024 3:00 pm", skills: "Apex, AURA, LWC" },
@@ -31,7 +31,7 @@ const NewInterviewViewPage = () => {
 const OffcanvasMenu = ({ isOpen }) => {
   // const [isStatusChecked, setStatusChecked] = useState(false);
   const [isStatusDropdownOpen, setStatusDropdownOpen] = useState(false);
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  // const [selectedOptions, setSelectedOptions] = useState([]);
   // const [isTechDropdownOpen, setTechDropdownOpen] = useState(false);
   // const [selectedTechOptions, setSelectedTechOptions] = useState([]);
   // const [isExperienceDropdownOpen, setIsExperienceDropdownOpen] = useState(false);
@@ -40,13 +40,13 @@ const OffcanvasMenu = ({ isOpen }) => {
     setStatusDropdownOpen(!isStatusDropdownOpen);
   };
 
-  const handleStatusSelect = (option) => {
-    if (selectedOptions.includes(option)) {
-      setSelectedOptions(selectedOptions.filter((item) => item !== option));
-    } else {
-      setSelectedOptions([...selectedOptions, option]);
-    }
-  };
+  // const handleStatusSelect = (option) => {
+  //   if (selectedOptions.includes(option)) {
+  //     setSelectedOptions(selectedOptions.filter((item) => item !== option));
+  //   } else {
+  //     setSelectedOptions([...selectedOptions, option]);
+  //   }
+  // };
 
   // const handleTechToggle = () => {
   //   setTechDropdownOpen(!isTechDropdownOpen);
@@ -123,7 +123,7 @@ const OffcanvasMenu = ({ isOpen }) => {
   );
 };
 const Viewpage1 = () => {
-  const Navigate = useNavigate();
+  // const Navigate = useNavigate();
 
   // const handleShowCandidates = () => {
   // 	Navigate("/createCandidate");
@@ -132,19 +132,19 @@ const Viewpage1 = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+  // const toggleSidebar = () => {
+  //   setSidebarOpen(!sidebarOpen);
+  // };
 
-  const closeSidebar = () => {
+  const closeSidebar = useCallback(() => {
     setSidebarOpen(false);
-  };
+  }, []);
 
-  const handleOutsideClick = (event) => {
+  const handleOutsideClick = useCallback((event) => {
     if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
       closeSidebar();
     }
-  };
+  }, [closeSidebar, sidebarRef]);
 
   useEffect(() => {
     if (sidebarOpen) {
@@ -170,18 +170,18 @@ const Viewpage1 = () => {
 };
 
 const Viewpage2 = () => {
-  const navigate = useNavigate();
-  const [selectedAssessment, setSelectedAssessment] = useState(null);
-  const [showPopup, setShowPopup] = useState(false);
+  // const navigate = useNavigate();
+  // const [selectedAssessment, setSelectedAssessment] = useState(null);
+  // const [showPopup, setShowPopup] = useState(false);
 
-  const handleAssessmentClick = (assessment) => {
-    // setShowPopup(true);
-    navigate("/assessmentpopup", { state: { assessment } });
-  };
+  // const handleAssessmentClick = (assessment) => {
+  //   // setShowPopup(true);
+  //   navigate("/assessmentpopup", { state: { assessment } });
+  // };
 
-  const closeModal = () => {
-    setShowPopup(false);
-  };
+  // const closeModal = () => {
+  //   setShowPopup(false);
+  // };
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -190,33 +190,33 @@ const Viewpage2 = () => {
     return storeAssessmentData ? JSON.parse(storeAssessmentData) : [];
   });
 
-  const FilteredData = () => {
-    const lowerCaseSearchQuery = searchQuery.toLowerCase();
+  // const FilteredData = () => {
+  //   const lowerCaseSearchQuery = searchQuery.toLowerCase();
 
-    return AssessmentData.filter(
-      (user) =>
-        (user.assessmentName &&
-          user.assessmentName.toLowerCase().includes(lowerCaseSearchQuery)) ||
-        (user.assessmentType &&
-          user.assessmentType.toLowerCase().includes(lowerCaseSearchQuery)) ||
-        (user.passscore &&
-          user.passscore.toLowerCase().includes(lowerCaseSearchQuery)) ||
-        (user.skills && user.skills.includes(lowerCaseSearchQuery))
-    );
-  };
+  //   return AssessmentData.filter(
+  //     (user) =>
+  //       (user.assessmentName &&
+  //         user.assessmentName.toLowerCase().includes(lowerCaseSearchQuery)) ||
+  //       (user.assessmentType &&
+  //         user.assessmentType.toLowerCase().includes(lowerCaseSearchQuery)) ||
+  //       (user.passscore &&
+  //         user.passscore.toLowerCase().includes(lowerCaseSearchQuery)) ||
+  //       (user.skills && user.skills.includes(lowerCaseSearchQuery))
+  //   );
+  // };
 
-  const currentFilteredRows = FilteredData();
+  // const currentFilteredRows = FilteredData();
 
   const handleSearchInputChange = (event) => {
     setSearchQuery(event.target.value);
   };
 
   // styles
-  const trFontstyle = {
-    fontSize: "13px",
-  };
+  // const trFontstyle = {
+  //   fontSize: "13px",
+  // };
 
-  const Navigate = useNavigate();
+  // const Navigate = useNavigate();
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const sidebarRef = useRef(null);
@@ -225,15 +225,15 @@ const Viewpage2 = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const closeSidebar = () => {
+  const closeSidebar = useCallback(() => {
     setSidebarOpen(false);
-  };
+  }, []);
 
-  const handleOutsideClick = (event) => {
+  const handleOutsideClick = useCallback((event) => {
     if (sidebarRef.current && !sidebarRef.current.contains(event.target)) {
       closeSidebar();
     }
-  };
+  }, [closeSidebar, sidebarRef]);
 
   useEffect(() => {
     if (sidebarOpen) {
@@ -245,7 +245,7 @@ const Viewpage2 = () => {
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
     };
-  }, [sidebarOpen]);
+  }, [sidebarOpen, handleOutsideClick]);
 
 
   const [currentPage, setCurrentPage] = useState(0);
@@ -268,36 +268,36 @@ const Viewpage2 = () => {
       setActiveArrow("prev");
     }
   };
-  const startIndex = currentPage * rowsPerPage;
-  const endIndex = Math.min(startIndex + rowsPerPage, AssessmentData.length);
-  const currentRows = currentFilteredRows.slice(startIndex, endIndex).reverse();
+  // const startIndex = currentPage * rowsPerPage;
+  // const endIndex = Math.min(startIndex + rowsPerPage, AssessmentData.length);
+  // const currentRows = currentFilteredRows.slice(startIndex, endIndex).reverse();
 
 
 
 
 
   //   const [questionData, setQuestionData] = useState([]);
-  const [basicData] = useState(
-    JSON.parse(localStorage.getItem("basicData")) || []
-  );
+  // const [basicData] = useState(
+  //   JSON.parse(localStorage.getItem("basicData")) || []
+  // );
 
   // const [actionViewMore, setActionViewMore] = useState(false);
-  const [actionViewMore, setActionViewMore] = useState(
-    Array(basicData.length).fill(false)
-  ); // State to manage popup visibility for action buttons
+  // const [actionViewMore, setActionViewMore] = useState(
+  //   Array(basicData.length).fill(false)
+  // ); // State to manage popup visibility for action buttons
 
-  const toggleAction = (index) => {
-    setActionViewMore((prevState) => {
-      const newState = [...prevState];
-      newState[index] = !newState[index];
-      return newState;
-    });
-  };
+  // const toggleAction = (index) => {
+  //   setActionViewMore((prevState) => {
+  //     const newState = [...prevState];
+  //     newState[index] = !newState[index];
+  //     return newState;
+  //   });
+  // };
 
-  useEffect(() => {
-    const storedData = JSON.parse(localStorage.getItem("basicData")) || [];
-    // setBasicData(storedData);
-  }, []);
+  // useEffect(() => {
+  //   const storedData = JSON.parse(localStorage.getItem("basicData")) || [];
+  //   // setBasicData(storedData);
+  // }, []);
 
   const [isMenuOpen, setMenuOpen] = useState(false);
 

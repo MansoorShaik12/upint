@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { validateEmail, validatePhoneNumber, validateUrl, validateCandidateForm } from '../../../../utils/CandidateValidation';
+import { validateUrl } from '../../../../utils/CandidateValidation';
 
 const Connected_apps_form = ({ onClose, initialData }) => {
     const [formData, setFormData] = useState({

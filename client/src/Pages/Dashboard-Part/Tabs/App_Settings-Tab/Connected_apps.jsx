@@ -3,8 +3,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import "../../../../index.css";
 import "../styles/tabs.scss";
-import { useNavigate } from "react-router-dom";
-import { FaSyncAlt } from 'react-icons/fa';
+// import { useNavigate } from "react-router-dom";
+// import { FaSyncAlt } from 'react-icons/fa';
 // import Tooltip from '@material-ui/core/Tooltip';
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
@@ -73,12 +73,12 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
         onFilterChange({ status: selectedStatusOptions, tech: newSelectedTech, experience: selectedExperienceOptions });
     };
 
-    const handleExperienceMainToggle = () => {
-        setIsExperienceMainChecked(!isExperienceMainChecked);
-        const newSelectedExperience = isExperienceMainChecked ? [] : [...experienceOptions];
-        setSelectedExperienceOptions(newSelectedExperience);
-        onFilterChange({ status: selectedStatusOptions, tech: selectedTechOptions, experience: newSelectedExperience });
-    };
+    // const handleExperienceMainToggle = () => {
+    //     setIsExperienceMainChecked(!isExperienceMainChecked);
+    //     const newSelectedExperience = isExperienceMainChecked ? [] : [...experienceOptions];
+    //     setSelectedExperienceOptions(newSelectedExperience);
+    //     onFilterChange({ status: selectedStatusOptions, tech: selectedTechOptions, experience: newSelectedExperience });
+    // };
 
     const handleStatusOptionToggle = (option) => {
         const selectedIndex = selectedStatusOptions.indexOf(option);
@@ -100,15 +100,15 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
         onFilterChange({ status: selectedStatusOptions, tech: updatedOptions, experience: selectedExperienceOptions });
     };
 
-    const handleExperienceOptionToggle = (option) => {
-        const selectedIndex = selectedExperienceOptions.indexOf(option);
-        const updatedOptions = selectedIndex === -1
-            ? [...selectedExperienceOptions, option]
-            : selectedExperienceOptions.filter((_, index) => index !== selectedIndex);
+    // const handleExperienceOptionToggle = (option) => {
+    //     const selectedIndex = selectedExperienceOptions.indexOf(option);
+    //     const updatedOptions = selectedIndex === -1
+    //         ? [...selectedExperienceOptions, option]
+    //         : selectedExperienceOptions.filter((_, index) => index !== selectedIndex);
 
-        setSelectedExperienceOptions(updatedOptions);
-        onFilterChange({ status: selectedStatusOptions, tech: selectedTechOptions, experience: updatedOptions });
-    };
+    //     setSelectedExperienceOptions(updatedOptions);
+    //     onFilterChange({ status: selectedStatusOptions, tech: selectedTechOptions, experience: updatedOptions });
+    // };
 
 
     const statusOptions = [
@@ -132,19 +132,19 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
         "Diploma in Business Administration",
     ];
 
-    const experienceOptions = [
-        "0-1 years",
-        "1-2 years",
-        "2-3 years",
-        "3-4 years",
-        "4-5 years",
-        "5-6 years",
-        "6-7 years",
-        "7-8 years",
-        "8-9 years",
-        "9-10 years",
-        "10+ years",
-    ];
+    // const experienceOptions = [
+    //     "0-1 years",
+    //     "1-2 years",
+    //     "2-3 years",
+    //     "3-4 years",
+    //     "4-5 years",
+    //     "5-6 years",
+    //     "6-7 years",
+    //     "7-8 years",
+    //     "8-9 years",
+    //     "9-10 years",
+    //     "10+ years",
+    // ];
 
     const techOptions = [
         "Python",
@@ -174,7 +174,7 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     ];
 
 
-    const [isExperienceDropdownOpen, setExperienceDropdownOpen] = useState(false);
+    // const [isExperienceDropdownOpen, setExperienceDropdownOpen] = useState(false);
 
 
     const [minExperience, setMinExperience] = useState('');
@@ -364,9 +364,9 @@ const Connected_apps = () => {
     const [candidateData, setCandidateData] = useState([]);
     const [activeArrow, setActiveArrow] = useState(null);
     const [tableVisible] = useState(true);
-    const [selectedcandidate, setSelectedcandidate] = useState(null);
-    const [popupLastName, setPopupLastName] = useState("");
-    const [showPopup, setShowPopup] = useState(false);
+    // const [selectedcandidate, setSelectedcandidate] = useState(null);
+    // const [popupLastName, setPopupLastName] = useState("");
+    // const [showPopup, setShowPopup] = useState(false);
     const [notification, setNotification] = useState("");
 
     const handleEditClick = (app) => {
@@ -374,18 +374,19 @@ const Connected_apps = () => {
         setSidebarOpen(true);
     };
 
-    const handleclose = () => {
-        setSelectedcandidate(null);
-        setActionViewMore(false);
-    };
+    // const handleclose = () => {
+    //     // setSelectedcandidate(null);
+    //     setActionViewMore(false);
+    // };
 
     const handlePopupClick = (lastName) => {
-        setPopupLastName(lastName);
-        setShowPopup(true);
+        // setPopupLastName(lastName);
+        // setShowPopup(true);
     };
-    const onClosepopup = () => {
-        setShowPopup(false);
-    };
+    
+    // const onClosepopup = () => {
+    //     // setShowPopup(false);
+    // };
 
     useEffect(() => {
         document.title = "Connected Apps";
