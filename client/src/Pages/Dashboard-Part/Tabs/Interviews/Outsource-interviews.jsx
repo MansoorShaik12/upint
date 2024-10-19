@@ -163,7 +163,7 @@ const Outsource = ({ objectPermissions, sharingPermissions }) => {
   // const userId = localStorage.getItem("userId");
 
 
-  const [selectedInterview, setSelectedInterview] = useState(null);
+  // const [selectedInterview, setSelectedInterview] = useState(null);
 
   const interviewRef = useRef(null);
 
@@ -756,12 +756,12 @@ const Outsource = ({ objectPermissions, sharingPermissions }) => {
                             </tr>
                           ) : (
                             currentFilteredRows.map((interview) => {
-                              const dateTime = interview.DateTime || "";
-                              const [date, timeRange] = dateTime.split(" ");
-                              const startTime = timeRange
-                                ? timeRange.split(" - ")[0]
-                                : "";
-                              const formattedDateTime = `${date} ${startTime}`;
+                              // const dateTime = interview.DateTime || "";
+                              // const [date, timeRange] = dateTime.split(" ");
+                              // const startTime = timeRange
+                              //   ? timeRange.split(" - ")[0]
+                              //   : "";
+                              // const formattedDateTime = `${date} ${startTime}`;
                               return (
                                 <tr
                                   key={interview._id}

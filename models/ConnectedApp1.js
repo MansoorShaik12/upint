@@ -4,7 +4,7 @@ const ConnectedAppSchema = new mongoose.Schema({
     appName: { type: String, required: true },
     description: { type: String },
     redirectUrls: { type: String, required: true },
-    originUrls: { type: String},
+    originUrls: { type: String },
     scope: { type: [String], required: true, enum: ['read:candidate', 'read/write:candidate'] },
     clientId: { type: String, required: true },
     clientSecret: { type: String, required: true },
