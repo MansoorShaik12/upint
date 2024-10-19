@@ -9,22 +9,22 @@ import {
   FaTrash,
   FaTimes,
 } from "react-icons/fa";
-import ImageUploading from "react-images-uploading";
+// import ImageUploading from "react-images-uploading";
 import { TbCameraPlus } from "react-icons/tb";
 import { MdUpdate, MdArrowDropDown } from "react-icons/md";
 import { ImCancelCircle } from "react-icons/im";
 import axios from "axios";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { GiCancel } from "react-icons/gi";
 import { IoIosCopy } from "react-icons/io";
-import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
+// import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
 
 const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) => {
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const [showUnsavedChangesPopup, setShowUnsavedChangesPopup] = useState(false);
-  const userId = localStorage.getItem("userId");
+  // const userId = localStorage.getItem("userId");
   const location = useLocation();
   const candidateData = location.state?.teams || candidate1;
   const [teams] = useState(candidateData);
@@ -58,15 +58,15 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
   });
   const [errors, setErrors] = useState({});
 
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  // const validateEmail = (email) => {
+  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  //   return emailRegex.test(email);
+  // };
 
-  const validatePhone = (phone) => {
-    const phoneRegex = /^[6-9]\d{9}$/;
-    return phoneRegex.test(phone);
-  };
+  // const validatePhone = (phone) => {
+  //   const phoneRegex = /^[6-9]\d{9}$/;
+  //   return phoneRegex.test(phone);
+  // };
 
   const handlePhoneInput = (e) => {
     const value = e.target.value;
@@ -167,11 +167,11 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
   };
 
   // Initialize error states
-  const newErrors = {
-    timeZone: "",
-    preferredDuration: "",
-    availability: "",
-  };
+  // const newErrors = {
+  //   timeZone: "",
+  //   preferredDuration: "",
+  //   availability: "",
+  // };
 
   // image code
   const [file, setFile] = useState(null);
@@ -503,12 +503,12 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
     setShowDropdownTechnology(!showDropdownTechnology);
   };
 
-  const [technology, setTechnology] = useState([]);
+  // const [technology, setTechnology] = useState([]);
   useEffect(() => {
     const fetchtechnologyData = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/technology`);
-        setTechnology(response.data);
+        // setTechnology(response.data);
       } catch (error) {
         console.error("Error fetching technology data:", error);
       }
@@ -516,16 +516,16 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
     fetchtechnologyData();
   }, []);
 
-  const [teamData] = useState([]);
+  // const [teamData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const resetSkillForm = () => {
-    setSelectedSkill("");
-    setSelectedExp("");
-    setSelectedLevel("");
-    setCurrentStep(0);
-    setIsModalOpen(false);
-  };
+  // const resetSkillForm = () => {
+  //   setSelectedSkill("");
+  //   setSelectedExp("");
+  //   setSelectedLevel("");
+  //   setCurrentStep(0);
+  //   setIsModalOpen(false);
+  // };
 
   const [skills, setSkills] = useState([]);
   useEffect(() => {
@@ -558,11 +558,11 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
     setSelectedOption(option);
     setPreferredDurationError(""); // Clear the error when a valid option is selected
   };
-  const navigate = useNavigate();
-  const navigatepage = () => {
-    navigate("/team");
-    onClose();
-  };
+  // const navigate = useNavigate();
+  // const navigatepage = () => {
+  //   navigate("/team");
+  //   onClose();
+  // };
 
   const [times, setTimes] = useState({
     Sunday: [],
@@ -603,21 +603,21 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
       }
       setTimes(updatedTimes);
     }
-  }, [candidate1]);
+  }, [candidate1, times]);
 
   const [showPopup, setShowPopup] = useState(false);
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedDays, setSelectedDays] = useState([]);
-  const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
+  // const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 });
 
   const handleCopy = (event, day) => {
     setSelectedDay(day);
     setSelectedDays([day]);
-    const buttonRect = event.target.getBoundingClientRect();
-    setPopupPosition({
-      top: buttonRect.bottom + window.scrollY,
-      left: buttonRect.left + window.scrollX,
-    });
+    // const buttonRect = event.target.getBoundingClientRect();
+    // setPopupPosition({
+    //   top: buttonRect.bottom + window.scrollY,
+    //   left: buttonRect.left + window.scrollX,
+    // });
     setShowPopup(true);
   };
 
@@ -655,8 +655,8 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
 
   const skillsData = location.state?.position || candidate1;
   // for showing the skills
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  // const [showConfirmation, setShowConfirmation] = useState(false);
+  // const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedSkill, setSelectedSkill] = useState("");
@@ -727,7 +727,7 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
 
   const handleDelete = (index) => {
     setDeleteIndex(index);
-    setShowConfirmation(true);
+    // setShowConfirmation(true);
   };
 
   const confirmDelete = () => {
@@ -740,14 +740,14 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
         setAllSelectedSkills(updatedEntries.map((entry) => entry.skill));
       }
       setDeleteIndex(null);
-      setShowConfirmation(false);
-      setHasUnsavedChanges(true);
+      // setShowConfirmation(false);
+      // setHasUnsavedChanges(true);
     }
   };
 
   const cancelDelete = () => {
     setDeleteIndex(null);
-    setShowConfirmation(false);
+    // setShowConfirmation(false);
   };
 
   useEffect(() => {
@@ -765,12 +765,12 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
 
   // (m
 
-  const [selectedTimezone, setSelectedTimezone] = useState({});
+  // const [selectedTimezone, setSelectedTimezone] = useState({});
 
-  const handleTimezoneChange = (timezone) => {
-    setSelectedTimezone(timezone);
-    setTimeZoneError('');
-  };
+  // const handleTimezoneChange = (timezone) => {
+  //   setSelectedTimezone(timezone);
+  //   setTimeZoneError('');
+  // };
 
   return (
     <>
@@ -1528,10 +1528,10 @@ const CreateTeams = forwardRef(({ onClose, onOutsideClick, candidate1 }, ref) =>
                         )}
                       </div>
                       {Object.keys(times).map((day) => {
-                        const allUnavailable = times[day].every(
-                          (timeSlot) =>
-                            !timeSlot.startTime || !timeSlot.endTime
-                        );
+                        // const allUnavailable = times[day].every(
+                        //   (timeSlot) =>
+                        //     !timeSlot.startTime || !timeSlot.endTime
+                        // );
 
                         return (
                           <div key={day}>

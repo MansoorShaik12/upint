@@ -328,7 +328,7 @@ const Team = ({objectPermissions, sharingPermissions}) => {
 
   const [loading, setLoading] = useState(true);
   const [notification, setNotification] = useState("");
-  const userId = localStorage.getItem("userId");
+  // const userId = localStorage.getItem("userId");
   useEffect(() => {
     const ws = handleWebSocket(
       `${process.env.REACT_APP_WS_URL}`,
@@ -436,7 +436,7 @@ const Team = ({objectPermissions, sharingPermissions}) => {
     .slice(startIndex, endIndex)
     .reverse();
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const [viewMode, setViewMode] = useState("list");
 
