@@ -361,13 +361,13 @@ const Connected_apps = () => {
     const [viewMode, setViewMode] = useState("list");
     const [isMenuOpen, setMenuOpen] = useState(false);
     const sidebarRef = useRef(null);
-    const [candidateData, setCandidateData] = useState([]);
-    const [activeArrow, setActiveArrow] = useState(null);
+    const [candidateData] = useState([]);
+    const [activeArrow] = useState(null);
     const [tableVisible] = useState(true);
     // const [selectedcandidate, setSelectedcandidate] = useState(null);
     // const [popupLastName, setPopupLastName] = useState("");
     // const [showPopup, setShowPopup] = useState(false);
-    const [notification, setNotification] = useState("");
+    const [notification] = useState("");
 
     const handleEditClick = (app) => {
         setSelectedAppData(app);
@@ -383,7 +383,7 @@ const Connected_apps = () => {
         // setPopupLastName(lastName);
         // setShowPopup(true);
     };
-    
+
     // const onClosepopup = () => {
     //     // setShowPopup(false);
     // };

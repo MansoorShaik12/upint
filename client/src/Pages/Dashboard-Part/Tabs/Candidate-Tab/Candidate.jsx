@@ -21,8 +21,8 @@ import { CgInfo } from "react-icons/cg";
 import maleImage from '../../../Dashboard-Part/Images/man.png';
 import femaleImage from '../../../Dashboard-Part/Images/woman.png';
 import genderlessImage from '../../../Dashboard-Part/Images/transgender.png';
-import { fetchFilterData, handleWebSocket } from '../../../../utils/dataUtils.js';
-import { IoIosAdd } from "react-icons/io";
+import { fetchFilterData } from '../../../../utils/dataUtils.js';
+// import { IoIosAdd } from "react-icons/io";
 
 const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
   const [isStatusDropdownOpen, setStatusDropdownOpen] = useState(false);
@@ -70,12 +70,12 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     onFilterChange({ status: selectedStatusOptions, tech: newSelectedTech, experience: selectedExperienceOptions });
   };
 
-  const handleExperienceMainToggle = () => {
-    setIsExperienceMainChecked(!isExperienceMainChecked);
-    const newSelectedExperience = isExperienceMainChecked ? [] : [...experienceOptions];
-    setSelectedExperienceOptions(newSelectedExperience);
-    onFilterChange({ status: selectedStatusOptions, tech: selectedTechOptions, experience: newSelectedExperience });
-  };
+  // const handleExperienceMainToggle = () => {
+  //   setIsExperienceMainChecked(!isExperienceMainChecked);
+  //   const newSelectedExperience = isExperienceMainChecked ? [] : [...experienceOptions];
+  //   setSelectedExperienceOptions(newSelectedExperience);
+  //   onFilterChange({ status: selectedStatusOptions, tech: selectedTechOptions, experience: newSelectedExperience });
+  // };
 
   const handleStatusOptionToggle = (option) => {
     const selectedIndex = selectedStatusOptions.indexOf(option);
@@ -97,15 +97,15 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     onFilterChange({ status: selectedStatusOptions, tech: updatedOptions, experience: selectedExperienceOptions });
   };
 
-  const handleExperienceOptionToggle = (option) => {
-    const selectedIndex = selectedExperienceOptions.indexOf(option);
-    const updatedOptions = selectedIndex === -1
-      ? [...selectedExperienceOptions, option]
-      : selectedExperienceOptions.filter((_, index) => index !== selectedIndex);
+  // const handleExperienceOptionToggle = (option) => {
+  //   const selectedIndex = selectedExperienceOptions.indexOf(option);
+  //   const updatedOptions = selectedIndex === -1
+  //     ? [...selectedExperienceOptions, option]
+  //     : selectedExperienceOptions.filter((_, index) => index !== selectedIndex);
 
-    setSelectedExperienceOptions(updatedOptions);
-    onFilterChange({ status: selectedStatusOptions, tech: selectedTechOptions, experience: updatedOptions });
-  };
+  //   setSelectedExperienceOptions(updatedOptions);
+  //   onFilterChange({ status: selectedStatusOptions, tech: selectedTechOptions, experience: updatedOptions });
+  // };
 
 
   const statusOptions = [
@@ -129,19 +129,19 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     "Diploma in Business Administration",
   ];
 
-  const experienceOptions = [
-    "0-1 years",
-    "1-2 years",
-    "2-3 years",
-    "3-4 years",
-    "4-5 years",
-    "5-6 years",
-    "6-7 years",
-    "7-8 years",
-    "8-9 years",
-    "9-10 years",
-    "10+ years",
-  ];
+  // const experienceOptions = [
+  //   "0-1 years",
+  //   "1-2 years",
+  //   "2-3 years",
+  //   "3-4 years",
+  //   "4-5 years",
+  //   "5-6 years",
+  //   "6-7 years",
+  //   "7-8 years",
+  //   "8-9 years",
+  //   "9-10 years",
+  //   "10+ years",
+  // ];
 
   const techOptions = [
     "Python",
@@ -171,7 +171,7 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
   ];
 
 
-  const [isExperienceDropdownOpen, setExperienceDropdownOpen] = useState(false);
+  // const [isExperienceDropdownOpen, setExperienceDropdownOpen] = useState(false);
 
 
   const [minExperience, setMinExperience] = useState('');
@@ -393,7 +393,7 @@ const Candidate = ({ objectPermissions, tabPermissions, sharingPermissions }) =>
 
 
   const [loading, setLoading] = useState(true);
-  const [notification, setNotification] = useState("");
+  const [notification] = useState("");
 
 
 
@@ -474,7 +474,7 @@ const Candidate = ({ objectPermissions, tabPermissions, sharingPermissions }) =>
 
 
 
-  const [activeArrow, setActiveArrow] = useState(null);
+  const [activeArrow] = useState(null);
 
 
 
@@ -506,7 +506,7 @@ const Candidate = ({ objectPermissions, tabPermissions, sharingPermissions }) =>
 
 
 
-  const noResults = currentFilteredRows.length === 0 && searchQuery !== "";
+  // const noResults = currentFilteredRows.length === 0 && searchQuery !== "";
 
   const [tableVisible] = useState(true);
   const [viewMode, setViewMode] = useState("list");

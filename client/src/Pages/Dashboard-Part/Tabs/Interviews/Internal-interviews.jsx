@@ -23,7 +23,7 @@ import { CgInfo } from "react-icons/cg";
 import SchedulePopup from "./Schedulelater";
 import SchedulePopup1 from "./Schedulenow";
 import InterviewProfileDetails from "./Internalprofiledetails";
-import { MdOutlineImageNotSupported } from "react-icons/md";
+// import { MdOutlineImageNotSupported } from "react-icons/md";
 import { fetchFilterData, handleWebSocket } from '../../../../utils/dataUtils.js';
 import maleImage from '../../../Dashboard-Part/Images/man.png';
 import femaleImage from '../../../Dashboard-Part/Images/woman.png';
@@ -85,18 +85,18 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     });
   };
 
-  const handleExperienceMainToggle = () => {
-    setIsExperienceMainChecked(!isExperienceMainChecked);
-    const newSelectedExperience = isExperienceMainChecked
-      ? []
-      : [...experienceOptions];
-    setSelectedExperienceOptions(newSelectedExperience);
-    onFilterChange({
-      status: selectedStatusOptions,
-      tech: selectedTechOptions,
-      experience: newSelectedExperience,
-    });
-  };
+  // const handleExperienceMainToggle = () => {
+  //   setIsExperienceMainChecked(!isExperienceMainChecked);
+  //   const newSelectedExperience = isExperienceMainChecked
+  //     ? []
+  //     : [...experienceOptions];
+  //   setSelectedExperienceOptions(newSelectedExperience);
+  //   onFilterChange({
+  //     status: selectedStatusOptions,
+  //     tech: selectedTechOptions,
+  //     experience: newSelectedExperience,
+  //   });
+  // };
 
   const handleStatusOptionToggle = (option) => {
     const selectedIndex = selectedStatusOptions.indexOf(option);
@@ -128,22 +128,22 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     });
   };
 
-  const handleExperienceOptionToggle = (option) => {
-    const selectedIndex = selectedExperienceOptions.indexOf(option);
-    const updatedOptions =
-      selectedIndex === -1
-        ? [...selectedExperienceOptions, option]
-        : selectedExperienceOptions.filter(
-          (_, index) => index !== selectedIndex
-        );
+  // const handleExperienceOptionToggle = (option) => {
+  //   const selectedIndex = selectedExperienceOptions.indexOf(option);
+  //   const updatedOptions =
+  //     selectedIndex === -1
+  //       ? [...selectedExperienceOptions, option]
+  //       : selectedExperienceOptions.filter(
+  //         (_, index) => index !== selectedIndex
+  //       );
 
-    setSelectedExperienceOptions(updatedOptions);
-    onFilterChange({
-      status: selectedStatusOptions,
-      tech: selectedTechOptions,
-      experience: updatedOptions,
-    });
-  };
+  //   setSelectedExperienceOptions(updatedOptions);
+  //   onFilterChange({
+  //     status: selectedStatusOptions,
+  //     tech: selectedTechOptions,
+  //     experience: updatedOptions,
+  //   });
+  // };
 
   const statusOptions = [
     "Bachelor of Arts (BA)",
@@ -166,19 +166,19 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     "Diploma in Business Administration",
   ];
 
-  const experienceOptions = [
-    "0-1 years",
-    "1-2 years",
-    "2-3 years",
-    "3-4 years",
-    "4-5 years",
-    "5-6 years",
-    "6-7 years",
-    "7-8 years",
-    "8-9 years",
-    "9-10 years",
-    "10+ years",
-  ];
+  // const experienceOptions = [
+  //   "0-1 years",
+  //   "1-2 years",
+  //   "2-3 years",
+  //   "3-4 years",
+  //   "4-5 years",
+  //   "5-6 years",
+  //   "6-7 years",
+  //   "7-8 years",
+  //   "8-9 years",
+  //   "9-10 years",
+  //   "10+ years",
+  // ];
 
   const techOptions = [
     "Python",
@@ -207,7 +207,7 @@ const OffcanvasMenu = ({ isOpen, onFilterChange }) => {
     "Biometric Authentication Technology",
   ];
 
-  const [isExperienceDropdownOpen, setExperienceDropdownOpen] = useState(false);
+  // const [isExperienceDropdownOpen, setExperienceDropdownOpen] = useState(false);
 
   const [minExperience, setMinExperience] = useState("");
   const [maxExperience, setMaxExperience] = useState("");
@@ -394,7 +394,7 @@ const Internal = ({ objectPermissions, sharingPermissions }) => {
     document.title = "Internal interviews";
   }, []);
 
-  const fetchInterviewData = async () => {
+  const fetchInterviewData = useCallback(async () => {
     setLoading(true);
     try {
       const filteredInterviews = await fetchFilterData('interview', interviewPermissions);
@@ -430,7 +430,7 @@ const Internal = ({ objectPermissions, sharingPermissions }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [interviewPermissions]);
 
 
   useEffect(() => {
@@ -446,7 +446,7 @@ const Internal = ({ objectPermissions, sharingPermissions }) => {
     return () => {
       ws.close();
     };
-  }, [interviewPermissions]);
+  }, [interviewPermissions, fetchInterviewData]);
 
   const [showEditLater, setShowEditLater] = useState(false);
 

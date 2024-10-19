@@ -19,7 +19,7 @@ import { format, getYear } from 'date-fns';
 import { IoArrowBack } from "react-icons/io5";
 import { fetchFilterData } from '../../../../utils/dataUtils.js';
 import { fetchMasterData } from '../../../../utils/fetchMasterData.js';
-import { validateEmail, validatePhoneNumber, validateCandidateForm, validateUrl } from '../../../../utils/CandidateValidation';
+import { validateEmail, validatePhoneNumber, validateCandidateForm } from '../../../../utils/CandidateValidation';
 import Cookies from 'js-cookie';
 const CreateCandidate = ({  onClose, onCandidateAdded, sharingPermissions }) => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -44,7 +44,6 @@ const CreateCandidate = ({  onClose, onCandidateAdded, sharingPermissions }) => 
     HigherQualification: "",
     UniversityCollege: "",
     CurrentExperience: "",
-    Resume: "",
     Resume: "",
     skills: [],
     Position: "",
@@ -425,7 +424,7 @@ const CreateCandidate = ({  onClose, onCandidateAdded, sharingPermissions }) => 
   const [allSelectedSkills, setAllSelectedSkills] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null);
 
-  const skillOptions = ["JavaScript", "React", "Node.js", "CSS", "HTML"];
+  // const skillOptions = ["JavaScript", "React", "Node.js", "CSS", "HTML"];
   const experienceOptions = [
     "0-1 Years",
     "1-2 years",
@@ -601,20 +600,20 @@ const CreateCandidate = ({  onClose, onCandidateAdded, sharingPermissions }) => 
   }, [value, skillsData]);
 
 
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
 
 
   useEffect(() => {
 
     const fetchSkillsData = async () => {
-        setLoading(true);
+        // setLoading(true);
         try {
             const filteredPositions = await fetchFilterData('position', sharingPermissions);
             setSkillsData(filteredPositions);
         } catch (error) {
             console.error('Error fetching position data:', error);
         } finally {
-            setLoading(false);
+            // setLoading(false);
         }
     };
 
