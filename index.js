@@ -74,7 +74,6 @@ const SECRET_KEY = 'vpaas-magic-cookie-019af5b8e9c74f42a44947ee0c08572d';
 const TOKEN_EXPIRATION = '1h';
 app.get('/generate-token', (req, res) => {
   const payload = {
-    // Add your payload data here
   };
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: TOKEN_EXPIRATION });
   res.json({ token });
