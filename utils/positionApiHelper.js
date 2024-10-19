@@ -1,6 +1,6 @@
 const saveIntegrationLog = require('./integrationLogs');
 const ConnectedApp = require('../models/ConnectedApp');
-const Position = require('../models/Position.js');
+const Position = require('../models/position.js');
 const { validateForm, validatePositionForm } = require('./positionValidation');
 
 const authenticateRequest = async (clientId, accessToken) => {

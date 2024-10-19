@@ -1,7 +1,7 @@
 const { validateEmail, validatePhoneNumber, validateCandidateForm } = require('./candidateValidation.js');
 const saveIntegrationLog = require('./integrationLogs.js');
 const ConnectedApp = require('../models/ConnectedApp.js');
-const Candidate = require('../models/Candidate.js'); // Ensure Candidate model is imported
+const Candidate = require('../models/candidate.js'); // Ensure Candidate model is imported
 
 const authenticateRequest = async (clientId, accessToken) => {
     const connectedApp = await ConnectedApp.findOne({ clientId, accessToken });
