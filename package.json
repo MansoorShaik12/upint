@@ -5,14 +5,14 @@
   "engines": {
     "node": "20.17.0"
   },
-"scripts": {
-  "start": "nodemon index.js",
-  "start:server": "nodemon index.js",
-  "server": "nodemon index.js",
-  "client": "npm start --prefix client",
-  "dev": "concurrently \"npm run server\" \"npm run client\"",
-  "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix client && npm run build --prefix client"
-},
+  "scripts": {
+    "start": "nodemon index.js",
+    "start:server": "nodemon index.js",
+    "server": "nodemon index.js",
+    "client": "npm start --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "heroku-postbuild": "export NODE_OPTIONS=--max_old_space_size=8192 && npm install --prefix client && npm run build --prefix client"
+  },
   "dependencies": {
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
