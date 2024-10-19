@@ -1,4 +1,4 @@
-const ConnectedApp = require('../models/ConnectedApp');
+const ConnectedApp = require('../models/ConnectedApp1.js');
 const generateRandomString = require('./generateRandomString');
 const formatDate = (date) => date.toISOString().split('T')[0];
 
