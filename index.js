@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const connectDB = require('./db.js');
 const bcrypt = require('bcrypt');
@@ -54,13 +55,14 @@ const app = express();
 app.use(express.json());
 app.use(bodyParser.json());
 
-// app.use(cors());
-// app.use(cors({
-//   origin: 'http://localhost:3002'
-// }));
-
 app.use(cors({
-  origin: process.env.CORS_ORIGIN,
+  origin: (origin, callback) => {
+    if (!origin || process.env.CORS_ORIGIN.split(',').includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 
@@ -2505,6 +2507,7 @@ app.post('/organization/free', async (req, res) => {
 
 const saltRounds = 10;
 app.post('/organization', async (req, res) => {
+  console.log('Received data:', req.body);
   const { firstName, lastName, Email, Phone, username, jobTitle, company, employees, country, password, Role, Profile, ProfileId, RoleId } = req.body;
 
   try {
@@ -2528,7 +2531,7 @@ app.post('/organization', async (req, res) => {
       company,
       employees,
       country,
-
+      password: hashedPassword,
     });
 
     const savedOrganization = await organization.save();
@@ -2573,6 +2576,7 @@ app.post('/organization', async (req, res) => {
     res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 });
+
 // route for login from admin page
 app.post('/organization/login', async (req, res) => {
   const { Email, password } = req.body;

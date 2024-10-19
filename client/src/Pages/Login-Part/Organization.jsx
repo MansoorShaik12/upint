@@ -90,6 +90,7 @@ export const Organization = () => {
         password: selectedPassword
       };
 
+      console.log('API URL:', process.env.REACT_APP_API_URL);
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/organization`, formData);
       console.log('Organization saved:', response.data);
       // localStorage.setItem('userId', response.data.user._id);
@@ -207,8 +208,8 @@ export const Organization = () => {
 
       navigate('/price');
     } catch (error) {
-      console.error('Error saving organization:', error.response ? error.response.data : error.message);
-      setErrorMessage(`An error occurred while saving the organization: ${error.response ? error.response.data.message : error.message}`);
+      console.error('Error saving organization:', error); // Log the entire error object
+      setErrorMessage(`An error occurred while saving the organization: ${error.response?.data?.message || error.message || 'Unknown error'}`);
     }
   };
 
