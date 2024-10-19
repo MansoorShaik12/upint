@@ -1,15 +1,15 @@
-import { useState, useRef, useEffect, useCallback } from "react";
-import Modal from "react-modal";
-import { Menu, Transition } from "@headlessui/react";
+import { useState, useRef, useEffect } from "react";
+// import Modal from "react-modal";
+// import { Menu, Transition } from "@headlessui/react";
 import { MdMoreHoriz } from "react-icons/md";
 import { IoMdSearch } from "react-icons/io";
 import Tooltip from "@mui/material/Tooltip";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosArrowForward } from "react-icons/io";
 import { FaFilter } from "react-icons/fa";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
-import axios from "axios";
+// import axios from "axios";
 import PopupDetails from "./Masterdataviewpage";
 import { fetchMasterData } from '../../../utils/fetchMasterData.js';
 
@@ -123,11 +123,11 @@ const MasterData = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedData, setSelectedData] = useState(null);
   const [selectedTab, setSelectedTab] = useState("SkillMaster");
-  const [openItemId, setOpenItemId] = useState(null);
+  // const [openItemId, setOpenItemId] = useState(null);
   const dropdownRef = useRef(null);
   const [maincontent, setMaincontent] = useState(true);
   const [editcontent, setEditcontent] = useState(false);
-  const [planData, setPlanData] = useState([]);
+  const [planData] = useState([]);
 
 
 
@@ -136,7 +136,7 @@ const MasterData = () => {
     setSelectedData(null);
     setMaincontent(true);
     setEditcontent(false);
-    setOpenItemId(null);
+    // setOpenItemId(null);
   };
 
   const [actionViewMore, setActionViewMore] = useState({});
@@ -145,15 +145,15 @@ const MasterData = () => {
     setActionViewMore((prev) => (prev === id ? null : id));
   };
 
-  const handleMoreClick = (itemId) => {
-    setOpenItemId(openItemId === itemId ? null : itemId);
-  };
+  // const handleMoreClick = (itemId) => {
+  //   setOpenItemId(openItemId === itemId ? null : itemId);
+  // };
 
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setOpenItemId(null); // Close dropdown if clicked outside
+        // setOpenItemId(null); // Close dropdown if clicked outside
       }
     };
 
@@ -164,18 +164,18 @@ const MasterData = () => {
   }, []);
 
   useEffect(() => {
-    setOpenItemId(null);
+    // setOpenItemId(null);
     setIsOpen(false);
     setMaincontent(true);
     setEditcontent(false);
   }, [selectedTab]);
 
-  const handleCandidateClick = (item) => {
-    setSelectedData(item);
-    setIsOpen(true);
-    setOpenItemId(null);
+  // const handleCandidateClick = (item) => {
+  //   setSelectedData(item);
+  //   setIsOpen(true);
+  //   // setOpenItemId(null);
 
-  };
+  // };
   const handleClick = (item) => {
     setSelectedData(item);
     setIsOpen(true);
@@ -237,18 +237,18 @@ const MasterData = () => {
     });
 
 
-    const formatDate = (dateString) => {
-      const date = new Date(dateString);
-      if (isNaN(date)) {
-        return 'Invalid Date';
-      }
-      return date.toLocaleDateString();
-    };
+    // const formatDate = (dateString) => {
+    //   const date = new Date(dateString);
+    //   if (isNaN(date)) {
+    //     return 'Invalid Date';
+    //   }
+    //   return date.toLocaleDateString();
+    // };
 
-    const viewClick = (item) => {
-      setSelectedData(item);
-      setIsOpen(true);
-    };  
+    // const viewClick = (item) => {
+    //   setSelectedData(item);
+    //   setIsOpen(true);
+    // };  
 
 
     return (

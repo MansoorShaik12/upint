@@ -11,7 +11,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import axios from "axios";
 import moment from 'moment-timezone';
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
 import TimezoneSelect from 'react-timezone-select';
 import Cookies from 'js-cookie';
@@ -21,9 +21,9 @@ const MultiStepForm = () => {
     const popupRef = useRef(null);
     const navigate = useNavigate();
     const skillsPopupRef = useRef(null);
-    const location = useLocation();
+    // const location = useLocation();
     const fileInputRef = useRef(null);
-    const isFreelancer = location.state?.isFreelancer;
+    // const isFreelancer = location.state?.isFreelancer;
 
     const [selectedTimezone, setSelectedTimezone] = useState({});
     const [selectedLocation, setSelectedLocation] = useState('');
@@ -49,7 +49,7 @@ const MultiStepForm = () => {
     const [preferredDurationError, setPreferredDurationError] = useState('');
     const [step, setStep] = useState(0);
     const [showPopup, setShowPopup] = useState(false);
-    const [errors, setErrors] = useState({});
+    const [errors] = useState({});
     const [selectedIndustry, setSelectedIndustry] = useState('');
     const [showDropdownIndustry, setShowDropdownIndustry] = useState(false);
     const [industries, setIndustries] = useState([]);
@@ -76,7 +76,7 @@ const MultiStepForm = () => {
     const [searchTermIndustry, setSearchTermIndustry] = useState('');
     const [searchTermTechnology, setSearchTermTechnology] = useState('');
     const [searchTermSkills, setSearchTermSkills] = useState('');
-    const [file, setFile] = useState(null);
+    // const [file, setFile] = useState(null);
     const [filePreview, setFilePreview] = useState(user.picture ? user.picture : null);
     const genders = ['Male', 'Female', 'Prefer not to say', 'Others'];
     const [times, setTimes] = useState({
@@ -718,7 +718,7 @@ const MultiStepForm = () => {
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         if (selectedFile) {
-            setFile(selectedFile);
+            // setFile(selectedFile);
             setFilePreview(URL.createObjectURL(selectedFile));
         }
     };
@@ -730,7 +730,7 @@ const MultiStepForm = () => {
     };
 
     const handleDeleteImage = () => {
-        setFile(null);
+        // setFile(null);
         setFilePreview(null);
     };
 

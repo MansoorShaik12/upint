@@ -5,7 +5,7 @@ import { IoMdSearch } from "react-icons/io";
 import Tooltip from "@mui/material/Tooltip";
 import { MdMoreHoriz } from "react-icons/md";
 import ContactProfileDetails from "./ContactProfileDetails";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Contact = () => {
@@ -84,25 +84,25 @@ const Contact = () => {
   const currentFilteredRows = FilteredData().slice(startIndex, endIndex);
 
   const [tableVisible] = useState(true);
-  const [viewMode, setViewMode] = useState("list");
+  const [viewMode] = useState("list");
 
   const [isMenuOpen, setMenuOpen] = useState(false);
-  const [isPopupOpen, setPopupOpen] = useState(false);
+  // const [isPopupOpen, setPopupOpen] = useState(false);
   const [actionViewMore, setActionViewMore] = useState(null);
 
   const toggleMenu = () => {
     setMenuOpen(!isMenuOpen);
   };
 
-  const openPopup = (Contact) => {
-    setSelectedContact(Contact);
-    setPopupOpen(true);
-  };
+  // const openPopup = (Contact) => {
+  //   setSelectedContact(Contact);
+  //   // setPopupOpen(true);
+  // };
 
-  const closePopup = () => {
-    setPopupOpen(false);
-    setSelectedContact(null);
-  };
+  // const closePopup = () => {
+  //   // setPopupOpen(false);
+  //   setSelectedContact(null);
+  // };
 
   const handleMoreClick = (usersId) => {
     setActionViewMore(usersId === actionViewMore ? null : usersId);
