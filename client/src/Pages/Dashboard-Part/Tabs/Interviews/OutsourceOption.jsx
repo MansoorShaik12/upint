@@ -9,7 +9,7 @@ import Slider from "@mui/material/Slider";
 import { deepOrange } from "@mui/material/colors";
 import { MdOutlineCancel } from "react-icons/md";
 import { FaArrowRightLong } from "react-icons/fa6";
-import { FaMinus } from "react-icons/fa";
+// import { FaMinus } from "react-icons/fa";
 import Box from "@mui/material/Box";
 import { IoArrowBack } from "react-icons/io5";
 
@@ -20,12 +20,12 @@ const PaginationComponent = ({ onClose }) => {
   const [value1, setValue1] = useState([1000, 2000]);
   const [showContent, setShowContent] = useState(true);
   const [selectedPersonId, setSelectedPersonId] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
+  // const [selectedOption, setSelectedOption] = useState(null);
 
   useEffect(() => {
     const fetchContacts = async () => {
       try {
-        const response = await axios.get('${process.env.REACT_APP_API_URL}/contacts');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/contacts`);
         const freelancers = response.data.filter(contact => contact.isFreelancer === 'yes');
         setCardData(freelancers);
         setFilteredData(freelancers);
@@ -105,9 +105,9 @@ const PaginationComponent = ({ onClose }) => {
     setSelectedPersonId(false);
   };
 
-  const handleOptionClick = (option) => {
-    setSelectedOption(option);
-  };
+  // const handleOptionClick = (option) => {
+  //   setSelectedOption(option);
+  // };
 
   return (
     <>
